@@ -33,6 +33,8 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 ## Instalar
 
+**Antes de começar:** você precisa do KOReader no seu aparelho. No Kindle, isso quer dizer um Kindle desbloqueado (jailbreak) com o KOReader instalado, que costuma ser aberto pelo KUAL. O guia do próprio KOReader explica como: [wiki do KOReader](https://github.com/koreader/koreader/wiki).
+
 1. Baixe o `silverfish-v1.0.0.zip` em [Releases](../../releases) e descompacte. Dentro há uma pasta chamada `silverfish.koplugin`.
 2. Conecte o aparelho ao computador e copie `silverfish.koplugin` para a pasta `plugins` do KOReader:
    - **Kindle:** `koreader/plugins/`
@@ -86,6 +88,8 @@ Troque a pasta `silverfish.koplugin` pela nova. A sua traça e o diário dela co
 ## Compatibilidade
 
 Testada no KOReader 2026.07.1, num Kindle Paperwhite 11. Deve funcionar em qualquer aparelho com KOReader (Kobo, PocketBook, Android), mas eles ainda não foram testados. Se você usar num deles, conte como foi em [Issues](../../issues).
+
+**No Kindle:** abra o KOReader do jeito de sempre (pelo KUAL ou pelo atalho); não muda nada. A Traça só vê o que você lê no KOReader, não no leitor da Amazon, e a tela de descanso dela aparece quando o Kindle dorme com o KOReader aberto.
 
 A Traça nunca trava a sua leitura. Se algo der errado, ela avisa que tropeçou e fica quieta até você reiniciar o KOReader. Nesse caso, abra uma issue e mande junto o arquivo `koreader/crash.log`.
 

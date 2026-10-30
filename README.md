@@ -33,6 +33,8 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 
 ## Install
 
+**Before you start:** you need KOReader on your e-reader. On a Kindle, that means a jailbroken Kindle with KOReader installed, usually opened from KUAL. KOReader's own guide explains how: [KOReader wiki](https://github.com/koreader/koreader/wiki).
+
 1. Download `silverfish-v1.0.0.zip` from [Releases](../../releases) and unzip it. Inside there is a folder called `silverfish.koplugin`.
 2. Connect your e-reader to your computer and copy `silverfish.koplugin` into KOReader's `plugins` folder:
    - **Kindle:** `koreader/plugins/`
@@ -86,6 +88,8 @@ Replace the `silverfish.koplugin` folder with the new one. Your silverfish and i
 ## Compatibility
 
 Tested on KOReader 2026.07.1 on a Kindle Paperwhite 11. It should work on any device that runs KOReader (Kobo, PocketBook, Android), but those haven't been tested yet. If you run it on one of them, please say how it went in [Issues](../../issues).
+
+**On Kindle:** start KOReader the way you usually do (from KUAL or its shortcut); nothing else changes. Silverfish only sees what you read in KOReader, not in Amazon's own reader, and its sleep screen shows when your Kindle goes to sleep with KOReader open.
 
 Silverfish never blocks your reading. If something goes wrong, it says it tripped and stays quiet until you restart KOReader. In that case, please open an issue and attach `koreader/crash.log`.
 
