@@ -53,6 +53,22 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 <img src="media/simple-ui.png" alt="Um Kindle mostrando a tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
 
+## Tela de descanso
+
+<img src="media/sleep-screen-photo.jpg" alt="Um Kindle numa estante, dormindo, com a traça dormindo na tela e sonhando: dreaming in a big old house… a whole library… and I'm not even hungry…">
+
+Quando o aparelho dorme, a Traça dorme junto e sonha com o que você leu: os personagens, as palavras, os lugares e os próprios livros. Cada fase tem a sua pose dormindo, e o ovo só descansa.
+
+![A traça dormindo em cada fase: ninfa, jovem, adulta, anciã](media/sleep-stages.png)
+
+**Para ligar:**
+
+1. Abra a Traça (menu de ferramentas → **Traça**).
+2. Segure o dedo na traça.
+3. Toque em **Tela de descanso: desligada**. Ela passa para **ligada**.
+
+Para desligar, faça o mesmo. Enquanto está ligada, a Traça usa a tela de descanso do KOReader; quando você desliga, volta a tela de descanso que você tinha antes.
+
 ## Os seus dados
 
 Tudo fica no seu aparelho, em `koreader/settings/traca.lua`: os títulos e autores dos livros que você leu, as páginas e os horários de leitura, o diário dela, algumas falas de personagens que ela guardou e o caminho do último livro que você abriu. A Traça nunca se conecta à internet e nunca manda nada para lugar nenhum.

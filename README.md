@@ -53,6 +53,22 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 
 <img src="media/simple-ui.png" alt="A Kindle showing KOReader's home screen with the Simple UI plugin: the book being read, and below it the elder silverfish saying: chiming. Ate it. Nobody uses that word anymore.">
 
+## Sleep screen
+
+<img src="media/sleep-screen-photo.jpg" alt="A Kindle on a bookshelf, asleep, with the silverfish asleep on the screen and dreaming: dreaming in a big old house… a whole library… and I'm not even hungry…">
+
+When your e-reader goes to sleep, Silverfish goes to sleep too, and dreams about what you read: the characters, the words, the places and the books themselves. Each stage has its own sleeping pose, and the egg just rests.
+
+![The silverfish asleep at each stage: nymph, young, adult, elder](media/sleep-stages.png)
+
+**To turn it on:**
+
+1. Open Silverfish (Tools menu → **Silverfish**).
+2. Long-press the silverfish.
+3. Tap **Sleep screen: off**. It switches to **on**.
+
+To turn it off, do the same. While it's on, Silverfish uses KOReader's sleep screen; when you turn it off, the sleep screen you had before comes back.
+
 ## Your data
 
 Everything stays on your device, in `koreader/settings/traca.lua`: the titles and authors of the books you read, pages and reading times, its diary, a few lines from characters that it saved, and the path of the last book you opened. Silverfish never connects to the internet and never sends anything anywhere.
