@@ -21,8 +21,9 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 ## O que ela faz
 
 - **Come o que você lê.** Cada página lida por alguns segundos vira comida; folhear não conta. Se você para de ler, ela fica com fome, depois ranzinza, e acaba se escondendo na lombada até você voltar.
-- **Cresce.** Ovo, ninfa, jovem, adulta, anciã. Depois de umas 2.000 páginas ela bota um ovo e começa uma nova geração, e a antiga entra para a **linhagem**.
+- **Cresce.** Ovo, ninfa, jovem, adulta, anciã. Depois de umas 2.000 páginas ela bota um ovo, morre e entra para a **linhagem** da família, com a citação favorita e as últimas palavras. A nova traça nasce com a obsessão da mãe e 30% da personalidade dela.
 - **Vira o que você lê.** Ela absorve o mundo dos seus livros: são 16 influências literárias, de ficção científica, sátira e horror a romance, mistério, poesia e filosofia. A personalidade também segue os seus hábitos: ler de madrugada faz uma notívaga, livro triste a deixa amarga, aventura a deixa corajosa.
+- **Fica obcecada.** Um tema toma conta dela (morte, amor, ciência, política…), aparece no topo do diário e muda conforme a sua leitura muda.
 - **Percebe o livro.** Conhece os personagens, as palavras, os lugares e o que acontece em cada capítulo. Comenta o capítulo, lembra o que os personagens disseram e faz uma resenha de cada livro que você termina.
 - **Escreve um diário** dos seus dias de leitura e guarda um **caderno** com os seus destaques.
 - **Sonha.** Ligue a tela de descanso dela e, quando o aparelho dormir, você vai vê-la dormindo, sonhando com o que você leu. Cada fase tem o seu desenho dormindo.

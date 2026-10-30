@@ -21,8 +21,9 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 ## What it does
 
 - **It eats what you read.** Every page you read for a few seconds becomes food. Skimming doesn't count. If you stop reading, it gets hungry, then grumpy, and eventually hides in the book's spine until you come back.
-- **It grows up.** Egg, nymph, young, adult, elder. After about 2,000 pages it lays an egg and a new generation begins, and the old one goes into the family **lineage**.
+- **It grows up.** Egg, nymph, young, adult, elder. After about 2,000 pages it lays an egg and dies, and goes into the family **lineage** with its favourite quote and last words. The new silverfish is born with its mother's obsession and 30% of her personality.
 - **It becomes what you read.** It picks up the world of your books: 16 literary influences, from sci-fi, satire and horror to romance, mystery, poetry and philosophy. Its personality also follows your habits: night reading makes a night owl, sad books make it bitter, adventures make it bold.
+- **It gets obsessed.** One theme takes over (death, love, science, politics…), shown at the top of its diary, and it changes as your reading changes.
 - **It notices the book.** It knows the characters, the words, the places and what happens in each chapter. It comments on the chapter, quotes what characters said, and reviews every book you finish.
 - **It keeps a diary** of your reading days, and a **notebook** with your highlights.
 - **It dreams.** Turn on its sleep screen, and when your e-reader sleeps you'll see it asleep, dreaming about what you read. Each stage has its own sleeping drawing.
