@@ -51,6 +51,8 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 - **Tap it** to pet it. **Long-press it** for settings: sleep screen on/off, and language.
 - **Optional:** with the Simple UI plugin installed, it shows up as a card on your home screen.
 
+<img src="media/simple-ui.png" width="360" alt="KOReader's home screen with the Simple UI plugin: the book being read, and below it the elder silverfish saying: chiming. Ate it. Nobody uses that word anymore.">
+
 ![When your e-reader sleeps, it dreams](media/dreams.png)
 
 ## Your data
