@@ -1,6 +1,6 @@
 # Silverfish
 
-**A tiny pet that lives in KOReader and eats the books you read.**
+**Lives in your e-reader. Eats what you read. Judges your taste.**
 
 *Em português: [LEIAME.md](LEIAME.md).*
 

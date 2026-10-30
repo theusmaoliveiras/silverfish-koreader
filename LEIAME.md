@@ -1,6 +1,6 @@
 # Traça (Silverfish)
 
-**Um bichinho que mora no KOReader e come os livros que você lê.**
+**Mora no seu leitor digital. Come o que você lê. Julga o seu gosto.**
 
 *In English: [README.md](README.md).*
 
