@@ -51,7 +51,7 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 - **Toque nela** para fazer carinho. **Segure o dedo nela** para as opções: tela de descanso ligada ou desligada, e idioma.
 - **Opcional:** com o plugin Simple UI instalado, ela aparece num cartão na tela inicial.
 
-<img src="media/simple-ui.png" width="360" alt="Tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
+<img src="media/simple-ui.png" alt="Um Kindle mostrando a tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
 
 ## Os seus dados
 
