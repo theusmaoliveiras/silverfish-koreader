@@ -53,8 +53,6 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 <img src="media/simple-ui.png" width="360" alt="Tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
 
-![Quando o aparelho dorme, ela sonha](media/dreams.png)
-
 ## Os seus dados
 
 Tudo fica no seu aparelho, em `koreader/settings/traca.lua`: os títulos e autores dos livros que você leu, as páginas e os horários de leitura, o diário dela, algumas falas de personagens que ela guardou e o caminho do último livro que você abriu. A Traça nunca se conecta à internet e nunca manda nada para lugar nenhum.

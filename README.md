@@ -53,8 +53,6 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 
 <img src="media/simple-ui.png" width="360" alt="KOReader's home screen with the Simple UI plugin: the book being read, and below it the elder silverfish saying: chiming. Ate it. Nobody uses that word anymore.">
 
-![When your e-reader sleeps, it dreams](media/dreams.png)
-
 ## Your data
 
 Everything stays on your device, in `koreader/settings/traca.lua`: the titles and authors of the books you read, pages and reading times, its diary, a few lines from characters that it saved, and the path of the last book you opened. Silverfish never connects to the internet and never sends anything anywhere.
