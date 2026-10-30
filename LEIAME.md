@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="media/hero-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="media/hero-light.png">
-  <img alt="Traça: o ovo, a ninfa, a jovem, a adulta e a anciã, que pergunta: I evolved for this?" src="media/hero-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="media/hero-light.png">
+  <source media="(prefers-color-scheme: light)" srcset="media/hero-dark.png">
+  <img alt="Traça: o ovo, a ninfa, a jovem, a adulta e a anciã, que pergunta: I evolved for this?" src="media/hero-dark.png">
 </picture>
 
 # Traça (Silverfish)

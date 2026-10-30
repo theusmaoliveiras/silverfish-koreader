@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="media/hero-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="media/hero-light.png">
-  <img alt="Silverfish: the egg, nymph, young, adult and elder, and the elder asking: I evolved for this?" src="media/hero-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="media/hero-light.png">
+  <source media="(prefers-color-scheme: light)" srcset="media/hero-dark.png">
+  <img alt="Silverfish: the egg, nymph, young, adult and elder, and the elder asking: I evolved for this?" src="media/hero-dark.png">
 </picture>
 
 # Silverfish
