@@ -1,12 +1,14 @@
+![Silverfish: lives in your e-reader, eats what you read, judges your taste](media/hero.png)
+
 # Silverfish
 
 **Lives in your e-reader. Eats what you read. Judges your taste.**
 
 *Em português: [LEIAME.md](LEIAME.md).*
 
-![The same silverfish growing up: nymph, young, adult, elder](media/growing-up.png)
-
 Silverfish hatches from an egg after your first pages. It feeds only on pages you actually read, grows through four stages, and slowly becomes what you read. A reader of science fiction raises a paranoid little futurist. A reader of satire raises a critic who rolls her eyes at prefaces.
+
+![The same silverfish growing up: nymph, young, adult, elder](media/growing-up.png)
 
 It runs on your e-reader with **no AI and no internet**. Everything it says is put together on the device from what you read, and your reading never leaves the device.
 

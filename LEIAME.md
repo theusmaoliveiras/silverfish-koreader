@@ -1,12 +1,14 @@
+![Traça: mora no seu leitor digital, come o que você lê, julga o seu gosto](media/hero.png)
+
 # Traça (Silverfish)
 
 **Mora no seu leitor digital. Come o que você lê. Julga o seu gosto.**
 
 *In English: [README.md](README.md).*
 
-![A mesma traça crescendo: ninfa, jovem, adulta, anciã](media/growing-up.png)
-
 A Traça nasce de um ovo depois das suas primeiras páginas. Ela só come páginas lidas de verdade, cresce em quatro fases e, aos poucos, vira o que você lê. Quem lê ficção científica cria uma futurista desconfiada. Quem lê sátira cria uma crítica que revira os olhos para qualquer prefácio.
+
+![A mesma traça crescendo: ninfa, jovem, adulta, anciã](media/growing-up.png)
 
 Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é montado no próprio aparelho a partir do que você lê, e a sua leitura nunca sai dele.
 
