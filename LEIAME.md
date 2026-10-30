@@ -16,7 +16,7 @@ A Traça nasce de um ovo depois das suas primeiras páginas. Ela só come págin
 
 Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é montado no próprio aparelho a partir do que você lê, e a sua leitura nunca sai dele.
 
-![Duas traças, uma alimentada com ficção científica e outra com sátira](media/two-readers.png)
+![Três traças. Alimentada com horror: “If I met Lucy, I'd run.” Com romance: “If I met Darcy, I'd ask for an autograph.” Com mistério: “If I met Holmes, I'd bite.”](media/if-i-met.png)
 
 ## O que ela faz
 
@@ -29,7 +29,9 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 - **Conquistas e uma estante** com todos os livros que vocês terminaram juntos.
 - **Português e inglês.** Ela segue o idioma do KOReader, ou você escolhe.
 
-![A mesma ideia, livros diferentes](media/same-thought.png)
+![“After Dracula, I need a light on and a long silence.” “After Pride and Prejudice, I need a handkerchief and a long silence.” “After The Hound of the Baskervilles, I need a cigarette and a long silence.”](media/after-the-book.png)
+
+![“Old and frightened. A fine result of your literary taste.” “I've gone soft. It was your romances. Tell no one.”](media/your-taste.png)
 
 ## Instalar
 

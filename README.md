@@ -16,7 +16,7 @@ Silverfish hatches from an egg after your first pages. It feeds only on pages yo
 
 It runs on your e-reader with **no AI and no internet**. Everything it says is put together on the device from what you read, and your reading never leaves the device.
 
-![Two silverfish, one fed on sci-fi and one on satire](media/two-readers.png)
+![Three silverfish. Fed on horror: “If I met Lucy, I'd run.” Fed on romance: “If I met Darcy, I'd ask for an autograph.” Fed on mystery: “If I met Holmes, I'd bite.”](media/if-i-met.png)
 
 ## What it does
 
@@ -29,7 +29,9 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 - **Achievements and a bookshelf** with every book you finished together.
 - **Portuguese and English.** It follows KOReader's language, or you can choose.
 
-![Same thought, different books](media/same-thought.png)
+![“After Dracula, I need a light on and a long silence.” “After Pride and Prejudice, I need a handkerchief and a long silence.” “After The Hound of the Baskervilles, I need a cigarette and a long silence.”](media/after-the-book.png)
+
+![“Old and frightened. A fine result of your literary taste.” “I've gone soft. It was your romances. Tell no one.”](media/your-taste.png)
 
 ## Install
 
