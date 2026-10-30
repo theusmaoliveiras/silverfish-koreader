@@ -1,4 +1,8 @@
-![Silverfish: lives in your e-reader, eats what you read, judges your taste](media/hero.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="media/hero-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="media/hero-light.png">
+  <img alt="Silverfish: the egg, nymph, young, adult and elder, and the elder asking: I evolved for this?" src="media/hero-light.png">
+</picture>
 
 # Silverfish
 

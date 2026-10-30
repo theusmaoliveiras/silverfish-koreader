@@ -1,4 +1,8 @@
-![Traça: mora no seu leitor digital, come o que você lê, julga o seu gosto](media/hero.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="media/hero-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="media/hero-light.png">
+  <img alt="Traça: o ovo, a ninfa, a jovem, a adulta e a anciã, que pergunta: I evolved for this?" src="media/hero-light.png">
+</picture>
 
 # Traça (Silverfish)
 
