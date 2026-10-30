@@ -77,9 +77,22 @@ To turn it off, do the same. While it's on, Silverfish uses KOReader's sleep scr
 
 Everything stays on your device, in `koreader/settings/traca.lua`: the titles and authors of the books you read, pages and reading times, its diary, a few lines from characters that it saved, and the path of the last book you opened. Silverfish never connects to the internet and never sends anything anywhere.
 
-## Updating
+## Updating and backups
 
-Replace the `silverfish.koplugin` folder with the new one. Your silverfish and its diary stay.
+Your whole silverfish (its stage, personality, diary and lineage) lives in one file: `koreader/settings/traca.lua` (on Kobo, `.adds/koreader/settings/traca.lua`). The plugin folder holds no part of it.
+
+**To update:**
+
+1. Close KOReader and connect your e-reader to your computer.
+2. Copy `koreader/settings/traca.lua` somewhere safe on your computer, just in case.
+3. Delete the old `silverfish.koplugin` folder from `koreader/plugins/` and copy in the new one.
+4. Start KOReader. Your silverfish picks up where it left off.
+
+Never delete `traca.lua` when updating: that file *is* your silverfish. Every new version is made to open saves from older ones.
+
+**Moving to another device:** install the plugin there, then copy your `traca.lua` into the same folder on the new device, with KOReader closed.
+
+**If something goes wrong:** with KOReader closed, put your copy of `traca.lua` back in `koreader/settings/`.
 
 ## Uninstalling
 

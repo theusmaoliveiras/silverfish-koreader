@@ -77,9 +77,22 @@ Para desligar, faça o mesmo. Enquanto está ligada, a Traça usa a tela de desc
 
 Tudo fica no seu aparelho, em `koreader/settings/traca.lua`: os títulos e autores dos livros que você leu, as páginas e os horários de leitura, o diário dela, algumas falas de personagens que ela guardou e o caminho do último livro que você abriu. A Traça nunca se conecta à internet e nunca manda nada para lugar nenhum.
 
-## Atualizar
+## Atualizar e fazer backup
 
-Troque a pasta `silverfish.koplugin` pela nova. A sua traça e o diário dela continuam.
+A sua traça inteira (a fase, a personalidade, o diário e a linhagem) mora num arquivo só: `koreader/settings/traca.lua` (no Kobo, `.adds/koreader/settings/traca.lua`). A pasta do plugin não guarda nada dela.
+
+**Para atualizar:**
+
+1. Feche o KOReader e conecte o aparelho ao computador.
+2. Copie o `koreader/settings/traca.lua` para um lugar seguro no computador, por garantia.
+3. Apague a pasta `silverfish.koplugin` antiga de `koreader/plugins/` e copie a nova.
+4. Abra o KOReader. A sua traça continua de onde parou.
+
+Nunca apague o `traca.lua` ao atualizar: esse arquivo *é* a sua traça. Toda versão nova é feita para abrir os saves das versões anteriores.
+
+**Trocou de aparelho?** Instale o plugin no aparelho novo e copie o seu `traca.lua` para a mesma pasta, com o KOReader fechado.
+
+**Se algo der errado:** com o KOReader fechado, devolva a sua cópia do `traca.lua` para `koreader/settings/`.
 
 ## Desinstalar
 
