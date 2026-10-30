@@ -99,13 +99,3 @@ A Traça nunca trava a sua leitura. Se algo der errado, ela avisa que tropeçou 
 
 - Em livros sem sumário, ela conta um capítulo a cada 25 páginas.
 - Ela percebe o livro pelas palavras; não entende a história como uma pessoa. Às vezes um comentário sobre o capítulo erra o assunto.
-
-## Licença
-
-- **Código:** [GPL-3.0](LICENSE).
-- **A personagem Traça, os desenhos em pixel e as falas escritas** (os arquivos de sprites, os ícones e os bancos de frases em `traca_banco/`): [CC BY-NC-SA 4.0](LICENSE-ART.md). Você pode compartilhar e adaptar dando crédito e mantendo a mesma licença, mas não para uso comercial.
-- Os dados de terceiros e a fonte Silkscreen têm as próprias licenças: veja [CREDITS.md](CREDITS.md).
-
-## Créditos
-
-Feito por Matheus Oliveira, com o Claude como parceiro de programação.

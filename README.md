@@ -99,13 +99,3 @@ Silverfish never blocks your reading. If something goes wrong, it says it trippe
 
 - In books without a table of contents, it counts a chapter every 25 pages.
 - It reads the book through its words; it doesn't understand the story like a person. Sometimes a comment about the chapter misses the point.
-
-## License
-
-- **Code:** [GPL-3.0](LICENSE).
-- **The Silverfish character, its pixel art and its written lines** (the sprite files, the icons and the phrase banks in `traca_banco/`): [CC BY-NC-SA 4.0](LICENSE-ART.md). You can share and adapt them with credit and under the same license, but not for commercial use.
-- Third-party data and the Silkscreen font keep their own licenses: see [CREDITS.md](CREDITS.md).
-
-## Credits
-
-Made by Matheus Oliveira, with Claude as a coding partner.
