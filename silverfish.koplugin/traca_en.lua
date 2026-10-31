@@ -13,6 +13,7 @@ EN.ui = {
     -- plugin, menus e avisos
     ["Traça"] = "Silverfish",
     ["Traça: ver o bichinho"] = "Silverfish: show the creature",
+    ["Sua traça. Funciona sem internet."] = "Your silverfish. Works offline.",
     ["A Traça virou %s!"] = "The silverfish is now: %s!",
     ["A Traça saiu da lombada. Com fome, claro."] = "The silverfish crawled out of the spine. Hungry, of course.",
     ["Nasci do ovo da geração %d.%s"] = "I hatched from generation %d's egg.%s",

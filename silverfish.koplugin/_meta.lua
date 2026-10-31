@@ -5,7 +5,7 @@ local lingua = g and g:readSetting("language") or "en"
 local ingles = escolha == "en" or (escolha ~= "pt" and not tostring(lingua):match("^pt"))
 
 return {
-    version = "1.0.0",
+    version = "1.1.0",
     fullname = ingles and "Silverfish" or "Traça",
     description = ingles and [[A virtual pet silverfish that eats the pages you read.]]
         or [[Um bichinho virtual que se alimenta das letras que você lê.]],

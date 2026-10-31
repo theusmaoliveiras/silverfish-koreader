@@ -38,7 +38,7 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 **Antes de começar:** você precisa do KOReader no seu aparelho. No Kindle, isso quer dizer um Kindle desbloqueado (jailbreak) com o KOReader instalado, que costuma ser aberto pelo KUAL. O guia do próprio KOReader explica como: [wiki do KOReader](https://github.com/koreader/koreader/wiki).
 
-1. Baixe o `silverfish-v1.0.0.zip` em [Releases](../../releases) e descompacte. Dentro há uma pasta chamada `silverfish.koplugin`.
+1. Baixe o `silverfish-v1.1.0.zip` em [Releases](../../releases) e descompacte. Dentro há uma pasta chamada `silverfish.koplugin`.
 2. Conecte o aparelho ao computador e copie `silverfish.koplugin` para a pasta `plugins` do KOReader:
    - **Kindle:** `koreader/plugins/`
    - **Kobo:** `.adds/koreader/plugins/`
@@ -57,6 +57,11 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 - **Opcional:** com o plugin [Simple UI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) (de doctorhetfield-cmd) instalado, ela aparece num cartão na tela inicial.
 
 <img src="media/simple-ui.png" alt="Um Kindle mostrando a tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
+
+- **Opcional:** com o plugin [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) (de AndyHazz) instalado, ela pode morar na tela inicial ou ficar numa prateleira, no meio dos seus livros. O Bookshelf não adiciona cartões sozinho, então adicione uma vez:
+  - **Painel de cima:** nas configurações do Bookshelf, em **Behavior → Top panel starts with**, escolha **Micro modules**. Depois segure o dedo no painel, toque em **+ Add** e escolha **Traça**.
+  - **Numa prateleira:** segure o dedo na aba da prateleira, toque em **Add a module to this shelf…** e escolha **Traça**.
+  - Estreito, aparece só a traça. Mais largo, ela ganha um balão com o que está pensando. Toque nela para abrir a tela dela.
 
 ## Tela de descanso
 
