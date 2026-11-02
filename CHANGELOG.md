@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0 (2026-11-02)
+
+- New: a gear button at the top of the silverfish screen opens the settings. Long-pressing the silverfish still
+  opens them too.
+- New: **Open at startup** and **Gesture shortcut** can now be turned on or off in the settings. Before, they
+  could only be chosen on the welcome screen.
+- Bookshelf card, by [AndyHazz](https://github.com/AndyHazz)
+  ([pull request](https://github.com/theusmaoliveiras/silverfish-koreader/pull/2)): ready for Bookshelf 6.1.
+  The card is drawn once at its own size, refreshes only when the silverfish or its thought changes (no needless
+  e-ink flashes), and sits centred among the covers on a cover shelf. Older Bookshelf versions still work.
+
+Your silverfish keeps its progress: to update, replace the `silverfish.koplugin` folder (see "Updating and
+backups" in the README), or update from Storefront.
+
 ## 1.1.0 (2026-10-31)
 
 - New: a Silverfish card for the [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) plugin. Put it in

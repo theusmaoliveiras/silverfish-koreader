@@ -51,9 +51,9 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 ## Usar
 
 - **Só leia.** O ovo choca depois de algumas páginas.
-- **Para vê-la:** abra o menu de ferramentas e toque em **Traça**. Na tela de boas-vindas você também pode escolher abri-la quando o KOReader iniciar, ou segurando o dedo no canto superior direito.
+- **Para vê-la:** abra o menu de ferramentas e toque em **Traça**. Na tela de boas-vindas você também pode escolher abri-la quando o KOReader iniciar, ou segurando o dedo no canto superior direito. Dá para mudar as duas coisas depois, nos ajustes.
 - **Na tela dela** há um menu com o diário, o caderno, as conquistas e a linhagem.
-- **Toque nela** para fazer carinho. **Segure o dedo nela** para as opções: tela de descanso ligada ou desligada, e idioma.
+- **Toque nela** para fazer carinho. A **engrenagem** no topo abre os ajustes: tela de descanso, abrir ao iniciar, atalho por gesto e idioma. Segurar o dedo nela também abre.
 - **Opcional:** com o plugin [Simple UI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) (de doctorhetfield-cmd) instalado, ela aparece num cartão na tela inicial.
 
 <img src="media/simple-ui.png" alt="Um Kindle mostrando a tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
@@ -74,7 +74,7 @@ Quando o aparelho dorme, a Traça dorme junto e sonha com o que você leu: os pe
 **Para ligar:**
 
 1. Abra a Traça (menu de ferramentas → **Traça**).
-2. Segure o dedo na traça.
+2. Toque na engrenagem no topo.
 3. Toque em **Tela de descanso: desligada**. Ela passa para **ligada**.
 
 Para desligar, faça o mesmo. Enquanto está ligada, a Traça usa a tela de descanso do KOReader; quando você desliga, volta a tela de descanso que você tinha antes.
@@ -102,7 +102,7 @@ Nunca apague o `traca.lua` ao atualizar: esse arquivo *é* a sua traça. Toda ve
 
 ## Desinstalar
 
-1. Se a tela de descanso dela estiver ligada, desligue antes: segure o dedo na Traça e escolha **Tela de descanso: desligada**.
+1. Se a tela de descanso dela estiver ligada, desligue antes: toque na engrenagem no topo da tela dela e depois em **Tela de descanso: ligada**, para ela passar para **desligada**.
 2. Apague `koreader/plugins/silverfish.koplugin`.
 3. Para apagar também a Traça e o diário dela, apague o arquivo `koreader/settings/traca.lua` e a pasta `koreader/traca`.
 

@@ -51,9 +51,9 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 ## Using it
 
 - **Just read.** The egg hatches after a few pages.
-- **To see it:** open the Tools menu and tap **Silverfish**. The welcome screen also lets you open it when KOReader starts, or with a long press in the top right corner.
+- **To see it:** open the Tools menu and tap **Silverfish**. The welcome screen also lets you open it when KOReader starts, or with a long press in the top right corner. You can change both later in its settings.
 - **Its screen** has a menu with its diary, your notebook, achievements and the lineage.
-- **Tap it** to pet it. **Long-press it** for settings: sleep screen on/off, and language.
+- **Tap it** to pet it. The **gear** at the top opens the settings: sleep screen, open at startup, gesture shortcut and language. Long-pressing the silverfish opens them too.
 - **Optional:** with the [Simple UI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) plugin (by doctorhetfield-cmd) installed, it shows up as a card on your home screen.
 
 <img src="media/simple-ui.png" alt="A Kindle showing KOReader's home screen with the Simple UI plugin: the book being read, and below it the elder silverfish saying: chiming. Ate it. Nobody uses that word anymore.">
@@ -74,7 +74,7 @@ When your e-reader goes to sleep, Silverfish goes to sleep too, and dreams about
 **To turn it on:**
 
 1. Open Silverfish (Tools menu → **Silverfish**).
-2. Long-press the silverfish.
+2. Tap the gear at the top.
 3. Tap **Sleep screen: off**. It switches to **on**.
 
 To turn it off, do the same. While it's on, Silverfish uses KOReader's sleep screen; when you turn it off, the sleep screen you had before comes back.
@@ -102,7 +102,7 @@ Never delete `traca.lua` when updating: that file *is* your silverfish. Every ne
 
 ## Uninstalling
 
-1. If its sleep screen is on, turn it off first: long-press the silverfish and choose **Sleep screen: off**.
+1. If its sleep screen is on, turn it off first: tap the gear at the top of its screen, then tap **Sleep screen: on** so it switches to **off**.
 2. Delete `koreader/plugins/silverfish.koplugin`.
 3. To erase the silverfish and its diary too, delete `koreader/settings/traca.lua` and the `koreader/traca` folder.
 

@@ -110,6 +110,8 @@ EN.ui = {
     ["Já chega de carinho por agora."] = "That's enough affection for now.",
 
     ["Tela de descanso: ligada"] = "Sleep screen: on", ["Tela de descanso: desligada"] = "Sleep screen: off",
+    ["Abrir ao iniciar: ligado"] = "Open at startup: on", ["Abrir ao iniciar: desligado"] = "Open at startup: off",
+    ["Atalho por gesto: ligado"] = "Gesture shortcut: on", ["Atalho por gesto: desligado"] = "Gesture shortcut: off",
     ["Modo dev…"] = "Dev mode…", ["TRAÇA · MODO DEV"] = "SILVERFISH · DEV MODE",
     ["Faminta"] = "Starving", ["Ranzinza"] = "Grumpy", ["Feliz"] = "Happy",
     ["Noite: ligada"] = "Night: on", ["Noite: desligada"] = "Night: off",

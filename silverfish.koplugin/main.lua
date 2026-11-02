@@ -157,6 +157,21 @@ function Traca:aoIniciar()
     end
 end
 
+--- "Abrir ao iniciar" (escolhido nas boas-vindas; também no menu da tela dela). Sem argumento, só lê.
+function Traca:abrirAoIniciar(ligar)
+    if ligar ~= nil then G_reader_settings:saveSetting("traca_abrir_ao_iniciar", ligar or nil) end
+    return G_reader_settings:isTrue("traca_abrir_ao_iniciar")
+end
+
+--- Atalho por gesto ligado? (escolhido nas boas-vindas; também no menu da tela dela). Sem argumento, só lê.
+function Traca:atalhoGesto(ligar)
+    if ligar ~= nil then
+        G_reader_settings:saveSetting("traca_gesto", ligar or nil)
+        self:aplicarGesto()
+    end
+    return G_reader_settings:isTrue("traca_gesto")
+end
+
 -- Atalho por gesto: segurar o dedo no canto superior direito abre a Traça.
 function Traca:aplicarGesto()
     if not (self.ui and self.ui.registerTouchZones) then return end

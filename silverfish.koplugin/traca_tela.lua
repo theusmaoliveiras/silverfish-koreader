@@ -4,8 +4,8 @@ Tela da Traça, desenhada como no Figma ("Traça Agent Sprites", 618x824).
 Tudo é pintado direto na tela em coordenadas do Figma multiplicadas por K
 (no Paperwhite 1236x1648, K = 2). A fonte é a Silkscreen (OFL), em fontes/.
 
-Toques: no bichinho = carinho; segurar no bichinho = menu (tela de descanso,
-idioma); no X = fechar.
+Toques: no bichinho = carinho; na engrenagem ou segurando no bichinho = ajustes
+(tela de descanso, abrir ao iniciar, atalho por gesto, idioma); no X = fechar.
 ]]
 
 local Blitbuffer = require("ffi/blitbuffer")
@@ -58,6 +58,19 @@ local ICONE_AMPULHETA = {
     { 14, 79, 10, 2 }, { 14, 81, 2, 2 }, { 22, 81, 2, 2 }, { 16, 83, 2, 2 }, { 20, 83, 2, 2 },
     { 18, 85, 2, 2 }, { 16, 87, 2, 2 }, { 20, 87, 2, 2 }, { 14, 89, 2, 2 }, { 18, 89, 2, 2 },
     { 22, 89, 2, 2 }, { 14, 91, 10, 2 },
+}
+-- Engrenagem do botão de ajustes (24x24, relativa ao seu canto).
+local ICONE_ENGRENAGEM = {
+    { 10, 0, 4, 1 }, { 9, 1, 6, 1 }, { 3, 2, 4, 1 }, { 9, 2, 2, 1 }, { 13, 2, 2, 1 },
+    { 17, 2, 4, 1 }, { 2, 3, 9, 1 }, { 13, 3, 9, 1 }, { 2, 4, 2, 2 }, { 6, 4, 4, 1 },
+    { 14, 4, 4, 1 }, { 20, 4, 2, 2 }, { 2, 6, 3, 1 }, { 19, 6, 3, 1 }, { 3, 7, 2, 2 },
+    { 19, 7, 2, 2 }, { 9, 8, 6, 1 }, { 1, 9, 4, 1 }, { 8, 9, 8, 1 }, { 19, 9, 4, 1 },
+    { 0, 10, 4, 1 }, { 8, 10, 2, 4 }, { 14, 10, 2, 4 }, { 20, 10, 4, 1 }, { 0, 11, 2, 2 },
+    { 22, 11, 2, 2 }, { 0, 13, 4, 1 }, { 20, 13, 4, 1 }, { 1, 14, 4, 1 }, { 8, 14, 8, 1 },
+    { 19, 14, 4, 1 }, { 3, 15, 2, 2 }, { 9, 15, 6, 1 }, { 19, 15, 2, 2 }, { 2, 17, 3, 1 },
+    { 19, 17, 3, 1 }, { 2, 18, 2, 2 }, { 20, 18, 2, 2 }, { 6, 19, 4, 1 }, { 14, 19, 4, 1 },
+    { 2, 20, 9, 1 }, { 13, 20, 9, 1 }, { 3, 21, 4, 1 }, { 9, 21, 2, 1 }, { 13, 21, 2, 1 },
+    { 17, 21, 4, 1 }, { 9, 22, 6, 1 }, { 10, 23, 4, 1 },
 }
 
 local TracaTela = InputContainer:extend{
@@ -302,12 +315,16 @@ function TracaTela:cabecalho(bb)
     end
     if self.traca.estado.dev_simulacao and not self.exportando then self:texto(bb, T"SIMULAÇÃO", 20, 56, false, 10, CINZA_55) end
     -- botão ARQUIVO com setinha em pixels
-    self:cartao(bb, 403, 16, 140, 39, true)
-    self:texto(bb, T"ARQUIVO", 417, 25, true, 14)
-    self:ret(bb, 517, 31, 12, 3, PRETO)
-    self:ret(bb, 520, 34, 6, 3, PRETO)
-    self:ret(bb, 522, 37, 2, 3, PRETO)
-    self:alvo(398, 6, 152, 60, function() self.menu_aberto = not self.menu_aberto end)
+    self:cartao(bb, 349, 16, 140, 39, true)
+    self:texto(bb, T"ARQUIVO", 363, 25, true, 14)
+    self:ret(bb, 463, 31, 12, 3, PRETO)
+    self:ret(bb, 466, 34, 6, 3, PRETO)
+    self:ret(bb, 468, 37, 2, 3, PRETO)
+    self:alvo(344, 6, 152, 60, function() self.menu_aberto = not self.menu_aberto end)
+    -- ajustes (engrenagem em pixels)
+    self:cartao(bb, 501, 16, 42, 39, true)
+    self:retangulos(bb, ICONE_ENGRENAGEM, 510, 23.5, PRETO)
+    self:alvo(496, 6, 54, 60, function() self.menu_aberto = false; self:menuAjustes() end)
     -- fechar
     self:cartao(bb, 555, 16, 42, 39, true)
     self:texto(bb, "X", 0, 12, true, 32, PRETO, 576)
@@ -1155,6 +1172,13 @@ end
 function TracaTela:onHold(_, ges)
     local pos = ges and ges.pos
     if self.modo or not (pos and pos:intersectWith(self.sprite_rect)) then return end
+    self:menuAjustes()
+    return true
+end
+
+--- Ajustes: tela de descanso, abrir ao iniciar, atalho por gesto, idioma (e modo dev).
+-- Abre pela engrenagem do topo ou segurando no bichinho.
+function TracaTela:menuAjustes()
     local dialogo
     local botoes = {
             {{
@@ -1162,6 +1186,20 @@ function TracaTela:onHold(_, ges)
                 callback = function()
                     UIManager:close(dialogo)
                     self.traca:alternarTelaDescanso()
+                end,
+            }},
+            {{
+                text = self.traca:abrirAoIniciar() and T"Abrir ao iniciar: ligado" or T"Abrir ao iniciar: desligado",
+                callback = function()
+                    UIManager:close(dialogo)
+                    self.traca:abrirAoIniciar(not self.traca:abrirAoIniciar())
+                end,
+            }},
+            {{
+                text = self.traca:atalhoGesto() and T"Atalho por gesto: ligado" or T"Atalho por gesto: desligado",
+                callback = function()
+                    UIManager:close(dialogo)
+                    self.traca:atalhoGesto(not self.traca:atalhoGesto())
                 end,
             }},
     }
@@ -1178,7 +1216,6 @@ function TracaTela:onHold(_, ges)
     dialogo = ButtonDialog:new{ buttons = botoes }
 
     UIManager:show(dialogo)
-    return true
 end
 
 --- Idioma: automático (segue o KOReader), português ou inglês. Vale depois de reiniciar.
