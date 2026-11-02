@@ -58,7 +58,7 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 
 <img src="media/simple-ui.png" alt="A Kindle showing KOReader's home screen with the Simple UI plugin: the book being read, and below it the elder silverfish saying: chiming. Ate it. Nobody uses that word anymore.">
 
-- **Optional:** with the [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) plugin (by AndyHazz) installed, it can live on your home screen or stand on a shelf among your books. Bookshelf doesn't add cards by itself, so add it once:
+- **Optional:** with the [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) plugin (by AndyHazz) installed, it can live on your home screen or stand on a shelf among your books. With Bookshelf 6.1 or newer, the welcome screen's **Home screen card** option puts it on your home shelf for you. Otherwise, or to put it somewhere else, add it once:
   - **Top panel:** in Bookshelf's settings, set **Behavior → Top panel starts with** to **Micro modules**. Then long-press the panel, tap **+ Add** and pick **Silverfish**.
   - **On a shelf:** long-press the shelf's tab, tap **Add a module to this shelf…** and pick **Silverfish**.
   - Narrow, it's just the silverfish. Wider, it gets a speech bubble with what it's thinking. Tap it to open its screen.

@@ -58,7 +58,7 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 <img src="media/simple-ui.png" alt="Um Kindle mostrando a tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
 
-- **Opcional:** com o plugin [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) (de AndyHazz) instalado, ela pode morar na tela inicial ou ficar numa prateleira, no meio dos seus livros. O Bookshelf não adiciona cartões sozinho, então adicione uma vez:
+- **Opcional:** com o plugin [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) (de AndyHazz) instalado, ela pode morar na tela inicial ou ficar numa prateleira, no meio dos seus livros. Com o Bookshelf 6.1 ou mais novo, a opção **Cartão na home** da tela de boas-vindas já põe ela na prateleira inicial. Se não, ou para pôr em outro lugar, adicione uma vez:
   - **Painel de cima:** nas configurações do Bookshelf, em **Behavior → Top panel starts with**, escolha **Micro modules**. Depois segure o dedo no painel, toque em **+ Add** e escolha **Traça**.
   - **Numa prateleira:** segure o dedo na aba da prateleira, toque em **Add a module to this shelf…** e escolha **Traça**.
   - Estreito, aparece só a traça. Mais largo, ela ganha um balão com o que está pensando. Toque nela para abrir a tela dela.

@@ -204,6 +204,25 @@ function Traca:cartaoSimpleUI(ligar)
     return v == true
 end
 
+-- Bookshelf 6.1 ou mais novo: põe a Traça na prateleira inicial (só quando a pessoa escolhe, nas boas-vindas).
+local function kitBookshelf()
+    local ok, Kit = pcall(require, "lib/bookshelf_module_kit")
+    if ok and type(Kit) == "table" and Kit.setOnHomeShelf and Kit.onHomeShelf then return Kit end
+end
+
+function Traca:temBookshelf()
+    return kitBookshelf() ~= nil
+end
+
+--- A Traça está na prateleira inicial do Bookshelf? Com `ligar`, põe ou tira antes de responder.
+function Traca:cartaoBookshelf(ligar)
+    local Kit = kitBookshelf()
+    if not Kit then return false end
+    if ligar ~= nil then pcall(Kit.setOnHomeShelf, "silverfish", ligar and true or false) end
+    local ok, v = pcall(Kit.onHomeShelf, "silverfish")
+    return ok and v == true
+end
+
 -- Leitura ------------------------------------------------------------------
 
 function Traca:onPageUpdate(pageno)

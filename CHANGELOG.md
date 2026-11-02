@@ -6,6 +6,8 @@
   opens them too.
 - New: **Open at startup** and **Gesture shortcut** can now be turned on or off in the settings. Before, they
   could only be chosen on the welcome screen.
+- New: with Bookshelf 6.1 or newer, the welcome screen's **Home screen card** option also puts the
+  silverfish on Bookshelf's home shelf, so there are no manual steps.
 - Bookshelf card, by [AndyHazz](https://github.com/AndyHazz)
   ([pull request](https://github.com/theusmaoliveiras/silverfish-koreader/pull/2)): ready for Bookshelf 6.1.
   The card is drawn once at its own size, refreshes only when the silverfish or its thought changes (no needless

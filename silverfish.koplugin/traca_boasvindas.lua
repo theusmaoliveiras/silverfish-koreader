@@ -3,7 +3,7 @@ Boas-vindas: aparece na primeira vez que a Traça é instalada (ou pelo modo dev
 
 Tela 1 · o ovo        — balão + ovo + botão CHOCAR
 Tela 2 · rachou       — o ovo racha; ela só sai com as primeiras páginas lidas + CONTINUAR
-Tela 3 · onde me achar — 3 opções (abrir ao iniciar, gesto, cartão no Simple UI) + PRONTO
+Tela 3 · onde me achar — 3 opções (abrir ao iniciar, gesto, cartão no Simple UI e/ou no Bookshelf) + PRONTO
 Ela nasce de verdade lendo (fase ninfa, a partir de 3.000 letras), com a anotação no diário.
 
 Reaproveita os componentes da tela da Traça (balão, cartões, fonte e escala do Figma).
@@ -55,8 +55,13 @@ function BoasVindas:init()
     self.op = {
         iniciar = G_reader_settings:isTrue("traca_abrir_ao_iniciar"),
         gesto = G_reader_settings:isTrue("traca_gesto"),
-        cartao = self.traca:cartaoSimpleUI(),
     }
+    -- no Simple UI o cartão já vem ligado; na prateleira do Bookshelf, só se a pessoa marcar
+    if self.traca:temSimpleUI() then
+        self.op.cartao = self.traca:cartaoSimpleUI()
+    else
+        self.op.cartao = self.traca:cartaoBookshelf()
+    end
 end
 
 --- Sprite centrado, com o balão logo acima da cabeça real (como na tela principal).
@@ -120,9 +125,14 @@ function BoasVindas:paintTo(bb, x, y)
             self.op.iniciar, function() self.op.iniciar = not self.op.iniciar end)
         self:opcao(bb, 494, T"ATALHO POR GESTO", T"SEGURE O DEDO NO CANTO SUPERIOR DIREITO",
             self.op.gesto, function() self.op.gesto = not self.op.gesto end)
-        local tem_sui = self.traca:temSimpleUI()
-        self:opcao(bb, 588, T"CARTÃO NA HOME", tem_sui and T"NA TELA INICIAL DO SIMPLE UI" or T"SIMPLE UI NÃO INSTALADO",
-            tem_sui and self.op.cartao, function() self.op.cartao = not self.op.cartao end, not tem_sui)
+        local tem_sui, tem_bs = self.traca:temSimpleUI(), self.traca:temBookshelf()
+        local onde = tem_sui and tem_bs and T"NO SIMPLE UI E NA PRATELEIRA DO BOOKSHELF"
+            or tem_sui and T"NA TELA INICIAL DO SIMPLE UI"
+            or tem_bs and T"NA PRATELEIRA INICIAL DO BOOKSHELF"
+            or T"PRECISA DO SIMPLE UI OU DO BOOKSHELF 6.1"
+        local tem_onde = tem_sui or tem_bs
+        self:opcao(bb, 588, T"CARTÃO NA HOME", onde,
+            tem_onde and self.op.cartao, function() self.op.cartao = not self.op.cartao end, not tem_onde)
         self:botao(bb, T"PRONTO", 696, function() self:terminar() end)
     end
 end
@@ -134,6 +144,9 @@ function BoasVindas:terminar()
     G_reader_settings:saveSetting("traca_gesto", self.op.gesto or nil)
     self.traca:aplicarGesto()
     if self.traca:temSimpleUI() then self.traca:cartaoSimpleUI(self.op.cartao) end
+    if self.traca:temBookshelf() and self.traca:cartaoBookshelf() ~= self.op.cartao then
+        self.traca:cartaoBookshelf(self.op.cartao)
+    end
     self.traca:salvar(false)
     self.alvos = nil
     UIManager:close(self)
