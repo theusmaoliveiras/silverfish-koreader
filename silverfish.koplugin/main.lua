@@ -194,7 +194,34 @@ function Traca:temSimpleUI()
     return ok
 end
 
+-- Simple UI 3: a tela inicial é uma lista de páginas com os módulos; o cartão aparece se estiver numa delas.
+-- Põe no fim da primeira página ou tira, como o editor de layout do próprio Simple UI. nil = não é o Simple UI 3.
+local function cartaoNoLayout(ligar)
+    local ok_l, Layout = pcall(require, "infra/sui_layout")
+    if not (ok_l and type(Layout) == "table" and Layout.load and Layout.save and Layout.findPage) then return nil end
+    local ok, esta = pcall(function()
+        local layout = Layout.load()
+        if type(layout) ~= "table" or type(layout.pages) ~= "table" then return nil end
+        local esta = Layout.findPage(layout, "traca_cartao") ~= nil
+        if ligar ~= nil and (ligar and true or false) ~= esta then
+            if ligar then
+                if not layout.pages[1] then layout.pages[1] = { id = 1, modules = {} } end
+                table.insert(layout.pages[1].modules, "traca_cartao")
+            else
+                Layout.remove(layout, nil, "traca_cartao")
+            end
+            Layout.save(layout)
+            esta = Layout.findPage(layout, "traca_cartao") ~= nil
+        end
+        return esta
+    end)
+    if ok then return esta end
+end
+
 function Traca:cartaoSimpleUI(ligar)
+    local no_layout = cartaoNoLayout(ligar)
+    if no_layout ~= nil then return no_layout end
+    -- Simple UI 2: uma chave liga e desliga o cartão
     local ok, SUISettings = pcall(require, "infra/sui_store")
     if not ok or not SUISettings then return false end
     local chave = "simpleui_hs_traca_cartao_enabled"
