@@ -10,6 +10,8 @@
 
 *In English: [README.md](README.md).*
 
+[![Apoie a Traça no Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira)
+
 A Traça nasce de um ovo depois das suas primeiras páginas. Ela só come páginas lidas de verdade, cresce em quatro fases e, aos poucos, vira o que você lê. Quem lê ficção científica cria uma futurista desconfiada. Quem lê sátira cria uma crítica que revira os olhos para qualquer prefácio.
 
 ![A mesma traça crescendo: ninfa, jovem, adulta, anciã](media/growing-up.png)
@@ -118,3 +120,9 @@ A Traça nunca trava a sua leitura. Se algo der errado, ela avisa que tropeçou 
 
 - Em livros sem sumário, ela conta um capítulo a cada 25 páginas.
 - Ela percebe o livro pelas palavras; não entende a história como uma pessoa. Às vezes um comentário sobre o capítulo erra o assunto.
+
+## Apoie
+
+A Traça é de graça. Se ela deixou suas leituras um pouco mais divertidas, você pode me pagar um café no [Ko-fi](https://ko-fi.com/theusmaoliveira).
+
+[![Apoie a Traça no Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira)
