@@ -10,6 +10,8 @@
   silverfish on Bookshelf's home shelf, so there are no manual steps.
 - Fixed: with Simple UI 3, the welcome screen's **Home screen card** option didn't put the card on the home
   screen. Now it adds it at the end of the first page, or takes it off.
+- Fixed: Silverfish kept counting pages with KOReader's reading statistics turned off (for example by a
+  profile). Now it follows that setting.
 - Bookshelf card, by [AndyHazz](https://github.com/AndyHazz)
   ([pull request](https://github.com/theusmaoliveiras/silverfish-koreader/pull/2)): ready for Bookshelf 6.1.
   The card is drawn once at its own size, refreshes only when the silverfish or its thought changes (no needless

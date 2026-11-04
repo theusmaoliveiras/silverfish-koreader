@@ -50,7 +50,7 @@ It runs on your e-reader with **no AI and no internet**. Everything it says is p
 
 ## Using it
 
-- **Just read.** The egg hatches after a few pages.
+- **Just read.** The egg hatches after a few pages. If you turn off KOReader's reading statistics, it stops counting pages too.
 - **To see it:** open the Tools menu and tap **Silverfish**. The welcome screen also lets you open it when KOReader starts, or with a long press in the top right corner. You can change both later in its settings.
 - **Its screen** has a menu with its diary, your notebook, achievements and the lineage.
 - **Tap it** to pet it. The **gear** at the top opens the settings: sleep screen, open at startup, gesture shortcut and language. Long-pressing the silverfish opens them too.

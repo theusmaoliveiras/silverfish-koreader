@@ -50,7 +50,7 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 ## Usar
 
-- **Só leia.** O ovo choca depois de algumas páginas.
+- **Só leia.** O ovo choca depois de algumas páginas. Se você desligar as estatísticas de leitura do KOReader, ela também para de contar as páginas.
 - **Para vê-la:** abra o menu de ferramentas e toque em **Traça**. Na tela de boas-vindas você também pode escolher abri-la quando o KOReader iniciar, ou segurando o dedo no canto superior direito. Dá para mudar as duas coisas depois, nos ajustes.
 - **Na tela dela** há um menu com o diário, o caderno, as conquistas e a linhagem.
 - **Toque nela** para fazer carinho. A **engrenagem** no topo abre os ajustes: tela de descanso, abrir ao iniciar, atalho por gesto e idioma. Segurar o dedo nela também abre.

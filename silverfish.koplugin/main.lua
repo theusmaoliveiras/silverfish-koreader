@@ -260,13 +260,16 @@ function Traca:onPageUpdate(pageno)
 end
 
 --- Dá a página que estava aberta para a Traça comer.
--- Conta como as estatísticas do KOReader (uma vez por livro, tempo mínimo delas); só molda a traça
+-- Conta como as estatísticas do KOReader (uma vez por livro, tempo mínimo delas, e nada com elas desligadas); só molda a traça
 -- (temas, personagens, traços, lembranças) se foi lida de verdade (traca_contagem.lua).
 function Traca:contarPaginaAtual()
     local p, desde = self.pagina, self.pagina_desde
     if not p or not desde then return end
     local tempo = os.time() - desde
-    if tempo < Contagem.minimoSegundos(G_reader_settings:readSetting("statistics")) then return end
+    local estatisticas = G_reader_settings:readSetting("statistics")
+    -- estatísticas de leitura desligadas (no menu, num gesto ou num perfil): ela também não conta nem come
+    if type(estatisticas) == "table" and estatisticas.is_enabled == false then return end
+    if tempo < Contagem.minimoSegundos(estatisticas) then return end
     local onde = self:ondeEstou(p)
     local livro = onde.livro or "?"
     local total = self.ui.document and self.ui.document:getPageCount()
