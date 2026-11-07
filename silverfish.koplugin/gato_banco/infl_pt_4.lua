@@ -1,6 +1,6 @@
 -- Gato-das-Cinzas, influências 13 a 16 (português): filosofia, niilismo, mito e folclore, psicologia. Montado em
--- gato_banco/influencias_pt.lua; formato em traca_banco/influencias_pt.lua. Escrito e aprovado por Claude em
--- 07/11/2026. Voz: traca/cartoes/VOICE-CAT.md, seção 11.
+-- gato_banco/influencias_pt.lua; formato em traca_banco/influencias_pt.lua.
+-- Voz: traca/cartoes/VOICE-CAT.md, seção 11.
 return {
     -- 13. filosofia: a razão é o que vale guardar
     filosofia = {

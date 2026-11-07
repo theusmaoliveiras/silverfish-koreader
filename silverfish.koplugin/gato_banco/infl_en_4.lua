@@ -1,6 +1,5 @@
 -- The Ash Cat, influences 13 to 16 (English): philosophy, nihilism, myth and folklore, psychology. Same order and
 -- marks as gato_banco/infl_pt_4.lua. Milton is quoted word for word (public domain, VOICE-CAT.md section 7).
--- Written and approved by Claude on 07/11/2026.
 return {
     filosofia = {
         frases = {

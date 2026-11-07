@@ -1,7 +1,6 @@
 --[[--
 Falas do Gato-das-Cinzas sobre o que você está lendo (português), desde 07/11/2026: a fase 5 da paridade com a
-traça (FALAS_LIVRO, FALAS_PERSONAGEM e a fala da palavra em traca_estado.lua, somadas aos lotes extras). Escrito e
-aprovado por Claude, a pedido do usuário.
+traça (FALAS_LIVRO, FALAS_PERSONAGEM e a fala da palavra em traca_estado.lua, somadas aos lotes extras).
   livro[fase]       %s = o livro atual
   personagem[fase]  %s = um personagem frequente do livro
   palavra[fase]     %s = a última palavra difícil (uma fala por fase, com marcas de jeito)

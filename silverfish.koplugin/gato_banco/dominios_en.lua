@@ -1,6 +1,6 @@
 --[[--
 The Ash Cat's vocabulary for each theme (English), since 07/11/2026: phase 5 of the parity with the silverfish.
-Written and approved by Claude at the user's request. Same format and order as gato_banco/dominios_pt.lua (see
+Same format and order as gato_banco/dominios_pt.lua (see
 traca_banco/dominios_en.lua for how each kind fits a sentence). No politics words in the politics theme.
 _causa: a bad mood with a real reason from the book, by stage; {evento} comes with "that".
 ]]

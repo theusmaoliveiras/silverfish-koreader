@@ -2,8 +2,8 @@
 The Ash Cat: literary influences and base personality (English; since 07/11/2026). Same format, order and marks
 as gato_banco/influencias_pt.lua; each line adapts the Portuguese one. As in traca_banco/influencias_en.lua:
 {tema} carries its own article and never starts a sentence, {de_tema} is not used, lenses take "a" or "an",
-British spelling. The Rules of the Cellar keep the words of VOICE-CAT.md, section 6. Written and approved by
-Claude on 07/11/2026: 50 base lines and 70 per influence, in four files (infl_en_1 to infl_en_4).
+British spelling. The Rules of the Cellar keep the words of VOICE-CAT.md, section 6.
+50 base lines and 70 per influence, in four files (infl_en_1 to infl_en_4).
 ]]
 
 local influencias = {}

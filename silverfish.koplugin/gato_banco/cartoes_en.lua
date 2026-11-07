@@ -1,6 +1,6 @@
 --[[--
-The Ash Cat's card box (English), since 07/11/2026: phase 5 of the parity with the silverfish. Written and approved
-by Claude at the user's request. Same cards, order and marks as gato_banco/cartoes_pt.lua.
+The Ash Cat's card box (English), since 07/11/2026: phase 5 of the parity with the silverfish.
+Same cards, order and marks as gato_banco/cartoes_pt.lua.
 ]]
 
 return {

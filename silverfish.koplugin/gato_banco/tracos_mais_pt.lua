@@ -1,6 +1,6 @@
 --[[--
-Mais jeito do Gato-das-Cinzas (português), desde 07/11/2026: a fase 3 da paridade com a traça. Escrito e aprovado
-por Claude, a pedido do usuário. Somado no fim de gato_banco/tracos_pt.lua (que é gerado e não se edita à mão):
+Mais jeito do Gato-das-Cinzas (português), desde 07/11/2026: a fase 3 da paridade com a traça.
+Somado no fim de gato_banco/tracos_pt.lua (que é gerado e não se edita à mão):
 cada lista daqui entra depois da escolhida no lote 5a ou 5b-3.
 
 falas[polo][fase]: 9 a mais por lado e por fase, para ele ter 10 (a traça tem 15 por lado em cada uma das suas 2

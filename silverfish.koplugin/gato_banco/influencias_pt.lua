@@ -1,7 +1,7 @@
 --[[--
 Gato-das-Cinzas: influências literárias e personalidade-base (português; desde 07/11/2026). O mesmo formato, as
 mesmas lacunas e as mesmas regras de traca_banco/influencias_pt.lua (lá está a explicação de cada marca); a lógica
-é a mesma, traca_influencias.lua. Escrito e aprovado por Claude em 07/11/2026, no volume da traça: 50 frases de
+é a mesma, traca_influencias.lua. No volume da traça: 50 frases de
 base e 70 por influência. Voz: traca/cartoes/VOICE-CAT.md (seção 11: as influências nos olhos dele).
 
 Diferenças da traça:

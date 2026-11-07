@@ -1,6 +1,6 @@
 --[[--
 Falas geradas e sonhos do Gato-das-Cinzas (português), desde 07/11/2026: a fase 4 da paridade com a traça.
-Escrito e aprovado por Claude, a pedido do usuário. O mesmo formato de traca_falas.lua (lá estão a regra e as
+O mesmo formato de traca_falas.lua (lá estão a regra e as
 lacunas): cada fala = abertura + núcleo + fecho, e cada parte pode ser vazia; núcleo com lacuna sem dado fica de
 fora. Lacunas: {livro}, {personagem}, {tema} (com artigo: "o mar"), {palavra}, {marcante}. Marcas de jeito
 <polo:…|…> com os lados do gato (traca_voz.lua).

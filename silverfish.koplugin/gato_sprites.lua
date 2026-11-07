@@ -1,4 +1,4 @@
--- Generated from Figma (BookBrood-Design, Section 1) by tools/art/build_sprites.py; don't edit by hand.
+-- Pixel art by Matheus Oliveira, drawn by hand in Aseprite (CC BY-NC-SA 4.0, see LICENSE-ART.md). Stored here as rows of pixels; don't edit this file by hand.
 -- The cat, egg to elder, awake and asleep. 64x64.
 -- Black and white: each character is an e-ink gray level, its hex digit ("0" black, "e" #EEEEEE); " " is white.
 return {

@@ -1,5 +1,5 @@
 -- The Ash Cat, influences 9 to 12 (English): poetry, tragedy, social realism and existentialism. Same order and
--- marks as gato_banco/infl_pt_3.lua. Written and approved by Claude on 07/11/2026.
+-- marks as gato_banco/infl_pt_3.lua.
 return {
     poesia = {
         frases = {

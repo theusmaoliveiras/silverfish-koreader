@@ -1,6 +1,6 @@
 --[[--
 The Ash Cat's lines about what you're reading (English), since 07/11/2026: phase 5 of the parity with the
-silverfish. Written and approved by Claude at the user's request. Same lists, order and marks as
+silverfish. Same lists, order and marks as
 gato_banco/livro_pt.lua.
 ]]
 

@@ -1,4 +1,4 @@
--- Generated from Figma (BookBrood-Design, Section 1) by tools/art/build_sprites.py; don't edit by hand.
+-- Pixel art by Matheus Oliveira, drawn by hand in Aseprite (CC BY-NC-SA 4.0, see LICENSE-ART.md). Stored here as rows of pixels; don't edit this file by hand.
 -- The cat in colour, awake and asleep (its egg is the same in both, so it's only in
 -- gato_sprites.lua). 64x64.
 -- Colour: each capital letter is one colour, in _cores; " " is white. Used when the screen shows colour.

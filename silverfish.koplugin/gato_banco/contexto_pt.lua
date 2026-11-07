@@ -1,7 +1,7 @@
 --[[--
 Gato-das-Cinzas: falas com dados da sua leitura (português). Mesmo formato e gatilhos de traca_contexto.lua
-(a traça), por fase do gato: filhote, adulto, velho. Escrito e aprovado por Claude em 07/11/2026, a pedido do
-usuário ("pode desenvolver tudo e aprovar você mesmo"), no volume da traça. Voz: traca/cartoes/VOICE-CAT.md.
+(a traça), por fase do gato: filhote, adulto, velho.
+No volume da traça. Voz: traca/cartoes/VOICE-CAT.md.
 
 Brechas: {hora} ("2h13"), {n} (páginas ou dias), {livro}, {pct} ("93%"); <polo:…|…> escolhe pelo jeito;
 {cheiro|…} é palavra do mundo do livro (traca_voz.lua). Nada de gênero para o leitor nem para o gato.

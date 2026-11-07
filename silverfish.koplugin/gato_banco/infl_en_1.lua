@@ -1,6 +1,6 @@
 -- The Ash Cat, influences 1 to 4 (English): epic fantasy, mystery, horror and romance. Same order and marks as
 -- gato_banco/infl_pt_1.lua; assembled in gato_banco/influencias_en.lua. {tema} carries its own article and never
--- starts a sentence; {de_tema} is not used. Written and approved by Claude on 07/11/2026.
+-- starts a sentence; {de_tema} is not used.
 return {
     epica = {
         frases = {

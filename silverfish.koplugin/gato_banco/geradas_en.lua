@@ -1,6 +1,6 @@
 --[[--
 Generated lines and dreams for the Ash Cat (English), since 07/11/2026: phase 4 of the parity with the silverfish.
-Written and approved by Claude at the user's request. Same order and marks as gato_banco/geradas_pt.lua; each
+Same order and marks as gato_banco/geradas_pt.lua; each
 part adapts the Portuguese one. {tema} carries its article ("the sea"). The silverfish is "the paper-eater".
 ]]
 

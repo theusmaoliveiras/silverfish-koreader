@@ -1,6 +1,6 @@
 --[[--
 Mais diário do Gato-das-Cinzas, NOTAS DO PORÃO (português), desde 07/11/2026: a fase 3 da paridade com a traça.
-Escrito e aprovado por Claude, a pedido do usuário. Somado no fim de gato_banco/diario_pt.lua (que é gerado e não
+Somado no fim de gato_banco/diario_pt.lua (que é gerado e não
 se edita à mão): cada lista daqui entra depois das escolhidas nos lotes 5b-1, 5b-2 e 5b-3, até ele ter quase
 tantas opções quanto a traça em cada pedaço. Ficam de fora os vereditos e as lembranças de clima, que não
 aparecem. As lacunas são as de traca_banco/diario_pt.lua.

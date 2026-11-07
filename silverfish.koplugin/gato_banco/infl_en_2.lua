@@ -1,5 +1,5 @@
 -- The Ash Cat, influences 5 to 8 (English): adventure, science fiction and dystopia, magical realism and satire.
--- Same order and marks as gato_banco/infl_pt_2.lua. Written and approved by Claude on 07/11/2026.
+-- Same order and marks as gato_banco/infl_pt_2.lua.
 return {
     aventura = {
         frases = {

@@ -1,6 +1,6 @@
 --[[--
-Memory lines for the Ash Cat (English), since 07/11/2026: phase 4 of the parity with the silverfish. Written and
-approved by Claude at the user's request. Same lists, order and marks as gato_banco/memoria_pt.lua; each line
+Memory lines for the Ash Cat (English), since 07/11/2026: phase 4 of the parity with the silverfish.
+Same lists, order and marks as gato_banco/memoria_pt.lua; each line
 adapts the Portuguese one. Themes carry their own article ("the sea", "death"), as in traca_en_livros.lua.
 ]]
 

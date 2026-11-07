@@ -1,6 +1,6 @@
 --[[--
 Vocabulário de cada tema do Gato-das-Cinzas (português), desde 07/11/2026: a fase 5 da paridade com a traça.
-Escrito e aprovado por Claude, a pedido do usuário. O mesmo formato de traca_banco/dominios_pt.lua (lá estão os
+O mesmo formato de traca_banco/dominios_pt.lua (lá estão os
 seis tipos e como entram nas frases): gosto (o gosto da página que ele carrega no dente), cheiro, comparacao,
 exclamacao, lugar, coisa. Nos temas de política, nenhuma palavra de política (VOICE-CAT.md, seção 4).
 _causa: o mau humor com motivo real do livro, por fase (filhote, adulto, velho); {evento} já vem com

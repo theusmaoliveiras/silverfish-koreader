@@ -1,6 +1,6 @@
 --[[--
 Mais falas do dia a dia do Gato-das-Cinzas (português), desde 07/11/2026: a paridade com a traça no volume das
-falas por situação (as dela somadas aos lotes extras). Escrito e aprovado por Claude, a pedido do usuário. Somado
+falas por situação (as dela somadas aos lotes extras). Somado
 no fim de gato_banco/falas_pt.lua (que é gerado das escolhas dos lotes 1A, 1B e 1C e não se edita à mão): cada
 lista daqui entra depois das escolhidas.
 

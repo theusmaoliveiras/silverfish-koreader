@@ -1,6 +1,6 @@
 --[[--
-Falas de memória do Gato-das-Cinzas (português), desde 07/11/2026: a fase 4 da paridade com a traça. Escrito e
-aprovado por Claude, a pedido do usuário. As mesmas listas de traca_memoria.lua (lá estão as regras), no volume da
+Falas de memória do Gato-das-Cinzas (português), desde 07/11/2026: a fase 4 da paridade com a traça.
+As mesmas listas de traca_memoria.lua (lá estão as regras), no volume da
 traça somado ao dos lotes extras:
   FALAS_EVENTO, NOVO, SUMIU, AZEDOU, ADOCOU, VIROU  o comentário de fim de capítulo (%s = nome; em VIROU, os
                                                     dois temas com "de": "da morte", "do mar")

@@ -1,6 +1,6 @@
 -- Gato-das-Cinzas, influências 5 a 8 (português): aventura, ficção científica e distopia, realismo mágico e
--- sátira. Montado em gato_banco/influencias_pt.lua; formato em traca_banco/influencias_pt.lua. Escrito e aprovado
--- por Claude em 07/11/2026. Voz: traca/cartoes/VOICE-CAT.md, seção 11.
+-- sátira. Montado em gato_banco/influencias_pt.lua; formato em traca_banco/influencias_pt.lua.
+-- Voz: traca/cartoes/VOICE-CAT.md, seção 11.
 return {
     -- 5. aventura: fugas, telhados, mapas, contrabando na estrada
     aventura = {

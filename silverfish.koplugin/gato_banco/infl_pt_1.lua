@@ -1,6 +1,6 @@
 -- Gato-das-Cinzas, influências 1 a 4 (português): fantasia épica, mistério, terror e romance. Montado em
--- gato_banco/influencias_pt.lua; formato e lacunas em traca_banco/influencias_pt.lua. Escrito e aprovado por
--- Claude em 07/11/2026, no volume da traça. Voz: traca/cartoes/VOICE-CAT.md, seção 11 (as influências nos
+-- gato_banco/influencias_pt.lua; formato e lacunas em traca_banco/influencias_pt.lua.
+-- No volume da traça. Voz: traca/cartoes/VOICE-CAT.md, seção 11 (as influências nos
 -- olhos dele). Fases do gato: filhote, adulto, velho.
 return {
     -- 1. fantasia épica: furtos, mapas, passagens secretas, bichos pequenos carregando algo importante

@@ -1,7 +1,7 @@
 --[[--
 Ash Cat: lines with data from your reading (English). The same layout and triggers as traca_contexto.lua (the
-silverfish), by the cat's stage: kitten, adult, elder. Written and approved by Claude on 07/11/2026, at the
-user's request, in the silverfish's volume. Voice: traca/cartoes/VOICE-CAT.md. Same order as contexto_pt.lua.
+silverfish), by the cat's stage: kitten, adult, elder.
+In the silverfish's volume. Voice: traca/cartoes/VOICE-CAT.md. Same order as contexto_pt.lua.
 
 Slots: {hora} ("2:13 a.m."), {n} (pages or days), {livro}, {pct} ("93%"); <pole:…|…> picks by temper;
 {cheiro|…} is a word from the book's world (traca_voz.lua). No gendered words for the reader or the cat.

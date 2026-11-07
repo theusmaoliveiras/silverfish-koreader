@@ -1,6 +1,6 @@
 -- Gato-das-Cinzas, influências 9 a 12 (português): poesia, tragédia, realismo social e existencialismo. Montado
--- em gato_banco/influencias_pt.lua; formato em traca_banco/influencias_pt.lua. Escrito e aprovado por Claude em
--- 07/11/2026. Voz: traca/cartoes/VOICE-CAT.md, seção 11.
+-- em gato_banco/influencias_pt.lua; formato em traca_banco/influencias_pt.lua.
+-- Voz: traca/cartoes/VOICE-CAT.md, seção 11.
 return {
     -- 9. poesia: fácil de lembrar, difícil de queimar
     poesia = {

@@ -1,7 +1,7 @@
 --[[--
 More everyday lines for the Ash Cat (English), since 07/11/2026: parity with the silverfish in the volume of lines
-by situation. Written and approved by Claude at the user's request. Appended at the end of gato_banco/falas_en.lua
-(generated from the choices of batches 1A, 1B and 1C, not edited by hand). Same lists, order and marks as
+by situation. Appended at the end of gato_banco/falas_en.lua
+(built from the choices of batches 1A, 1B and 1C, not edited by hand). Same lists, order and marks as
 gato_banco/falas_mais_pt.lua; muda_perto has %d (the pages left), muda_iminente is for the last 10 pages.
 ]]
 

@@ -1,6 +1,6 @@
 --[[--
-More temper for the Ash Cat (English), since 07/11/2026: phase 3 of the parity with the silverfish. Written and
-approved by Claude at the user's request. Appended at the end of gato_banco/tracos_en.lua (which is generated and
+More temper for the Ash Cat (English), since 07/11/2026: phase 3 of the parity with the silverfish.
+Appended at the end of gato_banco/tracos_en.lua (which is generated and
 not edited by hand): each list here goes after the one chosen in batch 5a or 5b-3. Same order as
 gato_banco/tracos_mais_pt.lua; each line adapts the Portuguese one.
 ]]

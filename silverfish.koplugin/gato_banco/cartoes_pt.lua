@@ -1,6 +1,6 @@
 --[[--
-Caixa de cartões do Gato-das-Cinzas (português), desde 07/11/2026: a fase 5 da paridade com a traça. Escrito e
-aprovado por Claude, a pedido do usuário. O mesmo formato e os mesmos assuntos de traca_banco/cartoes_pt.lua (lá
+Caixa de cartões do Gato-das-Cinzas (português), desde 07/11/2026: a fase 5 da paridade com a traça.
+O mesmo formato e os mesmos assuntos de traca_banco/cartoes_pt.lua (lá
 está a explicação); fase com as do gato (filhote, adulto, velho). Presságio e pai ficam desligados, como os da
 traça, até as listas de palavras deles ficarem boas.
 ]]

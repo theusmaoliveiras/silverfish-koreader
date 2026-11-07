@@ -1,6 +1,6 @@
 --[[--
 More diary for the Ash Cat, CELLAR NOTES (English), since 07/11/2026: phase 3 of the parity with the silverfish.
-Written and approved by Claude at the user's request. Appended at the end of gato_banco/diario_en.lua (which is
+Appended at the end of gato_banco/diario_en.lua (which is
 generated and not edited by hand). Same order as gato_banco/diario_mais_pt.lua; each line adapts the Portuguese
 one. The blanks are those of traca_banco/diario_en.lua ({tema} carries its article; {de_tema} is not used).
 ]]
