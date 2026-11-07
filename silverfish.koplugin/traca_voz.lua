@@ -33,6 +33,7 @@ Lógica pura (sem KOReader), testável fora dele.
 ]]
 
 local Lingua = require("traca_lingua")
+local Species = require("traca_species")
 local Tracos = require("traca_tracos")
 
 local Voz = {}
@@ -59,9 +60,9 @@ Voz.BASE_TEMAS = okB and type(BASE_TEMAS) == "table" and BASE_TEMAS or nil
 local bancos = {}
 --- Vocabulário dos domínios no idioma atual (ou nil).
 function Voz.banco()
-    local c = Lingua.codigo()
+    local c = Species.current().id .. ":" .. Lingua.codigo()  -- one per species and language
     if bancos[c] == nil then
-        local ok, b = pcall(require, "traca_banco.dominios_" .. c)
+        local ok, b = pcall(require, Species.bankModule("dominios"))
         bancos[c] = ok and type(b) == "table" and b or false
     end
     return bancos[c] or nil
@@ -296,7 +297,7 @@ function Voz.causa(s, temperamento, sorteio)
     table.sort(caps, function(a, b) return (a.ordem or 0) > (b.ordem or 0) end)
     for i = 1, math.min(5, #caps) do
         local ev = Memoria.eventoDoCapitulo(L, caps[i])
-        local frases = C[temperamento == "jovem" and "jovem" or "velha"]
+        local frases = C[temperamento] or C[temperamento == "jovem" and "jovem" or "velha"]  -- the cat: its stages
         if ev and C.eventos[ev] and frases then
             local t = frases[(sorteio or math.random)(#frases)]
             return (t:gsub("{evento}", C.eventos[ev]):gsub("{livro}", function() return s.ultimo_livro end))

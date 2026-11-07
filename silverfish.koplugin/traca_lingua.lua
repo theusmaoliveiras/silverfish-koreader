@@ -85,7 +85,7 @@ end
 
 --- Frases extras (lotes novos) de um módulo, no idioma atual, ou nil.
 function Lingua.extra(nome)
-    local ok, banco = pcall(require, "traca_banco.extra_" .. Lingua.codigo())
+    local ok, banco = pcall(require, require("traca_species").bankModule("extra"))  -- the active species' batches
     return ok and banco[nome] or nil
 end
 

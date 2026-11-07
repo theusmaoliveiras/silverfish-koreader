@@ -30,17 +30,37 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 - **Escreve um diário** dos seus dias de leitura e guarda um **caderno** com os seus destaques.
 - **Sonha.** Ligue a tela de descanso dela e, quando o aparelho dormir, você vai vê-la dormindo, sonhando com o que você leu. Cada fase tem o seu desenho dormindo.
 - **Conquistas e uma estante** com todos os livros que vocês terminaram juntos.
+- **Ela tem companhia.** Na **ninhada**, outras criaturas podem dividir o seu progresso, uma acordada de cada vez.
+  A primeira espécie nova é o **Gato-das-Cinzas** (veja abaixo).
 - **Português e inglês.** Ela segue o idioma do KOReader, ou você escolhe.
 
 ![“After Dracula, I need a light on and a long silence.” “After Pride and Prejudice, I need a handkerchief and a long silence.” “After The Hound of the Baskervilles, I need a cigarette and a long silence.”](media/after-the-book.png)
 
 ![“Old and frightened. A fine result of your literary taste.” “I've gone soft. It was your romances. Tell no one.”](media/your-taste.png)
 
+## A ninhada e o Gato-das-Cinzas
+
+A sua traça não precisa ficar sozinha. Abra o menu (☰) na tela dela e toque em **NINHADA**: lá aparece a vida de
+quem está acordado (nome, fase, obsessão, o livro que você está lendo, dias, livros e geração) e, embaixo, o bando.
+
+- **Um acordado de cada vez.** Choque um ovo ou acorde quem está dormindo, e quem estava acordado vai dormir. Quem
+  dorme não sente fome nem envelhece; acorda do jeito que estava.
+- **A leitura é de todos.** Os livros que você leu, a estante e as sequências vão com quem está acordado. Cada
+  criatura guarda a própria fase, a personalidade, o diário e a linhagem.
+- **O Gato-das-Cinzas** é a primeira espécie nova, e o ovo dele vem pronto desde o início. Há muito tempo, numa
+  cidade que já não tem nome, gatos tiravam páginas das fornalhas, uma por vez, no dente, e decoravam o que
+  salvavam. O descendente deles ainda usa o lenço. Ele não come as suas páginas, guarda. Confere as saídas quando
+  entra num cômodo, cita as Regras do Porão que a vovó ensinou e chama você de cúmplice. Tem as próprias fases
+  (ovo, filhote, adulto, velho), o próprio diário, as NOTAS DO PORÃO, e voz própria para tudo, e o que você lê
+  molda o gato do mesmo jeito que molda a traça.
+- **Nomes.** Dê um nome a cada criatura (até 14 letras, ou sorteie uma sugestão) quando ela nascer, nas
+  boas-vindas, ou depois, nos ajustes.
+
 ## Instalar
 
 **Antes de começar:** você precisa do KOReader no seu aparelho. No Kindle, isso quer dizer um Kindle desbloqueado (jailbreak) com o KOReader instalado, que costuma ser aberto pelo KUAL. O guia do próprio KOReader explica como: [wiki do KOReader](https://github.com/koreader/koreader/wiki).
 
-1. Baixe o `silverfish-v1.1.0.zip` em [Releases](../../releases) e descompacte. Dentro há uma pasta chamada `silverfish.koplugin`.
+1. Baixe o `silverfish-v2.0.0.zip` em [Releases](../../releases) e descompacte. Dentro há uma pasta chamada `silverfish.koplugin`.
 2. Conecte o aparelho ao computador e copie `silverfish.koplugin` para a pasta `plugins` do KOReader:
    - **Kindle:** `koreader/plugins/`
    - **Kobo:** `.adds/koreader/plugins/`
@@ -52,15 +72,15 @@ Ela funciona no seu leitor **sem IA e sem internet**. Tudo o que ela diz é mont
 
 ## Usar
 
-- **Só leia.** O ovo choca depois de algumas páginas.
-- **Para vê-la:** abra o menu de ferramentas e toque em **Traça**. Na tela de boas-vindas você também pode escolher abri-la quando o KOReader iniciar, ou segurando o dedo no canto superior direito.
-- **Na tela dela** há um menu com o diário, o caderno, as conquistas e a linhagem.
-- **Toque nela** para fazer carinho. **Segure o dedo nela** para as opções: tela de descanso ligada ou desligada, e idioma.
+- **Só leia.** O ovo choca depois de algumas páginas. Se você desligar as estatísticas de leitura do KOReader, ela também para de contar as páginas.
+- **Para vê-la:** abra o menu de ferramentas e toque em **Traça**. Na tela de boas-vindas você também pode escolher abri-la quando o KOReader iniciar, ou segurando o dedo no canto superior direito. Dá para mudar as duas coisas depois, nos ajustes.
+- **Na tela dela** há um menu (☰) com a ninhada, o caderno, o diário, as conquistas e a linhagem.
+- **Toque nela** para fazer carinho. A **engrenagem** no topo abre os ajustes: tela de descanso, abrir ao iniciar, atalho por gesto, o nome e o idioma. Segurar o dedo nela também abre.
 - **Opcional:** com o plugin [Simple UI](https://github.com/doctorhetfield-cmd/simpleui.koplugin) (de doctorhetfield-cmd) instalado, ela aparece num cartão na tela inicial.
 
 <img src="media/simple-ui.png" alt="Um Kindle mostrando a tela inicial do KOReader com o plugin Simple UI: o livro em leitura e, embaixo, a traça anciã dizendo: chiming. Ate it. Nobody uses that word anymore.">
 
-- **Opcional:** com o plugin [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) (de AndyHazz) instalado, ela pode morar na tela inicial ou ficar numa prateleira, no meio dos seus livros. O Bookshelf não adiciona cartões sozinho, então adicione uma vez:
+- **Opcional:** com o plugin [Bookshelf](https://github.com/AndyHazz/bookshelf.koplugin) (de AndyHazz) instalado, ela pode morar na tela inicial ou ficar numa prateleira, no meio dos seus livros. Com o Bookshelf 6.1 ou mais novo, a opção **Cartão na home** da tela de boas-vindas já põe ela na prateleira inicial. Se não, ou para pôr em outro lugar, adicione uma vez:
   - **Painel de cima:** nas configurações do Bookshelf, em **Behavior → Top panel starts with**, escolha **Micro modules**. Depois segure o dedo no painel, toque em **+ Add** e escolha **Traça**.
   - **Numa prateleira:** segure o dedo na aba da prateleira, toque em **Add a module to this shelf…** e escolha **Traça**.
   - Estreito, aparece só a traça. Mais largo, ela ganha um balão com o que está pensando. Toque nela para abrir a tela dela.
@@ -76,18 +96,18 @@ Quando o aparelho dorme, a Traça dorme junto e sonha com o que você leu: os pe
 **Para ligar:**
 
 1. Abra a Traça (menu de ferramentas → **Traça**).
-2. Segure o dedo na traça.
+2. Toque na engrenagem no topo.
 3. Toque em **Tela de descanso: desligada**. Ela passa para **ligada**.
 
 Para desligar, faça o mesmo. Enquanto está ligada, a Traça usa a tela de descanso do KOReader; quando você desliga, volta a tela de descanso que você tinha antes.
 
 ## Os seus dados
 
-Tudo fica no seu aparelho, em `koreader/settings/traca.lua`: os títulos e autores dos livros que você leu, as páginas e os horários de leitura, o diário dela, algumas falas de personagens que ela guardou e o caminho do último livro que você abriu. A Traça nunca se conecta à internet e nunca manda nada para lugar nenhum.
+Tudo fica no seu aparelho, em `koreader/settings/traca.lua`: os títulos e autores dos livros que você leu, as páginas e os horários de leitura, os nomes que você deu às criaturas, os diários delas, algumas falas de personagens que elas guardaram e o caminho do último livro que você abriu. A Traça nunca se conecta à internet e nunca manda nada para lugar nenhum.
 
 ## Atualizar e fazer backup
 
-A sua traça inteira (a fase, a personalidade, o diário e a linhagem) mora num arquivo só: `koreader/settings/traca.lua` (no Kobo, `.adds/koreader/settings/traca.lua`). A pasta do plugin não guarda nada dela.
+A sua traça inteira (a fase, a personalidade, o diário e a linhagem), e cada criatura da ninhada dela, mora num arquivo só: `koreader/settings/traca.lua` (no Kobo, `.adds/koreader/settings/traca.lua`). A pasta do plugin não guarda nada dela.
 
 **Para atualizar:**
 
@@ -96,7 +116,7 @@ A sua traça inteira (a fase, a personalidade, o diário e a linhagem) mora num 
 3. Apague a pasta `silverfish.koplugin` antiga de `koreader/plugins/` e copie a nova.
 4. Abra o KOReader. A sua traça continua de onde parou.
 
-Nunca apague o `traca.lua` ao atualizar: esse arquivo *é* a sua traça. Toda versão nova é feita para abrir os saves das versões anteriores.
+Nunca apague o `traca.lua` ao atualizar: esse arquivo *é* a sua traça. Toda versão nova é feita para abrir os saves das versões anteriores; um save de antes da 2.0.0 abre como uma ninhada com a sua traça acordada.
 
 **Trocou de aparelho?** Instale o plugin no aparelho novo e copie o seu `traca.lua` para a mesma pasta, com o KOReader fechado.
 
@@ -104,9 +124,9 @@ Nunca apague o `traca.lua` ao atualizar: esse arquivo *é* a sua traça. Toda ve
 
 ## Desinstalar
 
-1. Se a tela de descanso dela estiver ligada, desligue antes: segure o dedo na Traça e escolha **Tela de descanso: desligada**.
+1. Se a tela de descanso dela estiver ligada, desligue antes: toque na engrenagem no topo da tela dela e depois em **Tela de descanso: ligada**, para ela passar para **desligada**.
 2. Apague `koreader/plugins/silverfish.koplugin`.
-3. Para apagar também a Traça e o diário dela, apague o arquivo `koreader/settings/traca.lua` e a pasta `koreader/traca`.
+3. Para apagar também a Traça, a ninhada e os diários, apague o arquivo `koreader/settings/traca.lua` e a pasta `koreader/traca`.
 
 ## Compatibilidade
 

@@ -12,8 +12,9 @@ local Widget = require("ui/widget/widget")
 local Screen = Device.screen
 
 local Estado = require("traca_estado")
-local Sprites = require("traca_sprites_livro")
-for nome, linhas in pairs(require("traca_sprites_repouso")) do Sprites[nome] = linhas end
+local Species = require("traca_species")
+-- The drawings of the active species (the silverfish unless another one is awake); with `cor`, the colour ones.
+local function Sprites(cor) return Species.sprites(cor) end
 
 local Desenho = {}
 
@@ -29,43 +30,85 @@ function Desenho.caminhoFonte(arquivo)
     return "../" .. (PASTA:gsub("^%./", "")) .. "/fontes/" .. arquivo
 end
 
--- Todos os desenhos da traça-dos-livros têm 64x64 pixels (só a anciã dormindo, da tela de descanso, é mais larga).
+-- Every drawing is 64x64 pixels.
 Desenho.LARGURA, Desenho.ALTURA = 64, 64
 
--- Os 5 tons do Figma (níveis exatos do e-ink) + o cinza antigo.
-local CORES = {
-    ["#"] = Blitbuffer.COLOR_BLACK,
-    ["1"] = Blitbuffer.Color8(0x55),
-    ["2"] = Blitbuffer.Color8(0x88),
-    ["3"] = Blitbuffer.Color8(0xBB),
-    ["4"] = Blitbuffer.Color8(0xEE),
-    ["+"] = Blitbuffer.COLOR_GRAY,
-}
+local RGB = {}
+for _, t in ipairs({ "TYPE_BBRGB16", "TYPE_BBRGB24", "TYPE_BBRGB32" }) do
+    if Blitbuffer[t] then RGB[Blitbuffer[t]] = true end
+end
+
+local function telaEmCores()
+    if not (Screen.isColorEnabled and Blitbuffer.ColorRGB32) then return false end  -- older KOReader
+    local ok, sim = pcall(Screen.isColorEnabled, Screen)
+    return ok and sim == true
+end
+
+--- Whether to paint in colour: KOReader shows colour (a colour screen, with KOReader's colour rendering on) and
+-- `bb`, when given, holds colour. Otherwise the black and white drawings, as on a Kindle Paperwhite.
+function Desenho.usarCor(bb)
+    if not telaEmCores() then return false end
+    if bb == nil then return true end
+    local ok, tipo = pcall(bb.getType, bb)
+    return ok and RGB[tipo] == true and bb.paintRectRGB32 ~= nil
+end
+
+--- A blank image for the screens painted off screen (the sleep screen): in colour when the screen shows colour.
+function Desenho.novoBuffer(w, h)
+    return Blitbuffer.new(w, h, Desenho.usarCor() and Blitbuffer.TYPE_BBRGB32 or Blitbuffer.TYPE_BB8)
+end
+
+-- The ink of each character of the drawings (`_cores` in the drawing files), per species and mode. A gray is
+-- painted as a gray; a colour is painted as a colour only in colour mode.
+local tintas = {}
+local function tintasDe(cor)
+    local chave = Species.current().id .. (cor and ":cor" or "")
+    if not tintas[chave] then
+        local t = {}
+        for ch, v in pairs(Sprites(cor)._cores or {}) do
+            local r, g, b = math.floor(v / 65536) % 256, math.floor(v / 256) % 256, v % 256
+            local lum = math.floor(0.299 * r + 0.587 * g + 0.114 * b + 0.5)
+            local cinza = r == g and g == b
+            if cor and not cinza then
+                t[ch] = { cor = Blitbuffer.ColorRGB32(r, g, b, 0xFF), rgb = true, cinza = false, lum = lum }
+            else
+                t[ch] = { cor = Blitbuffer.Color8(lum), rgb = false, cinza = cinza, lum = lum }
+            end
+        end
+        tintas[chave] = t
+    end
+    return tintas[chave]
+end
+
+local function pintarTinta(bb, x, y, w, h, tinta)
+    if tinta.rgb then bb:paintRectRGB32(x, y, w, h, tinta.cor) else bb:paintRect(x, y, w, h, tinta.cor) end
+end
 
 --- Linhas de um desenho (para saber o tamanho).
 function Desenho.sprite(nome)
-    return Sprites[Desenho.resolver(nome)]
+    return Sprites()[Desenho.resolver(nome)]
 end
 
-local topos = {}
+local topos = {}  -- per species: "<species>:<drawing>"
 --- Primeira linha com pixels do desenho (onde começa a cabeça/antena).
 function Desenho.topoReal(nome)
     local real = Desenho.resolver(nome)
-    if topos[real] == nil then
-        topos[real] = 0
-        for i, l in ipairs(Sprites[real] or {}) do
-            if l:find("[^ ]") then topos[real] = i - 1; break end
+    local chave = Species.current().id .. ":" .. real
+    if topos[chave] == nil then
+        topos[chave] = 0
+        for i, l in ipairs(Sprites()[real] or {}) do
+            if l:find("[^ ]") then topos[chave] = i - 1; break end
         end
     end
-    return topos[real]
+    return topos[chave]
 end
 
 --- Nome de um desenho que existe: o próprio ou, se aquela variação
 -- (ex.: "ninfa_feliz") ainda não foi desenhada, o desenho da fase ("ninfa").
 function Desenho.resolver(nome)
-    if nome and Sprites[nome] then return nome end
+    if nome and Sprites()[nome] then return nome end
     local fase = nome and nome:match("^([^_]+)")
-    if fase and Sprites[fase] then return fase end
+    if fase and Sprites()[fase] then return fase end
     return "ovo"
 end
 
@@ -81,10 +124,14 @@ function Desenho.quadros(lista)
     return reais
 end
 
---- Pinta o sprite `nome` com cada pixel virando um quadrado de `escala` px.
-function Desenho.pintarSprite(bb, nome, x, y, escala)
-    local linhas = Sprites[Desenho.resolver(nome)]
+--- Pinta o sprite `nome` com cada pixel virando um quadrado de `escala` px, em cores quando `bb` e a tela
+-- mostram cor (Desenho.usarCor). `trocar(linha, tinta)`, opcional, devolve a tinta a usar naquela linha do
+-- desenho (o Bookshelf escurece a sombrinha); cada tinta tem `cinza` e `lum` (0 a 255).
+function Desenho.pintarSprite(bb, nome, x, y, escala, trocar)
+    local cor = Desenho.usarCor(bb)
+    local linhas = Sprites(cor)[Desenho.resolver(nome)]
     if not linhas then return end
+    local tinta = tintasDe(cor)
     for j, linha in ipairs(linhas) do
         -- junta pixels vizinhos da mesma cor num retângulo só
         local i, n = 1, #linha
@@ -92,9 +139,10 @@ function Desenho.pintarSprite(bb, nome, x, y, escala)
             local c = linha:sub(i, i)
             local k = i
             while k < n and linha:sub(k + 1, k + 1) == c do k = k + 1 end
-            local cor = CORES[c]
-            if cor then
-                bb:paintRect(x + (i - 1) * escala, y + (j - 1) * escala, (k - i + 1) * escala, escala, cor)
+            local t = tinta[c]
+            if t and trocar then t = trocar(j, t) end
+            if t then
+                pintarTinta(bb, x + (i - 1) * escala, y + (j - 1) * escala, (k - i + 1) * escala, escala, t)
             end
             i = k + 1
         end
@@ -152,11 +200,11 @@ local function milhar(n)  -- 1.234 em português, 1,234 em inglês
 end
 Desenho.milhar = milhar
 
---- Gera a imagem da tela de descanso (PNG em tons de cinza) em `caminho`.
+--- Gera a imagem da tela de descanso (PNG em tons de cinza, ou em cores quando a tela mostra cor) em `caminho`.
 function Desenho.gerarTelaDescanso(s, caminho, agora)
     local sw, sh = Screen:getWidth(), Screen:getHeight()
     local w, h = math.min(sw, sh), math.max(sw, sh) -- a tela de descanso é sempre em pé
-    local bb = Blitbuffer.new(w, h, Blitbuffer.TYPE_BB8)
+    local bb = Desenho.novoBuffer(w, h)
     bb:fill(Blitbuffer.COLOR_WHITE)
 
     local margem = math.floor(w * 0.08)

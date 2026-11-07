@@ -4,8 +4,8 @@ Tela da Traça, desenhada como no Figma ("Traça Agent Sprites", 618x824).
 Tudo é pintado direto na tela em coordenadas do Figma multiplicadas por K
 (no Paperwhite 1236x1648, K = 2). A fonte é a Silkscreen (OFL), em fontes/.
 
-Toques: no bichinho = carinho; segurar no bichinho = menu (tela de descanso,
-idioma); no X = fechar.
+Toques: no bichinho = carinho; na engrenagem ou segurando no bichinho = ajustes
+(tela de descanso, abrir ao iniciar, atalho por gesto, idioma); no X = fechar.
 ]]
 
 local Blitbuffer = require("ffi/blitbuffer")
@@ -24,6 +24,8 @@ local Desenho = require("traca_desenho")
 local T = require("traca_lingua").t
 local Estado = require("traca_estado")
 local Memoria = require("traca_memoria")
+local Species = require("traca_species")
+local Brood = require("traca_brood")
 local Tracos = require("traca_tracos")
 
 local QUADRO_SEGUNDOS = 1.2      -- tempo entre quadros da animação
@@ -51,13 +53,30 @@ local ICONE_CARA = {
     { 25, 86, 15, 3 },
 }
 -- Nome das fases em maiúsculas no cartão de fase (string.upper não sabe o "ã" de anciã).
-local TITULO_FASE = { ovo = T"OVO", ninfa = T"NINFA", jovem = T"JOVEM", adulta = T"ADULTA", ancia = T"ANCIÃ" }
+local TITULO_FASE = { ovo = T"OVO", ninfa = T"NINFA", jovem = T"JOVEM", adulta = T"ADULTA", ancia = T"ANCIÃ",
+                      filhote = T"FILHOTE", adulto = T"ADULTO", velho = T"VELHO" }  -- the cat's (traca_species.lua)
 
 -- Ampulheta do cartão de fase (relativa ao cartão).
 local ICONE_AMPULHETA = {
     { 14, 79, 10, 2 }, { 14, 81, 2, 2 }, { 22, 81, 2, 2 }, { 16, 83, 2, 2 }, { 20, 83, 2, 2 },
     { 18, 85, 2, 2 }, { 16, 87, 2, 2 }, { 20, 87, 2, 2 }, { 14, 89, 2, 2 }, { 18, 89, 2, 2 },
     { 22, 89, 2, 2 }, { 14, 91, 10, 2 },
+}
+-- Engrenagem do botão de ajustes (24x24, relativa ao seu canto).
+-- Menu (☰) do botão das seções, 24x24 como a engrenagem: três barras de 2 de altura (06/11/2026, no lugar do
+-- botão ARQUIVO, para o nome do bicho ganhar espaço no topo).
+local ICONE_MENU = { { 2, 5, 20, 2 }, { 2, 11, 20, 2 }, { 2, 17, 20, 2 } }
+local ICONE_ENGRENAGEM = {
+    { 10, 0, 4, 1 }, { 9, 1, 6, 1 }, { 3, 2, 4, 1 }, { 9, 2, 2, 1 }, { 13, 2, 2, 1 },
+    { 17, 2, 4, 1 }, { 2, 3, 9, 1 }, { 13, 3, 9, 1 }, { 2, 4, 2, 2 }, { 6, 4, 4, 1 },
+    { 14, 4, 4, 1 }, { 20, 4, 2, 2 }, { 2, 6, 3, 1 }, { 19, 6, 3, 1 }, { 3, 7, 2, 2 },
+    { 19, 7, 2, 2 }, { 9, 8, 6, 1 }, { 1, 9, 4, 1 }, { 8, 9, 8, 1 }, { 19, 9, 4, 1 },
+    { 0, 10, 4, 1 }, { 8, 10, 2, 4 }, { 14, 10, 2, 4 }, { 20, 10, 4, 1 }, { 0, 11, 2, 2 },
+    { 22, 11, 2, 2 }, { 0, 13, 4, 1 }, { 20, 13, 4, 1 }, { 1, 14, 4, 1 }, { 8, 14, 8, 1 },
+    { 19, 14, 4, 1 }, { 3, 15, 2, 2 }, { 9, 15, 6, 1 }, { 19, 15, 2, 2 }, { 2, 17, 3, 1 },
+    { 19, 17, 3, 1 }, { 2, 18, 2, 2 }, { 20, 18, 2, 2 }, { 6, 19, 4, 1 }, { 14, 19, 4, 1 },
+    { 2, 20, 9, 1 }, { 13, 20, 9, 1 }, { 3, 21, 4, 1 }, { 9, 21, 2, 1 }, { 13, 21, 2, 1 },
+    { 17, 21, 4, 1 }, { 9, 22, 6, 1 }, { 10, 23, 4, 1 },
 }
 
 local TracaTela = InputContainer:extend{
@@ -149,6 +168,14 @@ function TracaTela:textoApertado(bb, str, x, y, negrito, tam, aperto)
     end
 end
 
+--- Texto que diminui (até 7) quando passa de `largura`; o meio fica na mesma altura. Para os rótulos
+-- compridos do gato: os da traça cabem no tamanho de sempre.
+function TracaTela:textoQueCabe(bb, str, x, y, negrito, tam, cor, largura)
+    local t = tam
+    while t > 7 and self:larguraTexto(str, negrito, t) > largura do t = t - 1 end
+    return self:texto(bb, str, x, y + (tam - t) / 2, negrito, t, cor)
+end
+
 --- Caixa com cantos recortados (borda de 3), fundo branco e sombra deslocada (como no Figma).
 function TracaTela:cartao(bb, x, y, w, h, sombra)
     if sombra then
@@ -185,6 +212,58 @@ local function maiusculas(s)
         if ok2 and r then return r end
     end
     return s:upper()
+end
+
+TracaTela.maiusculas = maiusculas  -- for the welcome screen
+
+--- O título do bicho acordado: o nome que o leitor deu (traca_nome.lua) ou, sem nome, o da espécie.
+function TracaTela:nomeDoBicho()
+    local nome = self.traca.estado.nome
+    return nome and maiusculas(nome) or Species.texto("titulo")
+end
+
+--- A caixa do nome, com o teclado: "Sortear" troca por um nome da lista, "Pronto" guarda (vazio volta ao nome da
+-- espécie). primeira_vez: a pergunta de quando ele nasce, com "Agora não" (que não pergunta mais). ao_fechar:
+-- quem chama redesenha (as boas-vindas); sem ele, esta tela se atualiza.
+function TracaTela:pedirNome(primeira_vez, ao_fechar)
+    local Nome = require("traca_nome")
+    local InputDialog = require("ui/widget/inputdialog")
+    local InfoMessage = require("ui/widget/infomessage")
+    local s = self.traca.estado
+    local dialogo
+    local function fechar(guardar)
+        if guardar ~= nil or primeira_vez then s.nome_perguntado = true end
+        UIManager:close(dialogo)
+        self.traca:salvar()
+        if ao_fechar then ao_fechar() else self:atualizar() end
+    end
+    local linha = {
+        { text = primeira_vez and T"Agora não" or T"Cancelar", id = "close", callback = function() fechar() end },
+    }
+    if Nome.temSorteio() then
+        linha[#linha + 1] = { text = T"Sortear", callback = function()
+            dialogo:setInputText(Nome.sortear(dialogo:getInputText()) or "")
+        end }
+    end
+    linha[#linha + 1] = { text = T"Pronto", is_enter_default = true, callback = function()
+        local nome, erro = Nome.limpar(dialogo:getInputText())
+        if not nome then
+            UIManager:show(InfoMessage:new{ timeout = 3, text = erro == "longo"
+                and string.format(T"Use até %d caracteres.", Nome.MAX)
+                or T"Use só letras, números, espaços e hífen." })
+            return
+        end
+        s.nome = nome ~= "" and nome or nil
+        fechar(true)
+    end }
+    dialogo = InputDialog:new{
+        title = primeira_vez and T"Como vai se chamar?" or T"Nome",
+        input = s.nome or "",
+        input_hint = string.format(T"Até %d caracteres", Nome.MAX),
+        buttons = { linha },
+    }
+    UIManager:show(dialogo)
+    dialogo:onShowKeyboard()
 end
 
 -- Partes da tela ----------------------------------------------------------------
@@ -274,10 +353,13 @@ function TracaTela:paintTo(bb, x, y)
         self:pintarLinhagem(bb, s)
     elseif self.modo == "percepcao" then
         self:pintarPercepcao(bb, s)
+    elseif self.modo == "ninhada" then
+        self:pintarNinhada(bb, s, agora)
     else
         self:pintarCasa(bb, s, agora)
     end
     if self.menu_aberto then self:pintarMenu(bb) end
+    if self.confirmacao then self:pintarConfirmacao(bb) end
 end
 
 --- Área tocável, em pontos do Figma.
@@ -290,7 +372,7 @@ function TracaTela:alvo(x, y, w, h, acao)
 end
 
 local TITULOS = { caderno = T"CADERNO", diario = T"DIÁRIO", conquistas = T"CONQUISTAS", linhagem = T"LINHAGEM",
-                  percepcao = T"PERCEPÇÃO" }
+                  percepcao = T"PERCEPÇÃO", ninhada = T"NINHADA" }
 
 function TracaTela:cabecalho(bb)
     self.camada = "topo"
@@ -298,16 +380,19 @@ function TracaTela:cabecalho(bb)
     if titulo then
         self:texto(bb, titulo, 20, 18, true, 30)
     else
-        self:textoApertado(bb, T"TRAÇA", 20, 10, true, 44, 6)
+        -- o nome do bicho acordado (o que o leitor deu, ou o da espécie), sempre do mesmo tamanho (mockup de
+        -- 06/11/2026): 30, letras juntas, no meio da altura dos botões. Os 14 caracteres de um nome cabem com folga.
+        self:textoApertado(bb, self:nomeDoBicho(), 24, 15, true, 30, 4)
     end
     if self.traca.estado.dev_simulacao and not self.exportando then self:texto(bb, T"SIMULAÇÃO", 20, 56, false, 10, CINZA_55) end
-    -- botão ARQUIVO com setinha em pixels
-    self:cartao(bb, 403, 16, 140, 39, true)
-    self:texto(bb, T"ARQUIVO", 417, 25, true, 14)
-    self:ret(bb, 517, 31, 12, 3, PRETO)
-    self:ret(bb, 520, 34, 6, 3, PRETO)
-    self:ret(bb, 522, 37, 2, 3, PRETO)
-    self:alvo(398, 6, 152, 60, function() self.menu_aberto = not self.menu_aberto end)
+    -- menu das seções (☰ em pixels), do tamanho dos outros dois botões
+    self:cartao(bb, 447, 16, 42, 39, true)
+    self:retangulos(bb, ICONE_MENU, 456, 23.5, PRETO)
+    self:alvo(442, 6, 54, 60, function() self.menu_aberto = not self.menu_aberto end)
+    -- ajustes (engrenagem em pixels)
+    self:cartao(bb, 501, 16, 42, 39, true)
+    self:retangulos(bb, ICONE_ENGRENAGEM, 510, 23.5, PRETO)
+    self:alvo(496, 6, 54, 60, function() self.menu_aberto = false; self:menuAjustes() end)
     -- fechar
     self:cartao(bb, 555, 16, 42, 39, true)
     self:texto(bb, "X", 0, 12, true, 32, PRETO, 576)
@@ -315,15 +400,18 @@ function TracaTela:cabecalho(bb)
     self.camada = "conteudo"
 end
 
--- Menu ARQUIVO ------------------------------------------------------------------
+-- Menu das seções (o botão ☰) ----------------------------------------------------
 
+-- Um texto que depende do bicho acordado é uma função (do nome dele, ou de Species.texto).
 local ITENS_MENU = {
-    { "casa", T"TRAÇA", T"A CRIATURA" },
+    { "casa", function(tela) return tela:nomeDoBicho() end, T"A CRIATURA" },
+    { "ninhada", T"NINHADA", T"O BANDO TODO" },
     { "caderno", T"CADERNO", T"SEUS SUBLINHADOS" },
-    { "diario", T"DIÁRIO", T"MEMÓRIAS DELA" },
+    { "diario", T"DIÁRIO", function() return Species.texto("diario") end },
     { "conquistas", T"CONQUISTAS", T"MARCOS E LIVROS LIDOS" },
-    { "linhagem", T"LINHAGEM", T"AS TRAÇAS QUE VIERAM ANTES" },
+    { "linhagem", T"LINHAGEM", function() return Species.texto("linhagem") end },
 }
+local function textoDoItem(t, tela) return type(t) == "function" and t(tela) or t end
 
 function TracaTela:pintarMenu(bb)
     self.camada = "menu"
@@ -338,8 +426,8 @@ function TracaTela:pintarMenu(bb)
             self:ret(bb, x + 12, iy + 10, 6, 6, PRETO)
             self:ret(bb, x + 18, iy + 7, 6, 6, PRETO)
         end
-        self:texto(bb, item[2], x + 34, iy, true, 16)
-        self:texto(bb, item[3], x + 34, iy + 21, false, 10, CINZA_55)
+        self:texto(bb, textoDoItem(item[2], self), x + 34, iy, true, 16)
+        self:texto(bb, textoDoItem(item[3], self), x + 34, iy + 21, false, 10, CINZA_55)
         local modo = item[1]
         self:alvo(x, iy - 6, w, 48, function()
             self.menu_aberto = false
@@ -586,7 +674,7 @@ function TracaTela:pintarDiario(bb, s)
     if a then
         resumo = string.format(T"DIVIDIDA ENTRE %s E %s", maiusculas(Memoria.NOMES_TEMA[a]), maiusculas(Memoria.NOMES_TEMA[b]))
     elseif s.tema_dominante then
-        resumo = string.format(T"OBCECADA %s", maiusculas(Memoria.tema(s.tema_dominante, "por")))
+        resumo = string.format(Species.texto("obsessao"), maiusculas(Memoria.tema(s.tema_dominante, "por")))
     end
     -- o jeito que ela ficou com as suas leituras (até 2 traços; 1 quando já está dividida)
     local jeito = Tracos.rotulos(s.tracos, a and 1 or 2)
@@ -630,9 +718,11 @@ function TracaTela:cartoesStatus(bb, s, agora)
     self:cartao(bb, cx, cy, 380, 104, true)
     self:retangulos(bb, ICONE_LIVRO, cx, cy, PRETO)
     self:retangulos(bb, ICONE_CARA, cx, cy, PRETO)
-    self:texto(bb, T"BARRIGA", cx + 62, cy + 12, true, 16)
+    self:texto(bb, Species.texto("barra"), cx + 62, cy + 12, true, 16)
     local hoje = Estado.paginasHoje(s, agora)
-    self:texto(bb, string.format(T"%s · %d PÁG. HOJE", Estado.rotuloBarriga(s), hoje), cx + 62, cy + 33, false, 10, CINZA_55)
+    -- até as bolinhas (cx + 244), com folga
+    self:textoQueCabe(bb, string.format(T"%s · %d PÁG. HOJE", Estado.rotuloBarriga(s), hoje), cx + 62, cy + 33, false, 10,
+        CINZA_55, 176)
     self:texto(bb, T"HUMOR", cx + 62, cy + 58, true, 16)
     self:texto(bb, Estado.rotuloHumor(s), cx + 62, cy + 79, false, 10, CINZA_55)
     self:bolinhas(bb, cx + 244, cy + 16, Estado.bolinhas(s.barriga))
@@ -649,7 +739,7 @@ function TracaTela:cartoesStatus(bb, s, agora)
     local ger = string.format(T"GERAÇÃO %d", s.geracao or 1)
     if fw + 8 + self:larguraTexto(ger, false, 10) > larg then ger = string.format(T"GER. %d", s.geracao or 1) end
     self:texto(bb, ger, ix + 14 + fw + 8, iy + 13, false, 10, CINZA_55)
-    local alvo = pf.proxima and TITULO_FASE[pf.proxima.nome] or T"O OVO"
+    local alvo = pf.proxima and TITULO_FASE[pf.proxima.nome] or Species.texto("alvo_final")
     if pf.fase.nome == "ovo" then alvo = T"NASCER" end
     local linha1 = pf.paginas == 1 and T"PÁG. PARA" or T"PÁGS. PARA"
     local rotulo = math.max(self:larguraTexto(linha1, false, 10), self:larguraTexto(alvo, true, 10))
@@ -664,7 +754,9 @@ function TracaTela:cartoesStatus(bb, s, agora)
     local cheio = math.floor(larg * pf.fracao + 0.5)
     if cheio > 0 then self:ret(bb, ix + 14, iy + 64, cheio, 6, PRETO) end
     self:retangulos(bb, ICONE_AMPULHETA, ix, iy, CINZA_55)
-    self:texto(bb, string.format(T"%s PÁG. COMIDAS", Desenho.milhar(s.paginas)), ix + 30, iy + 77, false, 10, CINZA_55)
+    -- até a borda do cartão (ix + 171), com folga
+    self:textoQueCabe(bb, string.format(Species.texto("paginas"), Desenho.milhar(s.paginas)), ix + 30, iy + 77, false, 10,
+        CINZA_55, 137)
 end
 
 --- Tela de descanso: o balão e a Traça dormindo, sozinhos, no meio da tela (sem cartões desde 29/10/2026:
@@ -675,7 +767,7 @@ end
 function TracaTela.gerarTelaDescanso(s, caminho, agora, escolher)
     local sw, sh = Screen:getWidth(), Screen:getHeight()
     local w, h = math.min(sw, sh), math.max(sw, sh)  -- sempre em pé
-    local bb = Blitbuffer.new(w, h, Blitbuffer.TYPE_BB8)
+    local bb = Desenho.novoBuffer(w, h)  -- in colour when the screen shows colour
     bb:fill(BRANCO)
     local k = math.min(w / LARG, h / ALT)
     local p = setmetatable({
@@ -686,8 +778,9 @@ function TracaTela.gerarTelaDescanso(s, caminho, agora, escolher)
     -- o ovo não dorme, aparece ele mesmo. 64 de altura (a anciã dormindo é mais larga), no tamanho do pixel da Home.
     local fase, nome = Estado.fase(s).nome, "ovo"
     if fase ~= "ovo" then
-        for _, f in ipairs({ "ninfa", "jovem", "adulta", "ancia" }) do
-            if Desenho.resolver("repouso_" .. f) == "repouso_" .. f then nome = "repouso_" .. f end
+        for _, etapa in ipairs(Estado.fases()) do  -- the active species' stages
+            local f = etapa.nome
+            if f ~= "ovo" and Desenho.resolver("repouso_" .. f) == "repouso_" .. f then nome = "repouso_" .. f end
             if f == fase then break end
         end
     end
@@ -764,7 +857,7 @@ function TracaTela:pintarConquistas(bb, s)
             end
             local paginas, dias = Estado.totais(s)
             bloco(44, tostring(#terminados), T"LIVROS TERMINADOS")
-            bloco(240, Desenho.milhar(paginas), T"PÁGINAS COMIDAS")
+            bloco(240, Desenho.milhar(paginas), Species.texto("paginas_total"))
             bloco(436, tostring(dias), T"DIAS LENDO")
         end
         local marcos = Estado.marcos(s, {
@@ -841,17 +934,18 @@ function TracaTela:pintarLinhagem(bb, s)
         local escala = math.max(1, math.floor(80 * self.k / Desenho.LARGURA))
         if it.viva then
             Desenho.pintarSprite(bb, Estado.fase(s).nome, self.ox + self:px(30), self.oy + self:px(y + 12), escala)
-            self:texto(bb, string.format(T"GERAÇÃO %d · VIVA", s.geracao or 1), 130, y + 16, true, 15)
+            self:texto(bb, string.format(Species.texto("viva"), s.geracao or 1), 130, y + 16, true, 15)
             self:texto(bb, T"DESDE " .. data_curta(s.nascimento), 130, y + 42, false, 10, CINZA_55)
             self:texto(bb, string.format(T"%s PÁG. · %s", Desenho.milhar(s.paginas or 0), maiusculas(Estado.fase(s).titulo)), 130, y + 62, false, 10, CINZA_55)
             if s.heranca then self:texto(bb, T"HERDOU: " .. maiusculas(Memoria.NOMES_TEMA[s.heranca]), 130, y + 80, false, 10, CINZA_55) end
         else
             local m = it.m
-            Desenho.pintarSprite(bb, "ancia", self.ox + self:px(30), self.oy + self:px(y + 12), escala)
+            local fases = Estado.fases()  -- the active species' last stage (the silverfish's elder, the cat's)
+            Desenho.pintarSprite(bb, fases[#fases].nome, self.ox + self:px(30), self.oy + self:px(y + 12), escala)
             self:texto(bb, string.format(T"GERAÇÃO %d", m.geracao), 130, y + 16, true, 15)
             self:texto(bb, data_curta(m.nascimento) .. " — " .. data_curta(m.morte), 130, y + 42, false, 10, CINZA_55)
             self:texto(bb, string.format(T"%s PÁG. · %d LIVROS", Desenho.milhar(m.paginas or 0), #(m.livros or {})), 130, y + 62, false, 10, CINZA_55)
-            if m.tema then self:texto(bb, string.format(T"OBCECADA %s", maiusculas(Memoria.tema(m.tema, "por"))), 130, y + 80, false, 10, CINZA_55) end
+            if m.tema then self:texto(bb, string.format(Species.texto("obsessao"), maiusculas(Memoria.tema(m.tema, "por"))), 130, y + 80, false, 10, CINZA_55) end
             self:texto(bb, ">", 0, y + 36, true, 24, PRETO, 570)
             local idx = it.idx
             self:alvo(20, y, 578, 104, function() self.geracao_aberta = idx; self.pag_linhagem = self.pag; self.pag = 1 end)
@@ -859,7 +953,7 @@ function TracaTela:pintarLinhagem(bb, s)
         y = y + 130
     end
     if #linhagem == 0 then
-        self:rodapeFala(bb, s, T"Sou a primeira. Ainda. Um dia eu deixo um ovo e vocês me esquecem.", 560)
+        self:rodapeFala(bb, s, Species.texto("primeira"), 560)  -- a fala de cada espécie (lote 4)
     end
     self:navegacao(bb, total)
 end
@@ -906,6 +1000,374 @@ function TracaTela:pintarMemorial(bb, s, m)
     self:navegacao(bb, total)
 end
 
+-- A ninhada ---------------------------------------------------------------------------
+-- Figma "Brood — ninhada" (334:506), 07/11/2026: o bicho acordado num cartão grande e o ninho com 8 casas, uma
+-- por espécie, na ordem de NINHO; as que ainda não existem ficam em segredo. Toda espécie vem liberada (o ovo do
+-- gato já pode chocar). Tocar num bicho que dorme acorda ele; num ovo que nunca chocou, choca; o acordado vai
+-- dormir, com o tempo parado (traca_brood.lua).
+
+local NINHO, CASAS = { "traca", "gato" }, 8
+local CINZA_88 = Blitbuffer.Color8(0x88)
+local CADEADO = { { 3, 0, 4, 2 }, { 1, 2, 2, 5 }, { 7, 2, 2, 5 }, { 0, 6, 10, 8 } }  -- 10x14, em 1,5x
+-- Lápis 11x11 (em 1,5x) ao lado do nome no cartão de cima: toque troca o nome (pedido de 07/11/2026).
+local LAPIS = {}
+for y, linha in ipairs({ "........##.", ".......###.", "......#.#..", ".....###...", "....###....", "...###.....",
+                         "..###......", ".#.#.......", "#..#.......", "#.#........", "##........." }) do
+    for a, b in linha:gmatch("()#+()") do LAPIS[#LAPIS + 1] = { a - 1, y - 1, b - a, 1 } end
+end
+
+-- Borda de 3 com os cantos recortados, sem sombra (as casas em segredo).
+local function moldura(self, bb, x, y, w, h, cor)
+    self:ret(bb, x + 3, y, w - 6, 3, cor); self:ret(bb, x + 3, y + h - 3, w - 6, 3, cor)
+    self:ret(bb, x, y + 3, 3, h - 6, cor); self:ret(bb, x + w - 3, y + 3, 3, h - 6, cor)
+end
+
+-- Selo preto com texto branco (COM VOCÊ, NOVIDADE!); x é o meio quando centro.
+local function selo(self, bb, texto, x, y, centro)
+    local w = self:larguraTexto(texto, true, 10) + 18
+    if centro then x = x - w / 2 end
+    self:ret(bb, x, y, w, 21, PRETO)
+    self:texto(bb, texto, x + 9, y + 5, true, 10, BRANCO)
+end
+
+-- Texto centrado que diminui (até 7) para caber em `largura` (os nomes nas casas).
+local function centradoQueCabe(self, bb, str, cx, y, negrito, tam, cor, largura)
+    local t = tam
+    while t > 7 and self:larguraTexto(str, negrito, t) > largura do t = t - 1 end
+    self:texto(bb, str, 0, y + (tam - t) / 2, negrito, t, cor, cx)
+end
+
+-- Texto com as letras afastadas `t` pontos, como no mockup do cartão de cima (07/11/2026). A largura de cada
+-- letra é medida uma vez só e guardada.
+local LETRA = "[%z\1-\127\194-\244][\128-\191]*"
+local larguras_letra = {}
+local function larguraLetra(self, c, negrito, tam)
+    local chave = c .. (negrito and "|b|" or "|r|") .. tam .. "|" .. self.k
+    local w = larguras_letra[chave]
+    if not w then w = self:larguraTexto(c, negrito, tam); larguras_letra[chave] = w end
+    return w
+end
+
+local function larguraEspacada(self, str, negrito, tam, t)
+    local w, n = 0, 0
+    for c in str:gmatch(LETRA) do w, n = w + larguraLetra(self, c, negrito, tam), n + 1 end
+    return w + math.max(0, n - 1) * t
+end
+
+local function espacado(self, bb, str, x, y, negrito, tam, cor, t)
+    local cx = x
+    for c in str:gmatch(LETRA) do
+        if c ~= " " then self:texto(bb, c, cx, y, negrito, tam, cor) end
+        cx = cx + larguraLetra(self, c, negrito, tam) + t
+    end
+end
+
+-- Corta um texto espaçado com "…" até caber (o livro de agora, a obsessão).
+local function cortar(self, str, negrito, tam, t, largura)
+    if larguraEspacada(self, str, negrito, tam, t) <= largura then return str end
+    local resto = largura - larguraLetra(self, "…", negrito, tam)
+    local letras, soma = {}, 0
+    for c in str:gmatch(LETRA) do
+        soma = soma + larguraLetra(self, c, negrito, tam) + t
+        if soma > resto then break end
+        letras[#letras + 1] = c
+    end
+    return (table.concat(letras):gsub(" +$", "")) .. "…"
+end
+
+-- Selo do cartão de cima: preto, texto branco espaçado, 24 de altura.
+local function seloCartao(self, bb, texto, x, y)
+    local w = larguraEspacada(self, texto, true, 11, 1) + 24
+    self:ret(bb, x, y, w, 24, PRETO)
+    espacado(self, bb, texto, x + 12, y + 4.5, true, 11, BRANCO, 1)
+end
+
+-- Quebra um texto espaçado em até `max_linhas` linhas de `largura`, pelas palavras; o que sobra vai para a
+-- última linha, cortada com "…" (o livro de agora).
+local function quebrar(self, str, negrito, tam, t, largura, max_linhas)
+    local linhas, atual = {}, ""
+    for palavra in str:gmatch("%S+") do
+        local junto = atual == "" and palavra or atual .. " " .. palavra
+        if atual == "" or larguraEspacada(self, junto, negrito, tam, t) <= largura then
+            atual = junto
+        else
+            linhas[#linhas + 1], atual = atual, palavra
+        end
+    end
+    if atual ~= "" then linhas[#linhas + 1] = atual end
+    if #linhas > max_linhas then
+        linhas[max_linhas] = table.concat(linhas, " ", max_linhas)
+        for i = #linhas, max_linhas + 1, -1 do linhas[i] = nil end
+    end
+    for i, l in ipairs(linhas) do linhas[i] = cortar(self, l, negrito, tam, t, largura) end
+    return linhas
+end
+
+-- O desenho de um bicho dormindo, da espécie ativa: repouso_<fase> ou, sem ele, o da fase; o ovo é o ovo.
+local function desenhoDormindo(s)
+    local fase = Estado.fase(s).nome
+    if fase == "ovo" then return "ovo" end
+    local nome = "repouso_" .. fase
+    return Desenho.resolver(nome) == nome and nome or fase
+end
+
+-- O tamanho dos bichos nos cartões pelo que está desenhado, não pelo quadro de 64 (07/11/2026): o filhote
+-- dormindo ocupa 36x23 do quadro e, na escala do adulto, ficava minúsculo. Cada desenho ganha a maior escala
+-- inteira em que cabe na área, até `max_escala` (os pequenos crescem, mas continuam menores que o adulto);
+-- os pés ficam em `base` e o meio do desenho em `cx`. `ref` é o desenho que dá a medida (a fase, para o
+-- humor do momento não mudar o tamanho). Na espécie ativa (Species.com para os outros).
+local caixas_desenho = {}
+local function caixaDoDesenho(nome)
+    local real = Desenho.resolver(nome)
+    local chave = Species.current().id .. ":" .. real
+    if not caixas_desenho[chave] then
+        local x0, x1, y0, y1 = math.huge, -1, math.huge, -1
+        for i, l in ipairs(Desenho.sprite(real) or {}) do
+            local a = l:find("[^ ]")
+            if a then
+                x0, x1 = math.min(x0, a - 1), math.max(x1, #l - l:reverse():find("[^ ]"))
+                y0, y1 = math.min(y0, i - 1), i - 1
+            end
+        end
+        caixas_desenho[chave] = x1 < 0 and { 0, 0, Desenho.LARGURA, Desenho.LARGURA } or { x0, y0, x1 - x0 + 1, y1 - y0 + 1 }
+    end
+    return caixas_desenho[chave]
+end
+
+local function pintarNoLugar(self, bb, nome, ref, cx, base, larg, alt, max_escala, no_meio, trocar)
+    local c = caixaDoDesenho(ref or nome)
+    local escala = math.max(1, math.min(max_escala, math.floor(larg * self.k / c[3]), math.floor(alt * self.k / c[4])))
+    if no_meio then base = base - (alt - c[4] * escala / self.k) / 2 end  -- no meio da área, não no pé dela
+    Desenho.pintarSprite(bb, nome, self.ox + self:px(cx) - math.floor((c[1] + c[3] / 2) * escala),
+        self.oy + self:px(base) - (c[2] + c[4]) * escala, escala, trocar)
+end
+
+-- As casas do bando como no Figma (337:963 e 337:979, 07/11/2026): o desenho com os pés a 98 do alto da casa e
+-- o nome (ou EM SEGREDO) com o alto das letras a 117, na mesma linha em todas. O ovo pronto é pequeno (escala 5)
+-- e tem brilhos; o ovo em segredo é a silhueta do ovo da traça inteiro, num cinza só e sem a sombra (07/11/2026),
+-- e o cadeado e o rótulo em cinza mais escuro.
+local CASA_PES, CASA_NOME = 98, 117 - 0.4 * 12
+local OVO_SEGREDO = { cor = Blitbuffer.Color8(0xC7), rgb = false }
+-- brilhos do ovo pronto, em quadrados de 3 a partir do meio da casa: { dx, dy (do alto da casa), cruz? }
+local BRILHOS = { { -18, 34.5, true }, { 21.5, 30.5, false }, { 30.5, 51.5, true } }
+
+local function nomeDe(s)  -- da espécie ativa
+    return s.nome and maiusculas(s.nome) or Species.texto("titulo")
+end
+
+-- Pedido de 07/11/2026: sem a linha de resumo embaixo do título, o ninho mais longe das casas e as casas
+-- terminando a 20 do pé da tela (a mesma margem dos lados); o cartão de cima cresce para ocupar o espaço.
+-- O acordado fica só no cartão de cima: o ninho mostra quem espera (como no Figma), então tudo que tem borda
+-- preta e sombra ali é tocável. Quem vai dormir volta para o ninho.
+function TracaTela:pintarNinhada(bb, s, agora)
+    local ninhada, ativo = self.traca.ninhada, Brood.speciesOf(s)
+    self:cartaoAtivo(bb, s, agora, 82, 318)
+    self:texto(bb, T"O BANDO", 20, 430, true, 12)  -- era O NINHO; repetia NINHADA (07/11/2026)
+    local outros = {}
+    for _, id in ipairs(NINHO) do
+        if id ~= ativo then outros[#outros + 1] = id end
+    end
+    for i = 1, CASAS do
+        local x, y = 20 + ((i - 1) % 4) * 148, 476 + math.floor((i - 1) / 4) * 172
+        self:casaDoNinho(bb, outros[i], x, y, 134, 150, ninhada)
+    end
+end
+
+--- O cartão do bicho acordado, como no mockup do usuário (07/11/2026): o selo e o desenho grande, sem fundo; ao
+-- lado a espécie e a fase, o nome grande, a obsessão (e o jeito, se a espécie já tem palavras para ele), uma
+-- linha, e o livro de agora, as páginas, os livros terminados e a barra em quadrados. Rótulos em cinza com as
+-- letras afastadas; 28 de folga à direita. Tocar volta para a tela dele.
+function TracaTela:cartaoAtivo(bb, s, agora, y, h)
+    self:cartao(bb, 20, y, 578, h, true)
+    -- o desenho no meio do lado esquerdo, os pés a 22 do pé do cartão; sem passar do selo (230 de altura)
+    pintarNoLugar(self, bb, Estado.sprite(s, agora), Estado.fase(s).nome, 152, y + 296, 214, 230, 10)
+    -- A coluna da direita em dois grupos (07/11/2026, "a hierarquia tá solta"): o nome e a espécie e fase
+    -- presos no alto; e embaixo, a mesma distância da borda que o nome tem do alto, a obsessão e o jeito
+    -- pousados na linha cinza, o livro de agora e os números. O que sobra fica entre os dois grupos. Os
+    -- números são o pé do grupo de baixo; o resto sobe quando o livro tem 2 linhas.
+    -- Medidas em "alto da letra" (o texto começa 1/3 do tamanho acima dele).
+    seloCartao(self, bb, T"NA ATIVA", 50, y + 35.5)  -- o meio do selo na altura do meio do nome
+    local ix, dx = 276, 570  -- a coluna de texto e onde ela termina
+    local iw = dx - ix
+    -- o nome em cima, com o lápis ao lado (07/11/2026), e embaixo a espécie e a fase
+    local nw = self:textoQueCabe(bb, self:nomeDoBicho(), ix, y + 27, true, 30, PRETO, iw - 27)
+    local lx = ix + nw + 10
+    for _, r in ipairs(LAPIS) do
+        self:ret(bb, lx + r[1] * 1.5, y + 39 + r[2] * 1.5, r[3] * 1.5, r[4] * 1.5, CINZA_55)
+    end
+    local fase = Estado.fase(s)
+    espacado(self, bb, Species.texto("titulo") .. " · " .. (TITULO_FASE[fase.nome] or maiusculas(fase.titulo)),
+        ix, y + 62, false, 12, CINZA_88, 3)  -- alto da letra a 8 do pé do nome
+    local linhas = {}
+    if s.tema_dominante then
+        linhas[#linhas + 1] = string.format(Species.texto("obsessao"), maiusculas(Memoria.tema(s.tema_dominante, "por")))
+    end
+    -- o jeito só quando já está marcado e só em palavras, nunca quanto (07/11/2026): até 2, numa linha
+    if Tracos.banco() then  -- só a espécie que já tem palavras para o jeito (o gato, desde o lote 5a)
+        local jeitos = Tracos.rotulos(s.tracos, 2)
+        if #jeitos > 0 then linhas[#linhas + 1] = maiusculas(table.concat(jeitos, " · ")) end
+    end
+    -- a ficha de vida (07/11/2026): só o que é deste bicho e não está na tela inicial. O livro de agora com a
+    -- largura toda, em até 2 linhas; embaixo, três números grandes com o rótulo pequeno: dias de vida (sem os
+    -- dormidos, traca_brood.lua), livros terminados e geração.
+    local livro = s.livro_corrente or s.ultimo_livro
+    local linhas_livro = quebrar(self, livro and maiusculas(livro) or "—", true, 14, 1, iw, 2)
+    local sobe = 20 * (#linhas_livro - 1)
+    local linha_y = y + 181.6 - sobe
+    -- a obsessão e o jeito pousados na linha cinza (a última termina 16 acima dela), e não colados no nome
+    for i, l in ipairs(linhas) do
+        espacado(self, bb, cortar(self, l, false, 12, 1.5, iw), ix, linha_y - 28.4 - 16.4 * (#linhas - i), false, 12,
+            PRETO, 1.5)
+    end
+    self:ret(bb, ix, linha_y, iw, 1.5, CINZA_BB)  -- mais fina que as bordas; 18 acima do AGORA
+    espacado(self, bb, T"LENDO", ix, y + 195.6 - sobe, false, 12, CINZA_88, 3)
+    for i, l in ipairs(linhas_livro) do  -- a última linha termina 22 acima dos números
+        espacado(self, bb, l, ix, y + 211.4 - sobe + 20 * (i - 1), true, 14, PRETO, 1)
+    end
+    local terminados = 0
+    for titulo, L in pairs(s.livros or {}) do
+        if L.terminado and (type(s.meus_livros) ~= "table" or s.meus_livros[titulo]) then terminados = terminados + 1 end
+    end
+    local dias = math.max(1, math.floor((agora - (s.nascimento or agora)) / 86400) + 1)
+    local numeros = {
+        { tostring(dias), dias == 1 and T"DIA" or T"DIAS" },
+        { tostring(terminados), terminados == 1 and T"LIVRO" or T"LIVROS" },
+        { tostring(s.geracao or 1), T"GERAÇÃO" },
+    }
+    for i, n in ipairs(numeros) do
+        local nx = ix + 90 * (i - 1)
+        espacado(self, bb, n[1], nx, y + 239.9, true, 24, PRETO, 1)
+        espacado(self, bb, n[2], nx, y + 268.6, false, 12, CINZA_88, 3)  -- o pé a 37 da borda, como o nome no alto
+    end
+    self:alvo(20, y, 578, h, function() self:entrar("casa") end)
+    self:alvo(ix - 6, y + 28, nw + 10 + 16.5 + 14, 40, function() self:pedirNome(false) end)  -- o nome e o lápis
+end
+
+--- Uma casa do ninho: um bicho que dorme (toque acorda), um ovo que nunca chocou (NOVIDADE!, toque choca) ou,
+-- sem espécie, um segredo cinza com cadeado.
+function TracaTela:casaDoNinho(bb, id, x, y, w, h, ninhada)
+    local cx = x + w / 2
+    if not id then
+        moldura(self, bb, x, y, w, h, CINZA_BB)
+        Species.com("traca", function()  -- o mesmo ovo para todo segredo, seja qual for a espécie acordada
+            local c = caixaDoDesenho("ovo")
+            local sombra = c[2] + c[4] - 3  -- nas 3 últimas linhas, o cinza claro é a sombra: fica de fora
+            pintarNoLugar(self, bb, "ovo", nil, cx, y + CASA_PES, w - 16, 70, 5, false,
+                function(j, tinta) if j > sombra and tinta.lum >= 0xBB then return nil end return OVO_SEGREDO end)
+        end)
+        for _, r in ipairs(CADEADO) do self:ret(bb, x + w - 28 + r[1] * 1.5, y + 12 + r[2] * 1.5, r[3] * 1.5, r[4] * 1.5, CINZA_88) end
+        centradoQueCabe(self, bb, T"EM SEGREDO", cx, y + CASA_NOME, true, 12, CINZA_88, w - 16)
+        return
+    end
+    -- a casa tocável, com a sombra, ocupa o mesmo quadrado das em segredo (pedido de 07/11/2026): a grade fica
+    -- alinhada e a casa parece levantada dentro do lugar dela
+    local dorme = ninhada.sleeping[id]
+    w, h = w - 6, h - 6
+    cx = x + w / 2
+    self:cartao(bb, x, y, w, h, true)
+    local nome
+    if dorme then  -- quem dorme: o desenho e o nome; o desenho já mostra que dorme (07/11/2026, sem DORMINDO)
+        nome = Species.com(id, function()
+            pintarNoLugar(self, bb, desenhoDormindo(dorme), nil, cx, y + CASA_PES, w - 16, 74, 6)
+            return nomeDe(dorme)
+        end)
+    else  -- o ovo pronto: pequeno, no meio, com os brilhos, e só o nome embaixo
+        nome = Species.com(id, function()
+            pintarNoLugar(self, bb, "ovo", nil, cx, y + CASA_PES, w - 16, 70, 5)
+            return Species.texto("ovo_nome")
+        end)
+        for _, b in ipairs(BRILHOS) do
+            local bx, by = cx + b[1], y + b[2]
+            self:ret(bb, bx - 1.5, by - 1.5, 3, 3, PRETO)
+            if b[3] then
+                self:ret(bb, bx - 1.5, by - 4.5, 3, 3, PRETO); self:ret(bb, bx - 1.5, by + 1.5, 3, 3, PRETO)
+                self:ret(bb, bx - 4.5, by - 1.5, 3, 3, PRETO); self:ret(bb, bx + 1.5, by - 1.5, 3, 3, PRETO)
+            end
+        end
+        selo(self, bb, T"PRONTO!", cx, y - 10, true)
+    end
+    centradoQueCabe(self, bb, nome, cx, y + CASA_NOME, true, 12, PRETO, w - 16)
+    self:alvo(x - 4, y - 4, w + 14, h + 14, function() self:trocarPara(id, nome, not dorme) end)
+end
+
+--- Pergunta antes de trocar: quem está acordado vai dormir, com o tempo parado. Acordar quem dorme fica na
+-- ninhada (07/11/2026): o que acordou sobe para o cartão e o outro desce para o ninho, à vista, e dá para
+-- destrocar ali mesmo. Chocar um ovo vai para a tela do bicho novo e pergunta o nome: nascer é um momento.
+function TracaTela:trocarPara(id, nome, chocar)
+    local quem = self:nomeDoBicho()
+    local texto = chocar and string.format(T"Chocar este ovo?\n%s vai dormir com o tempo parado: sem fome e sem envelhecer.", quem)
+        or string.format(T"Acordar %s?\n%s vai dormir com o tempo parado: sem fome e sem envelhecer.", nome, quem)
+    local titulo, corpo = texto:match("^(.-)\n(.*)$")
+    -- a pergunta no desenho do app (07/11/2026), em vez da caixa do KOReader: pintarConfirmacao. Só a pergunta e
+    -- a frase embaixo: a despedida de quem vai dormir e a fala de dentro do ovo (lote 4) saíram da caixa; ficam
+    -- guardadas em traca_species.lua (despedidas, ovo_fala)
+    self.confirmacao = {
+        id = id, chocar = chocar, dorme = self.traca.ninhada.sleeping[id],
+        titulo = maiusculas(titulo or texto), corpo = maiusculas(corpo or ""),
+        ok = maiusculas(chocar and T"Chocar" or T"Acordar"), cancelar = maiusculas(T"Cancelar"),
+        acao = function()
+            if not self.traca:acordar(id) then return end
+            if chocar then
+                self:entrar("casa")
+                self:reiniciar()
+                UIManager:scheduleIn(0.3, function() self:pedirNome(true) end)
+            else
+                self:reiniciar()  -- continua na ninhada, já com a troca feita
+            end
+        end,
+    }
+    self:atualizar()
+end
+
+-- Botão do app, texto bold 15 no meio, ocupando w x h: o principal levantado (cartão com sombra, a sombra
+-- dentro do quadrado, como as casas do ninho), o outro chato, só a borda (07/11/2026).
+local function botao(self, bb, texto, x, y, w, h, acao, levantado)
+    if levantado then w, h = w - 6, h - 6 end
+    self:cartao(bb, x, y, w, h, levantado)
+    local t = 15  -- o meio das maiúsculas no meio do botão (Silkscreen: começam 0,4 do tamanho abaixo, altura 0,61)
+    self:texto(bb, texto, 0, y + math.floor((h - 0.61 * t) / 2 - 0.4 * t + 0.5), true, t, PRETO, x + w / 2)
+    self:alvo(x - 6, y - 6, w + 12 + (levantado and 6 or 0), h + 12 + (levantado and 6 or 0), acao)
+end
+
+--- A pergunta antes de trocar de bicho, por cima da ninhada: o desenho de quem vai acordar (ou o ovo), a
+-- pergunta, a frase embaixo (quem vai dormir, com o tempo parado) e os botões Cancelar e Acordar/Chocar. A tela
+-- de trás fica clareada, como um véu (sem lightenRect, numa margem branca em volta da caixa); tocar fora dela
+-- cancela (TracaTela:onTap).
+function TracaTela:pintarConfirmacao(bb)
+    local c = self.confirmacao
+    self.camada = "confirmacao"
+    local x, w, cx, area = 49, 520, 309, 150
+    local titulo = quebrar(self, c.titulo, true, 20, 1, w - 60, 2)
+    local corpo = quebrar(self, c.corpo, false, 12, 1, w - 80, 4)
+    local h = 28 + area + 22 + 26 * #titulo + 10 + 18 * #corpo + 26 + 66 + 22
+    local y = math.floor((824 - h) / 2)
+    if bb.lightenRect then
+        bb:lightenRect(self.dimen.x, self.dimen.y, self.dimen.w, self.dimen.h, 0.75)
+    else
+        self:ret(bb, x - 14, y - 14, w + 34, h + 34, BRANCO)
+    end
+    self:cartao(bb, x, y, w, h, true)
+    local base = y + 28 + area
+    Species.com(c.id, function()  -- acordado, como vai ficar (o ovo, para chocar)
+        pintarNoLugar(self, bb, c.chocar and "ovo" or Estado.fase(c.dorme).nome, nil, cx, base, 200, area, 6, true)
+    end)
+    local ty = base + 22
+    for i, l in ipairs(titulo) do
+        espacado(self, bb, l, cx - larguraEspacada(self, l, true, 20, 1) / 2, ty + 26 * (i - 1), true, 20, PRETO, 1)
+    end
+    local cy = ty + 26 * #titulo + 10
+    for i, l in ipairs(corpo) do
+        espacado(self, bb, l, cx - larguraEspacada(self, l, false, 12, 1) / 2, cy + 18 * (i - 1), false, 12, CINZA_55, 1)
+    end
+    local by = cy + 18 * #corpo + 26
+    botao(self, bb, c.cancelar, cx - 12 - 206, by, 206, 66, function() self.confirmacao = nil end)
+    botao(self, bb, c.ok, cx + 12, by, 206, 66, function()
+        self.confirmacao = nil
+        c.acao()
+    end, true)
+    self.camada = "conteudo"
+end
+
 -- Cartões de texto (memorial) --------------------------------------------------------
 
 --- Altura (em pontos do Figma) que um texto ocupa numa largura, com a fonte pixel.
@@ -939,7 +1401,7 @@ function TracaTela:exportarTelas(pasta)
     local mae = pasta:match("^(.*)/[^/]+$")
     if mae and lfs.attributes(mae, "mode") ~= "directory" then lfs.mkdir(mae) end
     if lfs.attributes(pasta, "mode") ~= "directory" then lfs.mkdir(pasta) end
-    local bb = Blitbuffer.new(Screen:getWidth(), Screen:getHeight(), Blitbuffer.TYPE_BB8)
+    local bb = Desenho.novoBuffer(Screen:getWidth(), Screen:getHeight())
     local s = self.traca.estado
     local n, falhas = 0, 0
     self.exportando = true  -- sem o selo SIMULAÇÃO nas imagens
@@ -1120,10 +1582,12 @@ end
 -- Toques ----------------------------------------------------------------------------
 
 function TracaTela:carinho()
+    -- a species with lines of its own (the cat) answers with them; the silverfish keeps these fixed ones
     if self.traca:carinho() then
-        self.mensagem = T"Hm. Tá. Pode continuar."
+        self.mensagem = Estado.falaPropria(self.traca.estado, "carinho") or T"Hm. Tá. Pode continuar."
     elseif self.traca.estado.hibernando then
-        self.mensagem = T"(escondida na lombada; leia uma página para ela sair)"
+        self.mensagem = Estado.falaPropria(self.traca.estado, "casulo")
+            or T"(escondida na lombada; leia uma página para ela sair)"
     else
         self.mensagem = T"Já chega de carinho por agora."
     end
@@ -1134,6 +1598,18 @@ function TracaTela:onTap(_, ges)
     local pos = ges and ges.pos
     if not pos then return end
     local alvos = self.alvos or {}
+    if self.confirmacao then  -- com a pergunta aberta, só os botões dela respondem; tocar fora cancela
+        for i = #alvos, 1, -1 do
+            local a = alvos[i]
+            if a.camada == "confirmacao" and pos:intersectWith(a.rect) then
+                if a.acao() ~= "fechou" then self:atualizar() end
+                return true
+            end
+        end
+        self.confirmacao = nil
+        self:atualizar()
+        return true
+    end
     for i = #alvos, 1, -1 do  -- os desenhados por último (menu) têm prioridade
         local a = alvos[i]
         if (not self.menu_aberto or a.camada ~= "conteudo") and pos:intersectWith(a.rect) then
@@ -1155,6 +1631,13 @@ end
 function TracaTela:onHold(_, ges)
     local pos = ges and ges.pos
     if self.modo or not (pos and pos:intersectWith(self.sprite_rect)) then return end
+    self:menuAjustes()
+    return true
+end
+
+--- Ajustes: tela de descanso, abrir ao iniciar, atalho por gesto, idioma (e modo dev).
+-- Abre pela engrenagem do topo ou segurando no bichinho.
+function TracaTela:menuAjustes()
     local dialogo
     local botoes = {
             {{
@@ -1164,7 +1647,25 @@ function TracaTela:onHold(_, ges)
                     self.traca:alternarTelaDescanso()
                 end,
             }},
+            {{
+                text = self.traca:abrirAoIniciar() and T"Abrir ao iniciar: ligado" or T"Abrir ao iniciar: desligado",
+                callback = function()
+                    UIManager:close(dialogo)
+                    self.traca:abrirAoIniciar(not self.traca:abrirAoIniciar())
+                end,
+            }},
+            {{
+                text = self.traca:atalhoGesto() and T"Atalho por gesto: ligado" or T"Atalho por gesto: desligado",
+                callback = function()
+                    UIManager:close(dialogo)
+                    self.traca:atalhoGesto(not self.traca:atalhoGesto())
+                end,
+            }},
     }
+    table.insert(botoes, {{ text = T"Nome…", callback = function()
+        UIManager:close(dialogo)
+        self:pedirNome(false)
+    end }})
     table.insert(botoes, {{ text = T"Idioma…", callback = function()
         UIManager:close(dialogo)
         self:menuIdioma()
@@ -1178,7 +1679,6 @@ function TracaTela:onHold(_, ges)
     dialogo = ButtonDialog:new{ buttons = botoes }
 
     UIManager:show(dialogo)
-    return true
 end
 
 --- Idioma: automático (segue o KOReader), português ou inglês. Vale depois de reiniciar.
@@ -1217,8 +1717,8 @@ function TracaTela:menuDev(fechar_anterior)
         end
     end
     local fases = {}
-    for _, f in ipairs(Estado.FASES) do
-        fases[#fases + 1] = { text = (s.dev_fase == f.nome and "▸ " or "") .. f.titulo, callback = acao(function() s.dev_fase = f.nome end) }
+    for _, f in ipairs(Estado.fases()) do
+        fases[#fases + 1] ={ text = (s.dev_fase == f.nome and "▸ " or "") .. f.titulo, callback = acao(function() s.dev_fase = f.nome end) }
     end
     dialogo = ButtonDialog:new{
         title = T"TRAÇA · MODO DEV",
@@ -1238,6 +1738,15 @@ function TracaTela:menuDev(fechar_anterior)
                     UIManager:close(dialogo)
                     self:entrar("percepcao")
                 end },
+            },
+            {
+                -- the brood, for testing until the brood screen exists: wake the other creature (the one awake
+                -- goes to sleep with its time stopped; a species that never hatched starts as an egg)
+                (function()
+                    local outro = Species.current().id == "gato" and "traca" or "gato"
+                    return { text = outro == "gato" and T"Acordar o gato (teste)" or T"Acordar a Traça (teste)",
+                             callback = acao(function() self.traca:acordar(outro) end) }
+                end)(),
             },
             {
                 { text = T"Fim do ciclo (teste)", callback = function()

@@ -3,7 +3,9 @@ Boas-vindas: aparece na primeira vez que a Traça é instalada (ou pelo modo dev
 
 Tela 1 · o ovo        — balão + ovo + botão CHOCAR
 Tela 2 · rachou       — o ovo racha; ela só sai com as primeiras páginas lidas + CONTINUAR
-Tela 3 · onde me achar — 3 opções (abrir ao iniciar, gesto, cartão no Simple UI) + PRONTO
+Tela 3 · o nome       — o campo do nome, uma casa por caractere (abre a caixa do nome, com Sortear; traca_nome.lua)
+                        + CONTINUAR. Sem nome aqui, ela pergunta de novo depois de nascer.
+Tela 4 · onde me achar — 3 opções (abrir ao iniciar, gesto, cartão no Simple UI e/ou no Bookshelf) + PRONTO
 Ela nasce de verdade lendo (fase ninfa, a partir de 3.000 letras), com a anotação no diário.
 
 Reaproveita os componentes da tela da Traça (balão, cartões, fonte e escala do Figma).
@@ -33,7 +35,8 @@ local BoasVindas = InputContainer:extend{
 }
 
 -- componentes emprestados da tela da Traça
-for _, nome in ipairs({ "px", "face", "ret", "texto", "cartao", "medirBalao", "balao", "alvo" }) do
+for _, nome in ipairs({ "px", "face", "ret", "texto", "larguraTexto", "cartao", "medirBalao", "balao", "alvo",
+                        "pedirNome" }) do
     BoasVindas[nome] = TracaTela[nome]
 end
 
@@ -55,8 +58,13 @@ function BoasVindas:init()
     self.op = {
         iniciar = G_reader_settings:isTrue("traca_abrir_ao_iniciar"),
         gesto = G_reader_settings:isTrue("traca_gesto"),
-        cartao = self.traca:cartaoSimpleUI(),
     }
+    -- no Simple UI o cartão já vem ligado; na prateleira do Bookshelf, só se a pessoa marcar
+    if self.traca:temSimpleUI() then
+        self.op.cartao = self.traca:cartaoSimpleUI()
+    else
+        self.op.cartao = self.traca:cartaoBookshelf()
+    end
 end
 
 --- Sprite centrado, com o balão logo acima da cabeça real (como na tela principal).
@@ -71,11 +79,16 @@ function BoasVindas:sprite(bb, nome, fala, centro_y, tamanho)
     self:balao(bb, fala, nil, math.max(24, cabeca - 30 - (m.H + 15)), m)
 end
 
---- Botão grande (cartão com sombra) com texto centralizado.
-function BoasVindas:botao(bb, texto, y, acao)
-    self:cartao(bb, 20, y, 578, 80, true)
-    self:texto(bb, texto, 0, y + 24, true, 24, PRETO, LARG / 2)
-    self:alvo(14, y - 6, 590, 92, acao)
+-- O botão de todos os passos (mockup de 06/11/2026): 212 x 66, centrado, texto 15, sempre na mesma altura.
+local BOTAO = { y = 704, w = 212, h = 66, tam = 15 }
+
+--- Botão (cartão com sombra) com texto centralizado.
+function BoasVindas:botao(bb, texto, acao)
+    local x, y, w, h, t = (LARG - BOTAO.w) / 2, BOTAO.y, BOTAO.w, BOTAO.h, BOTAO.tam
+    self:cartao(bb, x, y, w, h, true)
+    -- o meio das maiúsculas no meio do botão (na Silkscreen: começam 0,4 do tamanho abaixo do topo, altura 0,61)
+    self:texto(bb, texto, 0, y + math.floor((h - 0.61 * t) / 2 - 0.4 * t + 0.5), true, t, PRETO, LARG / 2)
+    self:alvo(x - 6, y - 6, w + 12, h + 12, acao)
 end
 
 --- Opção com caixinha de marcar (quadrado de pixels, cheio quando ligada).
@@ -96,23 +109,75 @@ function BoasVindas:opcao(bb, y, titulo, detalhe, ligada, acao, desativada)
     if not desativada then self:alvo(14, y - 4, 590, 82, acao) end
 end
 
+-- Dado de sortear, 24x24 como os ícones do topo (mostra o 5).
+local ICONE_DADO = {
+    { 3, 1, 18, 2 }, { 3, 21, 18, 2 }, { 1, 3, 2, 18 }, { 21, 3, 2, 18 },
+    { 2, 2, 1, 1 }, { 21, 2, 1, 1 }, { 2, 21, 1, 1 }, { 21, 21, 1, 1 },
+    { 6, 6, 4, 4 }, { 14, 6, 4, 4 }, { 10, 10, 4, 4 }, { 6, 14, 4, 4 }, { 14, 14, 4, 4 },
+}
+local CINZA_88 = Blitbuffer.Color8(0x88)
+
+-- Moldura dos campos das boas-vindas: borda cinza de 3 (a grossura da dos botões) com os cantos recortados, sem
+-- sombra, para não parecer botão.
+function BoasVindas:moldura(bb, x, y, w, h)
+    self:ret(bb, x + 3, y, w - 6, 3, CINZA_88); self:ret(bb, x + 3, y + h - 3, w - 6, 3, CINZA_88)
+    self:ret(bb, x, y + 3, 3, h - 6, CINZA_88); self:ret(bb, x + w - 3, y + 3, 3, h - 6, CINZA_88)
+end
+
+--- O campo do nome (mockups de 06/11/2026): na moldura, o nome no meio (ou o convite em cinza); tocar abre a caixa
+-- do nome. Ao lado, o dado, num quadrado com a mesma moldura: um toque sorteia um nome direto (traca_nome.lua),
+-- como no Stardew Valley.
+function BoasVindas:campoNome(bb, y)
+    local Nome = require("traca_nome")
+    local s = self.traca.estado
+    local h = 72
+    local dado = Nome.temSorteio()
+    local x, w = 20, dado and 578 - h - 12 or 578  -- com o dado, o campo deixa espaço para ele (12 entre os dois)
+    self:moldura(bb, x, y, w, h)
+    if s.nome then
+        self:texto(bb, TracaTela.maiusculas(s.nome), 0, y + 19, true, 24, PRETO, x + w / 2)
+    else
+        self:texto(bb, T"DIGITE UM NOME", 0, y + 25, false, 15, CINZA_88, x + w / 2)
+    end
+    self:alvo(x - 6, y - 6, w + 12, h + 12, function()
+        self:pedirNome(false, function() UIManager:setDirty(self, "ui") end)
+    end)
+    if dado then
+        local qx = 598 - h
+        self:moldura(bb, qx, y, h, h)
+        local m = (h - 24 * 1.5) / 2  -- o dado em 1,5x, no meio
+        for _, r in ipairs(ICONE_DADO) do
+            self:ret(bb, qx + m + r[1] * 1.5, y + m + r[2] * 1.5, r[3] * 1.5, r[4] * 1.5, PRETO)
+        end
+        self:alvo(qx - 6, y - 6, h + 12, h + 12, function()
+            s.nome, s.nome_perguntado = Nome.sortear(s.nome), true
+            self.traca:salvar()
+        end)
+    end
+end
+
 function BoasVindas:paintTo(bb, x, y)
     self.dimen.x, self.dimen.y = x, y
     bb:paintRect(x, y, self.dimen.w, self.dimen.h, BRANCO)
     self.alvos = {}
     self.camada = "conteudo"
-    -- pontinhos de progresso no rodapé (3 passos)
-    for i = 1, 3 do
-        self:ret(bb, LARG / 2 - 30 + (i - 1) * 24, 800, 12, 12, i == self.passo and PRETO or CINZA_BB)
+    -- pontinhos de progresso no rodapé (4 passos)
+    for i = 1, 4 do
+        self:ret(bb, LARG / 2 - 42 + (i - 1) * 24, 800, 12, 12, i == self.passo and PRETO or CINZA_BB)
     end
 
     if self.passo == 1 then
         self:sprite(bb, "ovo", T"(algo tremeu dentro do ovo…)", 430, 295)
-        self:botao(bb, T"CHOCAR", 690, function() self.passo = 2 end)
+        self:botao(bb, T"CHOCAR", function() self.passo = 2 end)
 
     elseif self.passo == 2 then
         self:sprite(bb, "ovo", T"(o ovo rachou… ela só sai quando você ler as primeiras páginas)", 430, 295)
-        self:botao(bb, T"CONTINUAR", 690, function() self.passo = 3 end)
+        self:botao(bb, T"CONTINUAR", function() self.passo = 3 end)
+
+    elseif self.passo == 3 then
+        self:sprite(bb, "ovo", T"(de dentro do ovo:) E eu vou me chamar como? Capricha.", 360, 250)
+        self:campoNome(bb, 600)
+        self:botao(bb, T"CONTINUAR", function() self.passo = 4 end)
 
     else
         self:sprite(bb, "ovo", T"(de dentro do ovo:) Onde você vai me achar? Escolha. Eu espero. Mal.", 245, 170)
@@ -120,10 +185,15 @@ function BoasVindas:paintTo(bb, x, y)
             self.op.iniciar, function() self.op.iniciar = not self.op.iniciar end)
         self:opcao(bb, 494, T"ATALHO POR GESTO", T"SEGURE O DEDO NO CANTO SUPERIOR DIREITO",
             self.op.gesto, function() self.op.gesto = not self.op.gesto end)
-        local tem_sui = self.traca:temSimpleUI()
-        self:opcao(bb, 588, T"CARTÃO NA HOME", tem_sui and T"NA TELA INICIAL DO SIMPLE UI" or T"SIMPLE UI NÃO INSTALADO",
-            tem_sui and self.op.cartao, function() self.op.cartao = not self.op.cartao end, not tem_sui)
-        self:botao(bb, T"PRONTO", 696, function() self:terminar() end)
+        local tem_sui, tem_bs = self.traca:temSimpleUI(), self.traca:temBookshelf()
+        local onde = tem_sui and tem_bs and T"NO SIMPLE UI E NA PRATELEIRA DO BOOKSHELF"
+            or tem_sui and T"NA TELA INICIAL DO SIMPLE UI"
+            or tem_bs and T"NA PRATELEIRA INICIAL DO BOOKSHELF"
+            or T"PRECISA DO SIMPLE UI OU DO BOOKSHELF 6.1"
+        local tem_onde = tem_sui or tem_bs
+        self:opcao(bb, 588, T"CARTÃO NA HOME", onde,
+            tem_onde and self.op.cartao, function() self.op.cartao = not self.op.cartao end, not tem_onde)
+        self:botao(bb, T"PRONTO", function() self:terminar() end)
     end
 end
 
@@ -134,6 +204,9 @@ function BoasVindas:terminar()
     G_reader_settings:saveSetting("traca_gesto", self.op.gesto or nil)
     self.traca:aplicarGesto()
     if self.traca:temSimpleUI() then self.traca:cartaoSimpleUI(self.op.cartao) end
+    if self.traca:temBookshelf() and self.traca:cartaoBookshelf() ~= self.op.cartao then
+        self.traca:cartaoBookshelf(self.op.cartao)
+    end
     self.traca:salvar(false)
     self.alvos = nil
     UIManager:close(self)

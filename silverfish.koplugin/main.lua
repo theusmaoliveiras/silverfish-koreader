@@ -21,6 +21,8 @@ local Estado = require("traca_estado")
 local Contagem = require("traca_contagem")
 local Memoria = require("traca_memoria")
 local Diario = require("traca_diario")
+local Brood = require("traca_brood")
+local Species = require("traca_species")
 local TracaTela = require("traca_tela")
 local Screensaver = require("ui/screensaver")
 
@@ -65,6 +67,9 @@ function Traca:init()
     local agora = os.time()
     self.estado = Estado.normalizar(self.db:readSetting("estado"), agora)
     Estado.passarTempo(self.estado, agora)
+    -- the brood: whoever is awake is self.estado; the others sleep in self.ninhada (traca_brood.lua)
+    self.ninhada = Brood.normalize(self.db:readSetting("ninhada"), agora)
+    Species.use(Brood.speciesOf(self.estado))
     self.paginas_sem_imagem = 0
     -- modo dev: com o arquivo koreader/traca/falhar, a digestão da página falha de propósito (nunca na versão
     -- da comunidade)
@@ -130,7 +135,15 @@ function Traca:onMostrarTraca()
     if not s.boasvindas and s.letras < 3000 then
         return self:mostrarBoasVindas()
     end
-    self:mostrarTela(TracaTela:new{ traca = self })
+    local tela = TracaTela:new{ traca = self }
+    self:mostrarTela(tela)
+    -- já nasceu e ainda não tem nome: pergunta uma vez, com a tela já desenhada por trás (traca_nome.lua)
+    if require("traca_nome").devePerguntar(s) then
+        UIManager:scheduleIn(0.5, function()
+            local aberta = telas[tela] and (not UIManager.isWidgetShown or UIManager:isWidgetShown(tela))
+            if aberta then tela:pedirNome(true) end
+        end)
+    end
     return true
 end
 
@@ -157,6 +170,21 @@ function Traca:aoIniciar()
     end
 end
 
+--- "Abrir ao iniciar" (escolhido nas boas-vindas; também no menu da tela dela). Sem argumento, só lê.
+function Traca:abrirAoIniciar(ligar)
+    if ligar ~= nil then G_reader_settings:saveSetting("traca_abrir_ao_iniciar", ligar or nil) end
+    return G_reader_settings:isTrue("traca_abrir_ao_iniciar")
+end
+
+--- Atalho por gesto ligado? (escolhido nas boas-vindas; também no menu da tela dela). Sem argumento, só lê.
+function Traca:atalhoGesto(ligar)
+    if ligar ~= nil then
+        G_reader_settings:saveSetting("traca_gesto", ligar or nil)
+        self:aplicarGesto()
+    end
+    return G_reader_settings:isTrue("traca_gesto")
+end
+
 -- Atalho por gesto: segurar o dedo no canto superior direito abre a Traça.
 function Traca:aplicarGesto()
     if not (self.ui and self.ui.registerTouchZones) then return end
@@ -179,7 +207,34 @@ function Traca:temSimpleUI()
     return ok
 end
 
+-- Simple UI 3: a tela inicial é uma lista de páginas com os módulos; o cartão aparece se estiver numa delas.
+-- Põe no fim da primeira página ou tira, como o editor de layout do próprio Simple UI. nil = não é o Simple UI 3.
+local function cartaoNoLayout(ligar)
+    local ok_l, Layout = pcall(require, "infra/sui_layout")
+    if not (ok_l and type(Layout) == "table" and Layout.load and Layout.save and Layout.findPage) then return nil end
+    local ok, esta = pcall(function()
+        local layout = Layout.load()
+        if type(layout) ~= "table" or type(layout.pages) ~= "table" then return nil end
+        local esta = Layout.findPage(layout, "traca_cartao") ~= nil
+        if ligar ~= nil and (ligar and true or false) ~= esta then
+            if ligar then
+                if not layout.pages[1] then layout.pages[1] = { id = 1, modules = {} } end
+                table.insert(layout.pages[1].modules, "traca_cartao")
+            else
+                Layout.remove(layout, nil, "traca_cartao")
+            end
+            Layout.save(layout)
+            esta = Layout.findPage(layout, "traca_cartao") ~= nil
+        end
+        return esta
+    end)
+    if ok then return esta end
+end
+
 function Traca:cartaoSimpleUI(ligar)
+    local no_layout = cartaoNoLayout(ligar)
+    if no_layout ~= nil then return no_layout end
+    -- Simple UI 2: uma chave liga e desliga o cartão
     local ok, SUISettings = pcall(require, "infra/sui_store")
     if not ok or not SUISettings then return false end
     local chave = "simpleui_hs_traca_cartao_enabled"
@@ -187,6 +242,25 @@ function Traca:cartaoSimpleUI(ligar)
     local okr, v = pcall(SUISettings.readSetting, SUISettings, chave)
     if not okr or v == nil then return true end
     return v == true
+end
+
+-- Bookshelf 6.1 ou mais novo: põe a Traça na prateleira inicial (só quando a pessoa escolhe, nas boas-vindas).
+local function kitBookshelf()
+    local ok, Kit = pcall(require, "lib/bookshelf_module_kit")
+    if ok and type(Kit) == "table" and Kit.setOnHomeShelf and Kit.onHomeShelf then return Kit end
+end
+
+function Traca:temBookshelf()
+    return kitBookshelf() ~= nil
+end
+
+--- A Traça está na prateleira inicial do Bookshelf? Com `ligar`, põe ou tira antes de responder.
+function Traca:cartaoBookshelf(ligar)
+    local Kit = kitBookshelf()
+    if not Kit then return false end
+    if ligar ~= nil then pcall(Kit.setOnHomeShelf, "silverfish", ligar and true or false) end
+    local ok, v = pcall(Kit.onHomeShelf, "silverfish")
+    return ok and v == true
 end
 
 -- Leitura ------------------------------------------------------------------
@@ -199,13 +273,16 @@ function Traca:onPageUpdate(pageno)
 end
 
 --- Dá a página que estava aberta para a Traça comer.
--- Conta como as estatísticas do KOReader (uma vez por livro, tempo mínimo delas); só molda a traça
+-- Conta como as estatísticas do KOReader (uma vez por livro, tempo mínimo delas, e nada com elas desligadas); só molda a traça
 -- (temas, personagens, traços, lembranças) se foi lida de verdade (traca_contagem.lua).
 function Traca:contarPaginaAtual()
     local p, desde = self.pagina, self.pagina_desde
     if not p or not desde then return end
     local tempo = os.time() - desde
-    if tempo < Contagem.minimoSegundos(G_reader_settings:readSetting("statistics")) then return end
+    local estatisticas = G_reader_settings:readSetting("statistics")
+    -- estatísticas de leitura desligadas (no menu, num gesto ou num perfil): ela também não conta nem come
+    if type(estatisticas) == "table" and estatisticas.is_enabled == false then return end
+    if tempo < Contagem.minimoSegundos(estatisticas) then return end
     local onde = self:ondeEstou(p)
     local livro = onde.livro or "?"
     local total = self.ui.document and self.ui.document:getPageCount()
@@ -311,9 +388,9 @@ function Traca:alimentar(letras, palavra, onde, texto, contar)
     self.paginas_sem_imagem = self.paginas_sem_imagem + 1
     local aviso
     if ocorreu.evoluiu then
-        aviso = ocorreu.evoluiu.aviso or string.format(T"A Traça virou %s!", ocorreu.evoluiu.titulo)
+        aviso = ocorreu.evoluiu.aviso or string.format(Species.texto("virou"), ocorreu.evoluiu.titulo)
     elseif ocorreu.acordou then
-        aviso = T"A Traça saiu da lombada. Com fome, claro."
+        aviso = Species.texto("saiu")
     end
     if ocorreu.fim_ciclo then
         return self:fimDoCiclo()
@@ -340,12 +417,13 @@ function Traca:fimDoCiclo()
         if #todos > 0 then citacao = todos[math.random(#todos)] end
     end)
     local memorial = Estado.renascer(s, agora, { citacao = citacao })
-    Memoria.anotar(s, agora, string.format(T"Nasci do ovo da geração %d.%s", memorial.geracao,
-        s.heranca and string.format(T" Tenho uma obsessão herdada: %s. Nunca pedi por isso.", Memoria.NOMES_TEMA[s.heranca]) or ""))
+    if Diario.banco() then  -- the silverfish's first diary line; a species with no diary yet writes none
+        Memoria.anotar(s, agora, string.format(T"Nasci do ovo da geração %d.%s", memorial.geracao,
+            s.heranca and string.format(T" Tenho uma obsessão herdada: %s. Nunca pedi por isso.", Memoria.NOMES_TEMA[s.heranca]) or ""))
+    end
     self:salvar(true)
     UIManager:show(InfoMessage:new{
-        text = string.format(T"A Traça da geração %d leu tudo o que podia e deixou um ovo.\n\n“%s”\n\nVeja em ARQUIVO → LINHAGEM.",
-            memorial.geracao, memorial.ultimas),
+        text = string.format(Species.texto("fim"), memorial.geracao, memorial.ultimas),
     })
 end
 
@@ -365,6 +443,7 @@ function Traca:carregarSimulacao()
     if not self:emSimulacao() then self.db:saveSetting("estado_real", self.estado) end
     self.estado = Estado.normalizar(sim, os.time())
     self.estado.dev_simulacao = true
+    Species.use(Brood.speciesOf(self.estado))
     Estado.passarTempo(self.estado, os.time())
     self:salvar(true)
     return true
@@ -375,6 +454,15 @@ function Traca:voltarEstadoReal()
     if not real then return false end
     self.estado = Estado.normalizar(real, os.time())
     self.db:delSetting("estado_real")
+    Species.use(Brood.speciesOf(self.estado))
+    self:salvar(true)
+    return true
+end
+
+--- Puts the awake creature to sleep and wakes `id` (a new egg if it has never hatched). Not during a simulation.
+function Traca:acordar(id)
+    if self:emSimulacao() or id == Brood.speciesOf(self.estado) then return false end
+    self.estado = Brood.wake(self.estado, self.ninhada, id, os.time())
     self:salvar(true)
     return true
 end
@@ -389,6 +477,7 @@ end
 
 function Traca:salvar(com_imagem)
     self.db:saveSetting("estado", self.estado)
+    if next(self.ninhada.sleeping) then self.db:saveSetting("ninhada", self.ninhada) else self.db:delSetting("ninhada") end
     self.db:flush()
     if com_imagem then self:gerarImagem() end
 end

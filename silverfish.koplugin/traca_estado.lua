@@ -7,6 +7,7 @@ Todos os tempos são em segundos desde a época (os.time()).
 
 local Lingua = require("traca_lingua")
 local Voz = require("traca_voz")
+local Species = require("traca_species")
 local T = Lingua.t
 
 local Estado = {}
@@ -57,7 +58,7 @@ end
 local CAMPOS_TABELA = { "temas", "livros", "diario", "linhagem", "resenhas", "tracos", "tracos_nivel",
                         "falas_recentes", "dia", "comentario_pendente", "sim_terminados", "sim_sublinhados",
                         "lembrancas", "lembranca_pendente", "vistas", "ritmo", "cartao_pendente", "gravado",
-                        "cartoes_ditos", "influencias" }
+                        "cartoes_ditos", "influencias", "meus_livros" }
 
 --- Garante que um estado lido do disco tem todos os campos, com os tipos certos.
 -- Campo básico ausente, de tipo errado ou NaN volta ao valor inicial; tabela de tipo errado é descartada;
@@ -101,12 +102,18 @@ function Estado.passarTempo(s, agora)
     s.atualizado = agora
 end
 
+--- The stages of the active species (traca_species.lua); the silverfish's are Estado.FASES.
+function Estado.fases()
+    return Species.current().fases or Estado.FASES
+end
+
 function Estado.fase(s)
+    local fases = Estado.fases()
     if s.dev_fase then  -- modo dev: fase forçada só para teste
-        for _, f in ipairs(Estado.FASES) do if f.nome == s.dev_fase then return f end end
+        for _, f in ipairs(fases) do if f.nome == s.dev_fase then return f end end
     end
-    local atual = Estado.FASES[1]
-    for _, f in ipairs(Estado.FASES) do
+    local atual = fases[1]
+    for _, f in ipairs(fases) do
         if s.letras >= f.min then atual = f end
     end
     return atual
@@ -114,7 +121,7 @@ end
 
 --- Próxima fase e quantas letras faltam (nil se já é a última).
 function Estado.proximaFase(s)
-    for _, f in ipairs(Estado.FASES) do
+    for _, f in ipairs(Estado.fases()) do
         if s.letras < f.min then return f, f.min - s.letras end
     end
 end
@@ -208,14 +215,29 @@ local function citacaoDaGeracao(s)
     return melhor and string.format("“%s” — %s, %s", melhor.citacao.fala, melhor.citacao.nome, melhor.livro)
 end
 
-local CAMPOS_DA_LINHAGEM = { linhagem = true, geracao = true, boasvindas = true, resenhas = true, lembrancas = true }
+-- Last words: the active species' own (`ultimas` in traca_species.lua, translated now), or the silverfish's.
+local function ultimasPalavras(sorteio)
+    local proprias = Species.current().ultimas
+    if proprias then return T(proprias[sorteio(#proprias)]) end
+    return ULTIMAS[sorteio(#ULTIMAS)]
+end
+
+-- especie: the next generation is the same species (traca_brood.lua; the silverfish has none)
+local CAMPOS_DA_LINHAGEM = { linhagem = true, geracao = true, boasvindas = true, resenhas = true, lembrancas = true,
+                             especie = true }
 
 --- Encerra o ciclo: guarda o memorial em s.linhagem e transforma `s` num ovo novo.
 -- extras: { citacao = "trecho — livro" } (opcional, vem do Caderno).
 function Estado.renascer(s, agora, extras, sorteio)
     sorteio = sorteio or math.random
+    -- its books: the ones it read (s.meus_livros, since the shelf belongs to the brood); a creature from before
+    -- that list existed read the whole shelf, which was emptied at its birth
     local livros = {}
-    for titulo, L in pairs(s.livros or {}) do livros[#livros + 1] = { titulo, L.inicio or 0 } end
+    if type(s.meus_livros) == "table" then
+        for titulo, t in pairs(s.meus_livros) do livros[#livros + 1] = { titulo, t } end
+    else
+        for titulo, L in pairs(s.livros or {}) do livros[#livros + 1] = { titulo, L.inicio or 0 } end
+    end
     table.sort(livros, function(a, b) return a[2] < b[2] end)
     local titulos = {}
     for i = 1, math.min(60, #livros) do titulos[i] = livros[i][1] end
@@ -224,9 +246,10 @@ function Estado.renascer(s, agora, extras, sorteio)
     for i = math.max(1, #d - 4), #d do memorias[#memorias + 1] = d[i].texto end
     local memorial = {
         geracao = s.geracao or 1, nascimento = s.nascimento, morte = agora,
-        letras = s.letras, paginas = s.paginas, dias_lidos = s.dias_lidos, tema = s.tema_dominante,
+        letras = s.letras, paginas = s.paginas, dias_lidos = Estado.diasDestaGeracao(s), tema = s.tema_dominante,
         palavra = s.ultima_palavra, livros = titulos, memorias = memorias,
-        citacao = (extras and extras.citacao) or citacaoDaGeracao(s), ultimas = ULTIMAS[sorteio(#ULTIMAS)],
+        citacao = (extras and extras.citacao) or citacaoDaGeracao(s), ultimas = ultimasPalavras(sorteio),
+        nome = s.nome,  -- the name the reader gave it (traca_nome.lua); the next generation starts with none
     }
     local tracos_mae = s.tracos
     if tracos_mae then
@@ -236,8 +259,18 @@ function Estado.renascer(s, agora, extras, sorteio)
     local linhagem = s.linhagem or {}
     linhagem[#linhagem + 1] = memorial
     local heranca = s.tema_dominante
+    -- the reader's reading memory (the shelf, rhythm, streaks, records) belongs to the brood: it stays. Only what
+    -- the creature itself wrote inside each book goes (decided 07/11/2026; before, the shelf was emptied too).
+    local okB, Brood = pcall(require, "traca_brood")
+    local leitor = {}
+    for _, k in ipairs(okB and Brood.SHARED or {}) do leitor[k] = s[k] end
     for k in pairs(s) do if not CAMPOS_DA_LINHAGEM[k] then s[k] = nil end end
     for k, v in pairs(Estado.novo(agora)) do s[k] = v end
+    for k, v in pairs(leitor) do s[k] = v end
+    for _, L in pairs(type(s.livros) == "table" and s.livros or {}) do
+        for _, k in ipairs(okB and Brood.OWN_IN_BOOK or {}) do L[k] = nil end
+    end
+    s.meus_livros, s.dias_ao_nascer = {}, s.dias_lidos or 0
     s.linhagem, s.geracao, s.boasvindas = linhagem, memorial.geracao + 1, true
     if heranca then
         s.heranca, s.tema_dominante, s.temas = heranca, heranca, { [heranca] = 20 }
@@ -255,8 +288,13 @@ function Estado.renascer(s, agora, extras, sorteio)
 end
 
 --- Páginas e dias de leitura somando todas as gerações (as conquistas são do leitor).
+--- Days read in this generation: the reader's count (it stays with the brood) since this one was born.
+function Estado.diasDestaGeracao(s)
+    return math.max(0, (s.dias_lidos or 0) - (s.dias_ao_nascer or 0))
+end
+
 function Estado.totais(s)
-    local paginas, dias = s.paginas or 0, s.dias_lidos or 0
+    local paginas, dias = s.paginas or 0, Estado.diasDestaGeracao(s)
     for _, m in ipairs(s.linhagem or {}) do
         paginas, dias = paginas + (m.paginas or 0), dias + (m.dias_lidos or 0)
     end
@@ -269,21 +307,23 @@ end
 function Estado.marcos(s, extras)
     extras = extras or {}
     local paginas, livros = Estado.totais(s), extras.livros_terminados or 0
-    local function fase_ok(nome)
+    local function fase_ok(nome)  -- a stage of the active species (Estado.fases)
         local alvo
-        for _, f in ipairs(Estado.FASES) do if f.nome == nome then alvo = f.min end end
+        for _, f in ipairs(Estado.fases()) do if f.nome == nome then alvo = f.min end end
+        if not alvo then return 0 end
         return ((s.letras or 0) >= alvo or #(s.linhagem or {}) > 0) and 1 or 0
     end
+    -- the silverfish's; another species changes some of them by title (`marcos` in traca_species.lua)
     local lista = {
         { "PRIMEIRA MORDIDA", "COMEU A 1ª PÁGINA", paginas, 1 },
         { "CEM PÁGINAS", "100 PÁGINAS COMIDAS", paginas, 100 },
         { "MIL PÁGINAS", "1.000 PÁGINAS COMIDAS", paginas, 1000 },
         { "CINCO MIL", "5.000 PÁGINAS COMIDAS", paginas, 5000 },
         { "DEZ MIL", "10.000 PÁGINAS COMIDAS", paginas, 10000 },
-        { "NASCEU", "SAIU DO OVO", fase_ok("ninfa"), 1 },
-        { "PRIMEIRA MUDA", "VIROU JOVEM", fase_ok("jovem"), 1 },
-        { "ADULTA", "LEU O BASTANTE PARA DESCONFIAR", fase_ok("adulta"), 1 },
-        { "ANCIÃ", "SABE DEMAIS", fase_ok("ancia"), 1 },
+        { "NASCEU", "SAIU DO OVO", nil, 1, fase = "ninfa" },
+        { "PRIMEIRA MUDA", "VIROU JOVEM", nil, 1, fase = "jovem" },
+        { "ADULTA", "LEU O BASTANTE PARA DESCONFIAR", nil, 1, fase = "adulta" },
+        { "ANCIÃ", "SABE DEMAIS", nil, 1, fase = "ancia" },
         { "PRIMEIRO LIVRO", "TERMINOU 1 LIVRO", livros, 1 },
         { "ESTANTE", "TERMINOU 5 LIVROS", livros, 5 },
         { "PRATELEIRA CHEIA", "TERMINOU 10 LIVROS", livros, 10 },
@@ -296,9 +336,16 @@ function Estado.marcos(s, extras)
         { "COLECIONADORA", "50 SUBLINHADOS", extras.sublinhados or 0, 50 },
         { "LINHAGEM", "UMA GERAÇÃO COMPLETA", #(s.linhagem or {}), 1 },
     }
+    local troca = Species.current().marcos or {}
     local out = {}
     for _, m in ipairs(lista) do
-        out[#out + 1] = { titulo = T(m[1]), descricao = T(m[2]), atual = m[3], meta = m[4], feito = m[3] >= m[4] }
+        local t = troca[m[1]]
+        if t ~= false then
+            local fase = t and t.fase or m.fase
+            local atual = fase and fase_ok(fase) or m[3]
+            out[#out + 1] = { titulo = T(t and t[1] or m[1]), descricao = T(t and t[2] or m[2]), atual = atual,
+                              meta = m[4], feito = atual >= m[4] }
+        end
     end
     return out
 end
@@ -606,8 +653,180 @@ local function chaveCurta(t)
     return h
 end
 
+-- Species with lines of their own (the cat): the bank `falas` of the species, by temperament and situation
+-- (gato_banco/falas_pt.lua). The silverfish has no such bank and keeps the lists above.
+local proprias = {}  -- per species and language; false = the species has none
+local function falasProprias()
+    local chave = Species.current().id .. ":" .. Lingua.codigo()
+    if proprias[chave] == nil then
+        local ok, banco = pcall(require, Species.bankModule("falas"))
+        proprias[chave] = ok and type(banco) == "table" and banco or false
+    end
+    return proprias[chave] or nil
+end
+
+-- Its lines about the book, a character and a hard word (gato_banco/livro_<language>.lua, since 07/11/2026), the
+-- silverfish's FALAS_LIVRO, FALAS_PERSONAGEM and `palavra`.
+local livroProprio = {}
+local function falasDoLivro()
+    local chave = Species.current().id .. ":" .. Lingua.codigo()
+    if livroProprio[chave] == nil then
+        local ok, banco = pcall(require, Species.bankModule("livro"))
+        livroProprio[chave] = ok and type(banco) == "table" and banco or false
+    end
+    return livroProprio[chave] or nil
+end
+
+-- A line for a species with its own lines. Only its banks speak: cards, chapter comments, memories and generated
+-- lines are written in the silverfish's voice, so they stay out until the species has its own. Its temper speaks
+-- once it has a temper bank (the cat, since batch 5a), and so do its influences (since 07/11/2026).
+local function sortearFalaPropria(B, s, agora, sorteio, dormir, tela)
+    local e = Estado.expressao(s, agora, dormir)
+    local grupo = B[Estado.fase(s).temperamento] or {}
+    -- the egg: the same few things happen, awake or on the sleep screen
+    if grupo._todas then return sorteiaLista(grupo._todas, sorteio) end
+    -- its generated lines and dreams (gato_banco/geradas_<language>.lua, since 07/11/2026), with the data of the
+    -- book it's reading, as often as the silverfish's
+    local okF, Falas = pcall(require, "traca_falas")
+    local geradas = okF and Falas.banco() and true or false
+    local function dados()
+        local okM, Memoria = pcall(require, "traca_memoria")
+        return dadosDaFala(s, sorteio, okM and Memoria)
+    end
+    local temp = Estado.fase(s).temperamento
+    -- sleep screen: a dream half the time; otherwise mostly its own dreams, sometimes plain sleep; at night on its
+    -- screen, mostly a dream, then plain sleep
+    if dormir then
+        if geradas and sorteio(2) ~= 2 then
+            local f, chave = Falas.sonhar(temp, dados(), sorteio)
+            if f then return f, chave end
+        end
+        return sorteiaLista(sorteio(3) ~= 3 and grupo.repouso or grupo.dormindo, sorteio)
+    end
+    if e == "casulo" then return sorteiaLista(grupo.casulo, sorteio) end
+    if e == "dormindo" then
+        if geradas and sorteio(4) ~= 4 then
+            local f, chave = Falas.sonhar(temp, dados(), sorteio)
+            if f then return f, chave end
+        end
+        return sorteiaLista(sorteio(3) ~= 3 and grupo.dormindo or grupo.repouso, sorteio)
+    end
+    -- a card from its box (gato_banco/cartoes_<language>.lua): on the Home; on its screen, if it didn't fit there
+    local okCar, Cartoes = pcall(require, "traca_cartoes")
+    local car = okCar and Cartoes.pendente(s, agora, tela)
+    if car then
+        car.usado = true
+        return car.texto
+    end
+    -- back after days away: most of the time the first thing it says, like the silverfish's "sumiu"
+    local okC, Contexto = pcall(require, "traca_contexto")
+    for _, g in ipairs(okC and Contexto.gatilhos(s, agora) or {}) do
+        if g.nome == "sumiu" and grupo.sumiu and sorteio(10) <= 6 then
+            return (sorteiaLista(grupo.sumiu, sorteio):gsub("{n}", tostring(g.n)))
+        end
+    end
+    -- close to the next stage, like the silverfish: in the last 10 pages, always a line about growing
+    -- (muda_iminente); up to 60 pages, sometimes the countdown (muda_perto, %d = pages left) or a `muda` line. The
+    -- elder has no next stage: its `muda` lines are for the end of its life.
+    local paginas = Estado.progressoFase(s).paginas
+    local prox = Estado.proximaFase(s)
+    if prox and paginas <= 10 and grupo.muda_iminente then return sorteiaLista(grupo.muda_iminente, sorteio) end
+    if paginas <= 60 and sorteio(4) == 1 then
+        if prox and grupo.muda_perto and sorteio(2) == 1 then
+            return (sorteiaLista(grupo.muda_perto, sorteio):gsub("%%d", tostring(paginas)))
+        end
+        if grupo.muda then return sorteiaLista(grupo.muda, sorteio) end
+    end
+    -- a new memory (its diary's memory lines) or the chapter that just ended (gato_banco/memoria_<language>.lua):
+    -- the first line, once, as with the silverfish; only what was written in its own voice
+    local lem = s.lembranca_pendente
+    if lem and not lem.usado and lem.especie == Species.current().id and agora - (lem.t or 0) < 24 * 3600 then
+        lem.usado = true
+        return lem.texto
+    end
+    local pend = s.comentario_pendente
+    if pend and not pend.usado and pend.especie == Species.current().id and agora - (pend.t or 0) < 12 * 3600 then
+        pend.usado = true
+        return pend.texto
+    end
+    -- data from your reading (gato_banco/contexto_<language>.lua): the strong triggers (late night, a record, a
+    -- marathon) usually win, the others sometimes, as with the silverfish
+    local fc, forte
+    if okC then fc, forte = Contexto.fala(s, agora, Estado.fase(s).temperamento, sorteio) end
+    if fc and forte and sorteio(10) <= 6 then return fc end
+    -- its influences and base personality (gato_banco/influencias_<language>.lua), in the silverfish's place:
+    -- after the strong triggers, before the others
+    local okI, Influencias = pcall(require, "traca_influencias")
+    if okI and Influencias.banco() then
+        local hora = tonumber(os.date("%H", agora))
+        local barriga = s.barriga or 0
+        local situ = { triste = e == "triste", feliz = e == "feliz", fome = barriga < 40, cheia = barriga >= 85,
+                       noite = hora >= 22 or hora < 5,
+                       muda = Estado.progressoFase(s).paginas <= 60,  -- the elder: close to the end of its life
+                       fase = Estado.fase(s).nome, tela = tela }
+        local recentes = {}
+        for _, h in ipairs(s.falas_recentes or {}) do recentes[h] = true end
+        local function dita(chave) return recentes[chaveCurta(chave)] == true end
+        local okM, Memoria = pcall(require, "traca_memoria")
+        local f, chave = Influencias.fala(s, dadosDaFala(s, sorteio, okM and Memoria), sorteio, situ, dita)
+        if f then return f, chave end
+    end
+    if fc and not forte and sorteio(10) <= 3 then return fc end
+    -- its temper, once a side is marked (batch 5a: gato_banco/tracos_<language>.lua), as often as the silverfish's
+    local okT, Tracos = pcall(require, "traca_tracos")
+    if okT and Tracos.banco() then
+        local f = Tracos.fala(s, Estado.fase(s).temperamento, sorteio)
+        if f then return f end
+    end
+    -- sometimes it talks about what you read or what the books did to it, as often as the silverfish: the obsession,
+    -- who the book quotes, a line someone said, who narrates (gato_banco/memoria_<language>.lua); the book, a
+    -- character, a hard word (gato_banco/livro_<language>.lua)
+    local LB = falasDoLivro()
+    local sorte = sorteio(10)
+    if sorte == 1 then
+        local okM, Memoria = pcall(require, "traca_memoria")
+        local f = okM and Memoria.banco() and Memoria.fala(s, sorteio, temp)
+        if f then return f end
+    elseif sorte >= 2 and sorte <= 4 and LB then
+        local d = dados()
+        if sorte == 2 and s.ultimo_livro and LB.livro and LB.livro[temp] then
+            return string.format(sorteiaLista(LB.livro[temp], sorteio, s), s.ultimo_livro)
+        elseif sorte == 3 and d.personagem and LB.personagem and LB.personagem[temp] then
+            return string.format(sorteiaLista(LB.personagem[temp], sorteio, s), d.personagem)
+        elseif sorte == 4 and d.palavra and LB.palavra and LB.palavra[temp] then
+            return string.format(LB.palavra[temp], d.palavra)
+        end
+    end
+    -- in a bad mood, it sometimes blames something that happened in the book (gato_banco/dominios_<language>.lua)
+    if e == "triste" and (s.humor or 50) < 25 and sorteio(3) == 1 then
+        local f = Voz.causa(s, temp, sorteio)
+        if f then return f end
+    end
+    -- most of the time, a line generated for its stage, as the silverfish does
+    if (e == "normal" or e == "feliz") and geradas and sorteio(3) ~= 1 then
+        local f, chave = Falas.gerar(Estado.fase(s).nome, dados(), sorteio)
+        if f then return f, chave end
+    end
+    -- happy: its happy lines, and sometimes an everyday one
+    if e == "feliz" and grupo.normal and sorteio(3) == 3 then return sorteiaLista(grupo.normal, sorteio, s) end
+    return sorteiaLista(grupo[e] or grupo.normal, sorteio, s)
+end
+
+--- A line from the active species' own bank for `situacao` ("carinho", "casulo"…) at its stage, or nil when the
+-- species has no bank of its own (the silverfish: the screen keeps its fixed text). The egg answers with its lines.
+function Estado.falaPropria(s, situacao, sorteio)
+    sorteio = sorteio or math.random
+    local B = falasProprias()
+    local grupo = B and B[Estado.fase(s).temperamento]
+    local lista = grupo and (grupo[situacao] or grupo._todas)
+    if not lista then return nil end
+    return (Voz.resolver(sorteiaLista(lista, sorteio), s, sorteio))
+end
+
 --- Sorteia uma fala. Devolve a fala e a chave para evitar repetição (o núcleo, nas geradas).
 local function sortearFala(s, agora, sorteio, dormir, tela)
+    local proprio = falasProprias()
+    if proprio then return sortearFalaPropria(proprio, s, agora, sorteio, dormir, tela) end
     local e = Estado.expressao(s, agora, dormir)
     local temp = Estado.fase(s).temperamento
     local grupo = FALAS[temp]
@@ -855,12 +1074,16 @@ local function rotulo(tabela, valor)
     return T(tabela[#tabela][2])
 end
 
+-- Os rótulos acima são os da traça; outra espécie traz os seus na ficha (`rotulos` em traca_species.lua).
 function Estado.rotuloBarriga(s)
-    return rotulo(ROTULO_BARRIGA, s.barriga)
+    local r = Species.current().rotulos
+    return rotulo(r and r.barriga or ROTULO_BARRIGA, s.barriga)
 end
 
 function Estado.rotuloHumor(s)
-    return rotulo(ROTULO_HUMOR[Estado.fase(s).temperamento], s.humor)
+    local r = Species.current().rotulos
+    local por_temperamento = r and r.humor or ROTULO_HUMOR
+    return rotulo(por_temperamento[Estado.fase(s).temperamento] or por_temperamento.ovo, s.humor)
 end
 
 --- Conta letras num texto UTF-8 (letras ASCII + um por caractere acentuado).
