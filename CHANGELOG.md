@@ -16,8 +16,8 @@ The brood and the Ash Cat:
   of the furnaces, one at a time, in their teeth. It doesn't eat your pages; it keeps them. It has its own stages
   (egg, kitten, adult, elder), its own stash bar, diary (CELLAR NOTES), achievements, last words and lineage, and
   its own voice for everything the silverfish says: everyday lines, reactions to how you read, the 16 literary
-  influences, its temper, generated lines and dreams, chapter comments, comments on your highlights and a
-  vocabulary for each theme. It quotes the Rules of the Cellar, which its grandmother taught it.
+  influences, its temper, the lines it puts together on its own, dreams, chapter comments, comments on your
+  highlights and a vocabulary for each theme. It quotes the Rules of the Cellar, which its grandmother taught it.
 - New: the **brood screen** shows the awake creature's life (name, species and stage, obsession and marked
   traits, the book you're reading, days, books and generation) and the crew: sleeping creatures, eggs ready to
   hatch and locked slots.
