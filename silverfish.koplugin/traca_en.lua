@@ -18,14 +18,82 @@ EN.ui = {
     ["A Traça saiu da lombada. Com fome, claro."] = "The silverfish crawled out of the spine. Hungry, of course.",
     ["Nasci do ovo da geração %d.%s"] = "I hatched from generation %d's egg.%s",
     [" Tenho uma obsessão herdada: %s. Nunca pedi por isso."] = " I inherited an obsession: %s. Never asked for it.",
-    ["A Traça da geração %d leu tudo o que podia e deixou um ovo.\n\n“%s”\n\nVeja em ARQUIVO → LINHAGEM."] =
-        "The generation %d silverfish read everything she could and left an egg.\n\n“%s”\n\nSee ARCHIVE → LINEAGE.",
+    ["A Traça da geração %d leu tudo o que podia e deixou um ovo.\n\n“%s”\n\nVeja a LINHAGEM no menu."] =
+        "The generation %d silverfish read everything she could and left an egg.\n\n“%s”\n\nSee LINEAGE in the menu.",
     ["Idioma da Traça"] = "Silverfish language",
     ["Idioma…"] = "Language…",
     ["Automático (idioma do KOReader)"] = "Automatic (KOReader language)",
 
     -- fases
     ["ovo"] = "egg", ["ninfa"] = "nymph", ["jovem"] = "young", ["adulta"] = "adult", ["anciã"] = "elder",
+    ["filhote"] = "kitten", ["adulto"] = "adult", ["velho"] = "elder",  -- the cat's stages (traca_species.lua)
+    -- the cat's screen texts (traca_species.lua; traca/cartoes/rascunhos/cat/choices-2.md)
+    ["FILHOTE"] = "KITTEN", ["ADULTO"] = "ADULT", ["VELHO"] = "ELDER",
+    ["Acordar o gato (teste)"] = "Wake the cat (test)", ["Acordar a Traça (teste)"] = "Wake the silverfish (test)",
+    -- the brood screen (traca_tela.lua, TracaTela:pintarNinhada; Figma "Brood — ninhada")
+    -- its labels from batch 4 (traca/cartoes/rascunhos/cat/choices-4.md)
+    ["NINHADA"] = "BROOD", ["O BANDO TODO"] = "THE WHOLE CREW", ["O BANDO"] = "THE CREW",
+    ["NA ATIVA"] = "ON DUTY", ["LENDO"] = "READING",
+    ["DIA"] = "DAY", ["DIAS"] = "DAYS", ["GERAÇÃO"] = "GENERATION",
+    ["PRONTO!"] = "READY!", ["EM SEGREDO"] = "LOCKED",
+    ["COMENDO AGORA"] = "NOW EATING", ["GUARDANDO AGORA"] = "NOW KEEPING",
+    ["OVO DE TRAÇA"] = "SILVERFISH EGG", ["OVO DE GATO"] = "CAT EGG",
+    ["Acordar %s?\n%s vai dormir com o tempo parado: sem fome e sem envelhecer."] =
+        "Wake %s?\n%s will sleep with time stopped: no hunger, no growing older.",
+    ["Chocar este ovo?\n%s vai dormir com o tempo parado: sem fome e sem envelhecer."] =
+        "Hatch this egg?\n%s will sleep with time stopped: no hunger, no growing older.",
+    ["Acordar"] = "Wake", ["Chocar"] = "Hatch",
+    -- batch 4: the farewells when going to sleep, the cat's lineage and its egg (traca_species.lua)
+    ["Uma soneca entre duas páginas. A minha preferida."] = "A nap between two pages. My favourite kind.",
+    ["Quem acordar: as margens são minhas."] = "Whoever wakes up: the margins are mine.",
+    ["Sem fome enquanto eu durmo. Só sonho com papel."] = "No hunger while I sleep. Just dreams of paper.",
+    ["Durmo com um olho aberto. O bom."] = "Sleeping with one eye open. The good one.",
+    ["Você guarda o resto do livro, cúmplice. Como sempre."] = "You keep the rest of the book, accomplice. Like always.",
+    ["Regra 14: se alguém me viu entrar, não fui eu que saí."] =
+        "Rule 14: if someone saw me go in, it wasn't me who came out.",
+    ["GERAÇÃO %d · EM VIDA"] = "GENERATION %d · ALIVE",
+    ["Árvore vazia. Ótimo. Menos nomes pra acharem."] = "An empty family tree. Good. Fewer names for them to find.",
+    ["(de dentro do ovo:) Psst. Tá seguro aí fora?"] = "(from inside the egg:) Psst. Is it safe out there?",
+    -- the cat's batch 3 (traca_species.lua; traca/cartoes/rascunhos/cat/choices-3.md)
+    ["NOTAS DO PORÃO"] = "CELLAR NOTES", ["OBSESSÃO %s"] = "OBSESSED WITH %s", ["PASSAR ADIANTE"] = "PASS IT ON",
+    ["PÁGINAS ARQUIVADAS"] = "PAGES FILED",
+    ["Regra 13: ensina uma frase a um filhote. Eu ensinei."] = "Rule 13: teach a kitten one sentence. I did.",
+    ["Fecha a porta devagar. Eles ainda escutam."] = "Close the door gently. They're still listening.",
+    ["O lenço é seu agora. Não deixa ninguém tocar."] = "The scarf is yours now. Don't let anyone touch it.",
+    ["Quem destrói um bom livro mata a própria razão. Milton sabia."] =
+        "Who destroys a good book kills reason itself. Milton knew.",
+    ["DAS CINZAS"] = "FROM THE ASHES", ["TIROU A 1ª PÁGINA DAS CINZAS"] = "PULLED THE 1ST PAGE FROM THE ASHES",
+    ["100 PÁGINAS ARQUIVADAS"] = "100 PAGES FILED", ["1.000 PÁGINAS ARQUIVADAS"] = "1,000 PAGES FILED",
+    ["5.000 PÁGINAS ARQUIVADAS"] = "5,000 PAGES FILED", ["10.000 PÁGINAS ARQUIVADAS"] = "10,000 PAGES FILED",
+    ["EM CAMPO"] = "IN THE FIELD", ["SABE AS REGRAS DE COR"] = "KNOWS THE RULES BY HEART",
+    ["ENSINA AS REGRAS"] = "TEACHES THE RULES",
+    ["ARQUIVO VIVO"] = "LIVING ARCHIVE", ["JOGO DUPLO"] = "DOUBLE GAME", ["NOTAS NA MARGEM"] = "MARGIN NOTES",
+    -- the creature's name (traca_nome.lua, TracaTela:pedirNome)
+    ["Como vai se chamar?"] = "What will it be called?", ["Nome"] = "Name", ["Nome…"] = "Name…",
+    ["Agora não"] = "Not now", ["Cancelar"] = "Cancel", ["Sortear"] = "Random", ["Pronto"] = "Done",
+    ["Até %d caracteres"] = "Up to %d characters", ["Use até %d caracteres."] = "Use up to %d characters.",
+    ["Use só letras, números, espaços e hífen."] = "Use only letters, numbers, spaces and hyphens.",
+    -- the welcome screen's name step (traca_boasvindas.lua; balloon: option A of rascunhos/welcome-name.md, chosen)
+    ["(de dentro do ovo:) E eu vou me chamar como? Capricha."] = "(from inside the egg:) So what's my name? Make it a good one.",
+    ["DIGITE UM NOME"] = "TYPE A NAME",
+    ["GATO-DAS-CINZAS"] = "ASH CAT", ["ESTOQUE"] = "STASH", ["%s PÁG. ARQUIVADAS"] = "%s PAGES FILED",
+    ["OS GATOS QUE VIERAM ANTES"] = "THE CATS WHO CAME BEFORE",
+    ["TUDO A SALVO"] = "ALL KEPT", ["O SUFICIENTE"] = "ENOUGH", ["RESTAM POUCAS"] = "A FEW LEFT",
+    ["NADA DE NOVO"] = "NOTHING NEW", ["NADA A GUARDAR"] = "NOTHING TO GUARD",
+    ["NAS CINZAS"] = "IN THE ASHES",
+    ["COM ORGULHO"] = "PROUD", ["DE VIGIA"] = "ON WATCH", ["OUVINDO COISAS"] = "HEARING THINGS", ["COM MEDO"] = "SPOOKED",
+    ["TUDO LIMPO"] = "ALL CLEAR", ["EM SERVIÇO"] = "ON DUTY", ["DESCONFIANDO"] = "SUSPICIOUS", ["ROSNANDO"] = "GROWLING",
+    ["EM PAZ"] = "AT PEACE", ["DE VIGÍLIA"] = "KEEPING VIGIL", ["OSSOS VELHOS"] = "OLD BONES",
+    ["O ovo rachou! Saiu um filhote, e a primeira coisa que fez foi conferir as saídas."] =
+        "The egg cracked! A kitten came out and checked the exits first.",
+    ["O filhote cresceu. Agora pergunta menos e confere mais a porta."] =
+        "The kitten grew up. Fewer questions now, more checking the door.",
+    ["Chegou a vez do gato de ensinar as Regras, não só de seguir."] =
+        "It's the cat's turn to teach the Rules, not just follow them.",
+    ["Saiu do esconderijo. Conferiu as saídas duas vezes antes de dar oi."] =
+        "Out of the hiding place. It checked the exits twice before saying hello.",
+    ["O gato da geração %d desceu ao porão uma última vez, para deixar as páginas onde as próximas gerações vão procurar.\n\n“%s”\n\nVeja a LINHAGEM no menu."] =
+        "The cat of generation %d went down to the cellar one last time, to leave its pages where the next generations will look.\n\n“%s”\n\nSee LINEAGE in the menu.",
     ["O ovo rachou! Nasceu uma ninfa. Ela já parece preocupada."] = "The egg cracked! A nymph hatched. She already looks worried.",
     ["A Traça trocou de pele e cresceu. Continua nervosa."] = "The silverfish molted and grew. Still nervous.",
     ["A Traça virou adulta. Leu o suficiente para ficar desconfiada do mundo."] =

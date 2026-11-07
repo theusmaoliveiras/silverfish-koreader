@@ -178,95 +178,40 @@ end
 
 -- O desenho dela ---------------------------------------------------------------------
 
--- Onde estão os pixels pintados de um desenho de 64x64 (deslocamento e tamanho, em pixels do desenho).
+-- Onde estão os pixels pintados de um desenho de 64x64 (deslocamento e tamanho, em pixels do desenho), por
+-- espécie: o ovo do gato não é o da Traça.
 local caixas = {}
 local function caixaDoDesenho(nome)
     local real = Desenho.resolver(nome)
-    if not caixas[real] then
+    local chave = require("traca_species").current().id .. ":" .. real
+    if not caixas[chave] then
         local x0, y0, x1, y1 = math.huge, math.huge, 0, 0
         for j, l in ipairs(Desenho.sprite(real) or {}) do
-            local a = l:find("[#1234%+]")
+            local a = l:find("[^ ]")
             if a then
-                local b = #l - l:reverse():find("[#1234%+]") + 1
+                local b = #l - l:reverse():find("[^ ]") + 1
                 x0, x1, y0, y1 = math.min(x0, a), math.max(x1, b), math.min(y0, j), math.max(y1, j)
             end
         end
         if x0 == math.huge then x0, y0, x1, y1 = 1, 1, Desenho.LARGURA, Desenho.ALTURA end
-        caixas[real] = { x = x0 - 1, y = y0 - 1, w = x1 - x0 + 1, h = y1 - y0 + 1 }
+        caixas[chave] = { x = x0 - 1, y = y0 - 1, w = x1 - x0 + 1, h = y1 - y0 + 1 }
     end
-    return caixas[real]
+    return caixas[chave]
 end
 
--- Os tons do desenho (os de traca_desenho.lua). A sombrinha embaixo dela é o cinza claro ("3") nas duas
--- últimas linhas com pixels; na madeira da prateleira do Bookshelf ela some, então aqui ela é pintada com o
--- cinza escuro. O mesmo tom "3" no corpo dela não muda, e o desenho fica igual em todo o resto do plugin.
-local TONS = {
-    ["#"] = Blitbuffer.COLOR_BLACK,
-    ["1"] = Blitbuffer.Color8(0x55),
-    ["2"] = Blitbuffer.Color8(0x88),
-    ["3"] = Blitbuffer.Color8(0xBB),
-    ["4"] = Blitbuffer.Color8(0xEE),
-    ["+"] = Blitbuffer.COLOR_GRAY,
-}
-local TOM_DA_SOMBRA = "1"
+-- A sombrinha embaixo do bicho são os cinzas claros nas três últimas linhas com pixels; na madeira da
+-- prateleira do Bookshelf ela some, então aqui ela é pintada com o cinza escuro, também em cores. O desenho
+-- fica igual em todo o resto do plugin. (Os desenhos de antes tinham, além disso, uma lista de pontinhos
+-- claros dos pés a tirar; com os desenhos novos de 06/11/2026 ela saiu, porque os pixels mudaram.)
+local TOM_DA_SOMBRA = { cor = Blitbuffer.Color8(0x55), rgb = false, cinza = true, lum = 0x55 }
 
--- Pixels claros entre e ao lado dos pés (e alguns na borda de baixo do corpo: a mãozinha e o rabo da adulta,
--- a parte de trás da anciã), que sobre a madeira viram pontinhos: no Bookshelf não são pintados (true), ou,
--- no vão entre os pés logo acima da sombrinha, são pintados com o tom dela ("sombra"), para o vão não virar
--- um quadradinho claro de madeira. [desenho][linha][coluna], como no arquivo dos desenhos.
-local S = "sombra"
-local RETIRAR = {
-    ninfa = { [61] = { [35] = true, [36] = true }, [62] = { [25] = true, [35] = true } },
-    jovem = {
-        [58] = { [17] = true, [18] = true },
-        [60] = { [21] = true, [22] = true, [35] = true, [36] = true },
-        [62] = { [32] = S, [33] = S, [34] = S, [35] = S, [40] = true, [41] = true },
-    },
-    adulta = {
-        [53] = { [17] = true },                -- ponta do rabo
-        [55] = { [41] = true },                -- miolo claro da mãozinha
-        [56] = { [41] = true },
-        [59] = { [36] = true },
-        [60] = { [20] = true, [21] = true, [22] = true },
-        [61] = { [19] = true, [20] = true, [21] = true },
-        [62] = { [21] = true, [27] = true, [28] = true, [29] = true, [30] = true, [31] = true, [32] = true,
-                 [33] = true, [34] = true, [35] = true },
-    },
-    ancia = {
-        [54] = { [8] = true },                 -- clarinho na parte de trás
-        [60] = { [14] = true, [28] = true },
-        [62] = { [12] = true, [13] = true, [19] = true, [20] = true, [21] = true, [22] = true, [23] = true,
-                 [24] = true, [25] = true, [26] = true, [27] = true, [36] = true },
-    },
-}
-
--- Como Desenho.pintarSprite (cada pixel vira um quadrado de `escala` px), com a sombrinha mais escura e sem
--- os pontinhos claros dos pés.
 local function pintarDesenho(bb, nome, x, y, escala)
-    local linhas = Desenho.sprite(nome)
-    if not linhas then return end
     local c = caixaDoDesenho(nome)
-    local sombra_desde = c.y + c.h - 1  -- as duas últimas linhas com pixels
-    local retirar = RETIRAR[Desenho.resolver(nome)] or {}
-    for j, linha in ipairs(linhas) do
-        local tirar = retirar[j]
-        local i, n = 1, #linha
-        while i <= n do
-            local tom = linha:sub(i, i)
-            local k = i
-            if not tirar then  -- numa linha com pixel a tirar, pinta um a um
-                while k < n and linha:sub(k + 1, k + 1) == tom do k = k + 1 end
-            elseif tirar[i] then
-                tom = tirar[i] == S and TOM_DA_SOMBRA or " "
-            end
-            if tom == "3" and j >= sombra_desde then tom = TOM_DA_SOMBRA end
-            local cor = TONS[tom]
-            if cor then
-                bb:paintRect(x + (i - 1) * escala, y + (j - 1) * escala, (k - i + 1) * escala, escala, cor)
-            end
-            i = k + 1
-        end
-    end
+    local sombra_desde = c.y + c.h - 2  -- as três últimas linhas com pixels (j conta de 1)
+    Desenho.pintarSprite(bb, nome, x, y, escala, function(j, tinta)
+        if j >= sombra_desde and tinta.cinza and tinta.lum >= 0x99 then return TOM_DA_SOMBRA end
+        return tinta
+    end)
 end
 
 -- A caixa do desenho de agora junto com a do desenho da fase: o tamanho dela não muda a cada expressão.

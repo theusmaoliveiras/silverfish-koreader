@@ -235,14 +235,31 @@ function Contexto.gatilhos(s, agora)
     return lista
 end
 
+-- The active species' own context lines (the cat: gato_banco/contexto_<language>.lua, by its stages), or nil
+-- for the silverfish, who keeps the lists above.
+local proprias = {}
+local function falasDaEspecie()
+    local Species = require("traca_species")
+    local id = Species.current().id
+    if id == "traca" then return nil end
+    local chave = id .. ":" .. Lingua.codigo()
+    if proprias[chave] == nil then
+        local ok, b = pcall(require, Species.bankModule("contexto"))
+        proprias[chave] = ok and type(b) == "table" and b or false
+    end
+    return proprias[chave] or nil
+end
+
 --- Uma fala com dados da leitura, ou nil. Devolve também se o gatilho é forte.
--- temperamento: "jovem" ou "velha". sorteio(n) devolve um inteiro de 1 a n.
+-- temperamento: "jovem" ou "velha" (a traça); o gato usa os dele (filhote, adulto, velho).
+-- sorteio(n) devolve um inteiro de 1 a n.
 function Contexto.fala(s, agora, temperamento, sorteio)
     sorteio = sorteio or math.random
     local lista = Contexto.gatilhos(s, agora)
     if #lista == 0 then return nil end
     local g = lista[1].forte and lista[1] or lista[sorteio(#lista)]
-    local banco = FALAS[g.nome] and FALAS[g.nome][temperamento]
+    local F = falasDaEspecie() or FALAS
+    local banco = F[g.nome] and F[g.nome][temperamento]
     if not banco then return nil end
     local valores = {
         hora = Contexto.hora(agora), n = g.n and tostring(g.n),

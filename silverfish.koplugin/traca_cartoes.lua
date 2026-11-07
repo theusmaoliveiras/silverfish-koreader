@@ -9,23 +9,25 @@ Os dois vivem a vida dela: o ovo novo começa sem eles.
 ]]
 
 local Lingua = require("traca_lingua")
+local Species = require("traca_species")
 
 local Cartoes = {}
 
 Cartoes.VALIDADE = 24 * 3600  -- quanto tempo o cartão guardado espera para ser dito
 
-local caixa
+local caixas = {}  -- one per species
 --- Os cartões no idioma atual (lista, na ordem do arquivo).
 function Cartoes.caixa()
-    if caixa == nil then
-        local ok, b = pcall(require, "traca_banco.cartoes_" .. Lingua.codigo())
-        caixa = ok and type(b) == "table" and b or false
+    local id = Species.current().id
+    if caixas[id] == nil then
+        local ok, b = pcall(require, Species.bankModule("cartoes"))
+        caixas[id] = ok and type(b) == "table" and b or false
     end
-    return caixa or {}
+    return caixas[id] or {}
 end
 
 --- Troca a caixa (para testes); nil volta a ler o arquivo.
-function Cartoes.usarCaixa(b) caixa = b end
+function Cartoes.usarCaixa(b) caixas[Species.current().id] = b end
 
 local function serve(s, c, assuntos, dados)
     local q = c.quando or {}

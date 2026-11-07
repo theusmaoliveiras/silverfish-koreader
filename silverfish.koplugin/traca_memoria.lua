@@ -517,6 +517,7 @@ end
 
 --- Escreve no diário (o mais novo fica no fim).
 function M.anotar(s, agora, texto)
+    if type(texto) ~= "string" or texto == "" then return end  -- nothing to write (a species with no diary yet)
     garantir(s)
     texto = (Voz.resolver(texto, s))  -- o diário fica escrito com o jeito dela no dia
     table.insert(s.diario, { t = agora, texto = texto })
@@ -1369,10 +1370,15 @@ function M.digerir(s, texto, onde, agora, contar)
     local L
     if livro then
         L = s.livros[livro]
-        if not L then
-            L = { inicio = agora, paginas = 0, pers = {}, temas = {}, autor = onde.autor, clima = 0, tracos_inicio = {} }
+        -- a book already on the brood's shelf that this creature never read is new to it all the same
+        local novo_pra_mim = L and type(s.meus_livros) == "table" and not s.meus_livros[livro]
+        if not L or novo_pra_mim then
+            if not L then
+                L = { inicio = agora, paginas = 0, pers = {}, temas = {}, autor = onde.autor, clima = 0 }
+                s.livros[livro] = L
+            end
+            L.tracos_inicio = {}
             for k, v in pairs(s.tracos or {}) do L.tracos_inicio[k] = v end
-            s.livros[livro] = L
             local anterior = s.livro_corrente ~= livro and s.livro_corrente or nil
             -- autor que volta, contado pelas resenhas (lembrança); senão, a abertura de sempre
             local okLem, Lem = pcall(require, "traca_lembrancas")
@@ -1381,6 +1387,8 @@ function M.digerir(s, texto, onde, agora, contar)
             end
         end
         s.livro_corrente = livro
+        -- os livros que este bicho leu (a estante é da ninhada; a linhagem guarda só os dele, Estado.renascer)
+        if type(s.meus_livros) == "table" and not s.meus_livros[livro] then s.meus_livros[livro] = agora end
         -- etiquetas de gênero do EPUB (uma por linha): só mapa do gênero, em Infl.perfil
         if not L.etiquetas and type(onde.etiquetas) == "string" and onde.etiquetas:find("%S") then
             L.etiquetas = {}
@@ -1475,7 +1483,7 @@ function M.digerir(s, texto, onde, agora, contar)
             local comentario = M.comentarioCapitulo(s, L, L.cap_atual)
             if comentario then
                 s.comentario_pendente = { texto = (Voz.resolver(comentario.texto, s)), t = agora, livro = livro,
-                                          evento = comentario.evento }
+                                          evento = comentario.evento, especie = require("traca_species").current().id }
             end
             -- o capítulo que acabou falou de um assunto dos cartões (pelo texto ou pelo título)
             M.cartaoDoCapitulo(s, L, L.cap_atual, true, agora, livro)
@@ -1527,6 +1535,10 @@ function M.digerir(s, texto, onde, agora, contar)
 end
 
 -- Comentário de fim de capítulo -------------------------------------------------------
+
+-- The active species' own lists (gato_banco/memoria_<language>.lua, since 07/11/2026), or the silverfish's below;
+-- defined after them (see "listas = function").
+local listas
 
 local FALAS_EVENTO = {
     morte = { "Teve enterro nesse capítulo. Senti o cheiro de vela.", "Alguém morreu ali atrás. Eu avisei que ia acontecer.",
@@ -1631,13 +1643,14 @@ end
 --- Comentário sobre um capítulo que acabou de terminar: { texto, evento? } ou nil.
 function M.comentarioCapitulo(s, L, capnome, sorteio)
     sorteio = sorteio or math.random
+    local B = listas()
     local C = L.caps[capnome]
     if not C or C.paginas < 1 then return nil end
     local anteriores = {}
     for _, D in pairs(L.caps) do if D.ordem < C.ordem then anteriores[#anteriores + 1] = D end end
     -- 1) evento que se destaca: bem mais frequente neste capítulo do que no resto do livro
     local ev = M.eventoDoCapitulo(L, C)
-    if ev and FALAS_EVENTO[ev] then return { texto = sorteia(FALAS_EVENTO[ev], sorteio), evento = ev } end
+    if ev and B.FALAS_EVENTO[ev] then return { texto = sorteia(B.FALAS_EVENTO[ev], sorteio), evento = ev } end
     -- 2) personagem novo (forte neste capítulo, ausente antes)
     local info = M.personagensInfoDe(L)
     local pessoa = {}  -- qualquer nome da pessoa → ela
@@ -1653,20 +1666,20 @@ function M.comentarioCapitulo(s, L, capnome, sorteio)
         if p and c >= 3 then
             local visto = false
             for _, D in ipairs(anteriores) do if noCapitulo(D, p) > 0 then visto = true; break end end
-            if not visto then return { texto = string.format(sorteia(FALAS_NOVO, sorteio), p.nome) } end
+            if not visto then return { texto = string.format(sorteia(B.FALAS_NOVO, sorteio), p.nome) } end
         end
     end
     -- 3) protagonista sumiu
     for _, p in ipairs(info) do
         if p.protagonista and noCapitulo(C, p) == 0 and C.paginas >= 3 then
-            return { texto = string.format(sorteia(FALAS_SUMIU, sorteio), p.nome) }
+            return { texto = string.format(sorteia(B.FALAS_SUMIU, sorteio), p.nome) }
         end
     end
     -- 4) tema do capítulo diferente do tema do livro
     local t_cap = maiorDe(C.temas)
     local t_livro = maiorDe(L.temas)
     if t_cap and t_livro and t_cap ~= t_livro and (C.temas[t_cap] or 0) >= 3 then
-        return { texto = string.format(sorteia(FALAS_VIROU, sorteio), M.tema(t_livro, "de"), M.tema(t_cap, "de")) }
+        return { texto = string.format(sorteia(B.FALAS_VIROU, sorteio), M.tema(t_livro, "de"), M.tema(t_cap, "de")) }
     end
     -- 5) clima comparado com a média dos anteriores
     if #anteriores >= 1 then
@@ -1677,8 +1690,8 @@ function M.comentarioCapitulo(s, L, capnome, sorteio)
         -- limites calibrados nos livros (10% dos capítulos cada); sem calibração, ±1
         local lg = (L.paginas_pt or 0) * 2 > (L.paginas or 0) and "pt" or "en"
         local cal = M.CLIMA_CALIBRACAO and M.CLIMA_CALIBRACAO[lg] or {}
-        if agora_c < antes + (cal.azedou or -1) then return { texto = sorteia(FALAS_AZEDOU, sorteio) } end
-        if agora_c > antes + (cal.adocou or 1) then return { texto = sorteia(FALAS_ADOCOU, sorteio) } end
+        if agora_c < antes + (cal.azedou or -1) then return { texto = sorteia(B.FALAS_AZEDOU, sorteio) } end
+        if agora_c > antes + (cal.adocou or 1) then return { texto = sorteia(B.FALAS_ADOCOU, sorteio) } end
     end
     return nil
 end
@@ -1822,26 +1835,27 @@ local FALAS_NARRADOR = {
 --- Uma fala influenciada pelos livros, ou nil. temperamento (opcional): "jovem" ou "velha".
 function M.fala(s, sorteio, temperamento)
     sorteio = sorteio or math.random
+    local B = listas()
     local a, b = M.ambivalente(s)
     if a then
-        return string.format(T"Uma parte de mim pensa %s. A outra leu demais sobre %s.",
+        return string.format(B.AMBIVALENTE or T"Uma parte de mim pensa %s. A outra leu demais sobre %s.",
             M.tema(a, "em"), M.tema(b))
     end
     local opcoes = {}
     local t = s.tema_dominante
-    if t and FALAS_TEMA[t] then opcoes[#opcoes + 1] = function() return sorteia(FALAS_TEMA[t], sorteio) end end
+    if t and B.FALAS_TEMA[t] then opcoes[#opcoes + 1] = function() return sorteia(B.FALAS_TEMA[t], sorteio) end end
     local livro = s.ultimo_livro
     local L = livro and s.livros and s.livros[livro]
     local ref = M.referencias(s, livro)[1]
     if ref and ref[2] >= 4 then
-        local banco = FALAS_REFERENCIA[temperamento == "jovem" and "jovem" or "velha"]
+        local banco = B.FALAS_REFERENCIA[temperamento] or B.FALAS_REFERENCIA[temperamento == "jovem" and "jovem" or "velha"]
         opcoes[#opcoes + 1] = function()
             return (sorteia(banco, sorteio):gsub("{nome}", ref[1]):gsub("{n}", tostring(ref[2])))
         end
     end
     local cit = M.citacao(s, livro, sorteio, 90)
     if cit then
-        local banco = FALAS_CITACAO[temperamento == "jovem" and "jovem" or "velha"]
+        local banco = B.FALAS_CITACAO[temperamento] or B.FALAS_CITACAO[temperamento == "jovem" and "jovem" or "velha"]
         opcoes[#opcoes + 1] = function()
             local t = sorteia(banco, sorteio):gsub("{nome}", cit.nome):gsub("{fala}", function() return cit.fala end)
             return (t:gsub("([%?!])\226\128\157,", "%1\226\128\157"):gsub("%.\226\128\157,", ",\226\128\157"))
@@ -1849,7 +1863,7 @@ function M.fala(s, sorteio, temperamento)
     end
     local narr = M.narrador(L)
     if narr and narr.primeira then
-        opcoes[#opcoes + 1] = function() return sorteia(FALAS_NARRADOR[narr.genero or "neutro"], sorteio) end
+        opcoes[#opcoes + 1] = function() return sorteia(B.FALAS_NARRADOR[narr.genero or "neutro"], sorteio) end
     end
     if #opcoes > 0 then return opcoes[sorteio(#opcoes)]() end
 end
@@ -2003,6 +2017,7 @@ end
 -- ctx:  { temperamento, livro, personagens = {...}, ordem = n-ésimo do livro, total = n do livro,
 --         no_capitulo = quantos no mesmo capítulo, s = estado (para as variantes de traço) }
 function M.comentarioContexto(item, ctx)
+    local C = listas().C
     local texto = item.texto or ""
     local h = hash(texto)
     local function pega(lista) return lista[h % #lista + 1] end
@@ -2060,5 +2075,26 @@ end
 Lingua.anexar({ FALAS_EVENTO = FALAS_EVENTO, FALAS_NOVO = FALAS_NOVO, FALAS_SUMIU = FALAS_SUMIU,
     FALAS_AZEDOU = FALAS_AZEDOU, FALAS_ADOCOU = FALAS_ADOCOU, FALAS_VIROU = FALAS_VIROU, FALAS_TEMA = FALAS_TEMA,
     C = C, FALAS_CITACAO = FALAS_CITACAO, FALAS_REFERENCIA = FALAS_REFERENCIA }, Lingua.extra("memoria"))
+
+local proprias = {}  -- per species and language; false = the species has none
+--- The active species' own memory lines, or nil (the silverfish: the lists above).
+function M.banco()
+    local Species = require("traca_species")
+    local id = Species.current().id
+    if id == "traca" then return nil end
+    local chave = id .. ":" .. Lingua.codigo()
+    if proprias[chave] == nil then
+        local ok, b = pcall(require, Species.bankModule("memoria"))
+        proprias[chave] = ok and type(b) == "table" and b or false
+    end
+    return proprias[chave] or nil
+end
+listas = function()
+    local proprio = M.banco()
+    if proprio then return proprio end
+    return { FALAS_EVENTO = FALAS_EVENTO, FALAS_NOVO = FALAS_NOVO, FALAS_SUMIU = FALAS_SUMIU, FALAS_AZEDOU = FALAS_AZEDOU,
+             FALAS_ADOCOU = FALAS_ADOCOU, FALAS_VIROU = FALAS_VIROU, FALAS_TEMA = FALAS_TEMA, FALAS_REFERENCIA = FALAS_REFERENCIA,
+             FALAS_CITACAO = FALAS_CITACAO, FALAS_NARRADOR = FALAS_NARRADOR, C = C }
+end
 
 return M

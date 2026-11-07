@@ -21,6 +21,8 @@ local Estado = require("traca_estado")
 local Contagem = require("traca_contagem")
 local Memoria = require("traca_memoria")
 local Diario = require("traca_diario")
+local Brood = require("traca_brood")
+local Species = require("traca_species")
 local TracaTela = require("traca_tela")
 local Screensaver = require("ui/screensaver")
 
@@ -65,6 +67,9 @@ function Traca:init()
     local agora = os.time()
     self.estado = Estado.normalizar(self.db:readSetting("estado"), agora)
     Estado.passarTempo(self.estado, agora)
+    -- the brood: whoever is awake is self.estado; the others sleep in self.ninhada (traca_brood.lua)
+    self.ninhada = Brood.normalize(self.db:readSetting("ninhada"), agora)
+    Species.use(Brood.speciesOf(self.estado))
     self.paginas_sem_imagem = 0
     -- modo dev: com o arquivo koreader/traca/falhar, a digestão da página falha de propósito (nunca na versão
     -- da comunidade)
@@ -130,7 +135,15 @@ function Traca:onMostrarTraca()
     if not s.boasvindas and s.letras < 3000 then
         return self:mostrarBoasVindas()
     end
-    self:mostrarTela(TracaTela:new{ traca = self })
+    local tela = TracaTela:new{ traca = self }
+    self:mostrarTela(tela)
+    -- já nasceu e ainda não tem nome: pergunta uma vez, com a tela já desenhada por trás (traca_nome.lua)
+    if require("traca_nome").devePerguntar(s) then
+        UIManager:scheduleIn(0.5, function()
+            local aberta = telas[tela] and (not UIManager.isWidgetShown or UIManager:isWidgetShown(tela))
+            if aberta then tela:pedirNome(true) end
+        end)
+    end
     return true
 end
 
@@ -375,9 +388,9 @@ function Traca:alimentar(letras, palavra, onde, texto, contar)
     self.paginas_sem_imagem = self.paginas_sem_imagem + 1
     local aviso
     if ocorreu.evoluiu then
-        aviso = ocorreu.evoluiu.aviso or string.format(T"A Traça virou %s!", ocorreu.evoluiu.titulo)
+        aviso = ocorreu.evoluiu.aviso or string.format(Species.texto("virou"), ocorreu.evoluiu.titulo)
     elseif ocorreu.acordou then
-        aviso = T"A Traça saiu da lombada. Com fome, claro."
+        aviso = Species.texto("saiu")
     end
     if ocorreu.fim_ciclo then
         return self:fimDoCiclo()
@@ -404,12 +417,13 @@ function Traca:fimDoCiclo()
         if #todos > 0 then citacao = todos[math.random(#todos)] end
     end)
     local memorial = Estado.renascer(s, agora, { citacao = citacao })
-    Memoria.anotar(s, agora, string.format(T"Nasci do ovo da geração %d.%s", memorial.geracao,
-        s.heranca and string.format(T" Tenho uma obsessão herdada: %s. Nunca pedi por isso.", Memoria.NOMES_TEMA[s.heranca]) or ""))
+    if Diario.banco() then  -- the silverfish's first diary line; a species with no diary yet writes none
+        Memoria.anotar(s, agora, string.format(T"Nasci do ovo da geração %d.%s", memorial.geracao,
+            s.heranca and string.format(T" Tenho uma obsessão herdada: %s. Nunca pedi por isso.", Memoria.NOMES_TEMA[s.heranca]) or ""))
+    end
     self:salvar(true)
     UIManager:show(InfoMessage:new{
-        text = string.format(T"A Traça da geração %d leu tudo o que podia e deixou um ovo.\n\n“%s”\n\nVeja em ARQUIVO → LINHAGEM.",
-            memorial.geracao, memorial.ultimas),
+        text = string.format(Species.texto("fim"), memorial.geracao, memorial.ultimas),
     })
 end
 
@@ -429,6 +443,7 @@ function Traca:carregarSimulacao()
     if not self:emSimulacao() then self.db:saveSetting("estado_real", self.estado) end
     self.estado = Estado.normalizar(sim, os.time())
     self.estado.dev_simulacao = true
+    Species.use(Brood.speciesOf(self.estado))
     Estado.passarTempo(self.estado, os.time())
     self:salvar(true)
     return true
@@ -439,6 +454,15 @@ function Traca:voltarEstadoReal()
     if not real then return false end
     self.estado = Estado.normalizar(real, os.time())
     self.db:delSetting("estado_real")
+    Species.use(Brood.speciesOf(self.estado))
+    self:salvar(true)
+    return true
+end
+
+--- Puts the awake creature to sleep and wakes `id` (a new egg if it has never hatched). Not during a simulation.
+function Traca:acordar(id)
+    if self:emSimulacao() or id == Brood.speciesOf(self.estado) then return false end
+    self.estado = Brood.wake(self.estado, self.ninhada, id, os.time())
     self:salvar(true)
     return true
 end
@@ -453,6 +477,7 @@ end
 
 function Traca:salvar(com_imagem)
     self.db:saveSetting("estado", self.estado)
+    if next(self.ninhada.sleeping) then self.db:saveSetting("ninhada", self.ninhada) else self.db:delSetting("ninhada") end
     self.db:flush()
     if com_imagem then self:gerarImagem() end
 end

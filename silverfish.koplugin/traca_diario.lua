@@ -11,6 +11,7 @@ As frases ficam em traca_banco/diario_pt.lua e diario_en.lua. Lógica pura, test
 ]]
 
 local Lingua = require("traca_lingua")
+local Species = require("traca_species")
 
 local Diario = {}
 
@@ -65,10 +66,16 @@ function Diario.fimDaHistoria(toc, total)
     return fim
 end
 
-local banco
+local bancos = {}  -- one per species; false = the species has no diary of its own yet
+--- The diary bank of the active species, or nil: a species with none writes no diary lines (the cat has its own
+-- since batch 5b, gato_banco/diario_<language>.lua).
 function Diario.banco()
-    banco = banco or require("traca_banco.diario_" .. Lingua.codigo())
-    return banco
+    local id = Species.current().id
+    if bancos[id] == nil then
+        local ok, b = pcall(require, Species.bankModule("diario"))
+        bancos[id] = ok and type(b) == "table" and b or false
+    end
+    return bancos[id] or nil
 end
 
 local function sorteia(lista, sorteio)
@@ -77,16 +84,24 @@ local function sorteia(lista, sorteio)
 end
 
 local function preencher(modelo, v)
+    if not modelo then return nil end  -- a list the species doesn't have (the cat's egg has no lines)
     local texto = modelo:gsub("{([%w_]+)}", function(k) return v[k] or ("{" .. k .. "}") end)
     -- pontuação de citação: “Quem?”, disse → “Quem?” disse ; “Fim.”, disse → “Fim,” disse
     texto = texto:gsub("([%?!])\226\128\157,", "%1\226\128\157"):gsub("%.\226\128\157,", ",\226\128\157")
     return texto
 end
 
+-- O temperamento da fase como o estado diz ("jovem", "velha", e os do gato: "filhote", "adulto", "velho").
 local function temperamento(s)
     local ok, Estado = pcall(require, "traca_estado")
-    local t = ok and Estado.fase(s).temperamento or "velha"
-    return t == "jovem" and "jovem" or "velha"
+    return ok and Estado.fase(s).temperamento or "velha"
+end
+
+-- A lista de uma fase: a do temperamento, se a espécie tiver (o gato: filhote, adulto, velho); senão, como a
+-- traça sempre fez, "jovem" ou "velha" (o ovo e o resto ficam com a velha).
+local function porFase(tab, temp)
+    if not tab then return nil end
+    return tab[temp] or tab[temp == "jovem" and "jovem" or "velha"]
 end
 
 local function maiorDe(t)
@@ -157,7 +172,9 @@ end
 --- Monta a entrada de um dia de leitura (ou nil, se não houve leitura).
 function Diario.entradaDoDia(s, M, D)
     if not D or D.paginas == 0 or #D.ordem == 0 then return nil end
-    local B, temp = Diario.banco().dia, temperamento(s)
+    local banco = Diario.banco()
+    if not banco then return nil end
+    local B, temp = banco.dia, temperamento(s)
     local livro = D.ordem[1]
     local maior = 0
     for _, l in ipairs(D.ordem) do if D.livros[l] > maior then livro, maior = l, D.livros[l] end end
@@ -187,7 +204,7 @@ function Diario.entradaDoDia(s, M, D)
     end
     -- fala de personagem: não repete quem falou no último dia anotado
     if D.fala and #D.fala.fala <= 90 and D.fala.nome ~= s.diario_ultima_fala then
-        detalhe(preencher(sorteia(B.fala[temp]), { nome = D.fala.nome, fala = D.fala.fala }), 3)
+        detalhe(preencher(sorteia(porFase(B.fala, temp)), { nome = D.fala.nome, fala = D.fala.fala }), 3)
     end
     local ev, n_ev = maiorDe(D.eventos)
     if ev and n_ev >= 4 and B.evento[ev] then detalhe(sorteia(B.evento[ev]), 3) end
@@ -215,7 +232,7 @@ function Diario.entradaDoDia(s, M, D)
         end
     end
     -- fecho: no tom dela, puxado pelo clima do dia
-    local fecho = sorteia((clima <= -1 and B.fecho_escuro or clima >= 1 and B.fecho_leve or B.fecho)[temp])
+    local fecho = sorteia(porFase(clima <= -1 and B.fecho_escuro or clima >= 1 and B.fecho_leve or B.fecho, temp))
     local function montar(com_horario, n_partes)
         local p = { partes[1] }
         if com_horario and horario then p[#p + 1] = horario end
@@ -233,7 +250,9 @@ end
 
 --- Entrada de livro novo. anterior: o livro que ela vinha comendo antes (ou nil).
 function Diario.inicioLivro(s, M, livro, onde, anterior)
-    local B = Diario.banco().inicio
+    local banco = Diario.banco()
+    if not banco then return nil end
+    local B = banco.inicio
     local v = { livro = livro, autor = onde and onde.autor, anterior = anterior }
     local Lant = anterior and s.livros and s.livros[anterior]
     local opcoes = {}
@@ -252,7 +271,8 @@ end
 
 --- Entrada de releitura.
 function Diario.releitura(livro)
-    return preencher(sorteia(Diario.banco().inicio.relendo), { livro = livro })
+    local banco = Diario.banco()
+    return banco and preencher(sorteia(banco.inicio.relendo), { livro = livro }) or nil
 end
 
 -- Traço que mais mudou durante o livro (ou nil, se nenhum mudou o bastante).
@@ -273,7 +293,9 @@ local ORDINAIS_PT = { "Segundo", "Terceiro", "Quarto", "Quinto", "Sexto" }
 function Diario.fimLivro(s, M, livro, agora)
     local L = s.livros and s.livros[livro]
     if not L then return end
-    local B, temp = Diario.banco().fim, temperamento(s)
+    -- with no diary of its own, the review is kept (the book, its note, its themes) without the words
+    local banco = Diario.banco()
+    local B, temp = banco and banco.fim, temperamento(s)
     local info = M.personagensInfo(s, livro)
     local protagonista
     for _, p in ipairs(info) do if p.protagonista then protagonista = p.nome; break end end
@@ -306,28 +328,34 @@ function Diario.fimLivro(s, M, livro, agora)
     local okV, Vetor = pcall(require, "traca_vetor")
     local nome = okV and Vetor.nome(Vetor.de(L)) or nil
 
-    local partes = { preencher(sorteia(B.abertura), { livro = livro }) }
-    if nome and B.nome then partes[#partes + 1] = preencher(sorteia(B.nome), { nome = nome }) end
-    local opcionais = {}
-    if protagonista then opcionais[#opcionais + 1] = preencher(sorteia(B.protagonista[temp]), { nome = protagonista }) end
-    if anterior and anterior.livro ~= livro and math.abs(clima - (anterior.clima or 0)) >= 0.4 then
-        opcionais[#opcionais + 1] = preencher(sorteia(clima < (anterior.clima or 0) and B.mais_escuro or B.mais_leve),
-            { outro = anterior.livro })
-    end
-    if tema and serie == 1 then  -- 3º seguido em diante vira lembrança garantida (traca_lembrancas)
-        local ordinal = Lingua.ingles() and ({ "Second", "Third", "Fourth", "Fifth", "Sixth" })[math.min(serie, 5)]
-            or ORDINAIS_PT[math.min(serie, 5)]
-        opcionais[#opcionais + 1] = preencher(sorteia(B.serie), { ordinal = ordinal, tema = M.tema(tema), de_tema = M.tema(tema, "de") })
-    end
-    if traco and B.traco[traco] then opcionais[#opcionais + 1] = sorteia(B.traco[traco]) end
-    for i = 1, math.min(2, #opcionais) do
-        local k = math.random(#opcionais)
-        partes[#partes + 1] = table.remove(opcionais, k)
-    end
-    partes[#partes + 1] = preencher(sorteia(B.nota[temp]), { n = tostring(nota) })
-    M.anotar(s, agora, table.concat(partes, " "))
+    local veredito
+    if B then
+        local partes = { preencher(sorteia(B.abertura), { livro = livro }) }
+        if nome and B.nome then partes[#partes + 1] = preencher(sorteia(B.nome), { nome = nome }) end
+        local opcionais = {}
+        local sobre = protagonista and preencher(sorteia(porFase(B.protagonista, temp)), { nome = protagonista })
+        if sobre then opcionais[#opcionais + 1] = sobre end
+        if anterior and anterior.livro ~= livro and math.abs(clima - (anterior.clima or 0)) >= 0.4 then
+            opcionais[#opcionais + 1] = preencher(sorteia(clima < (anterior.clima or 0) and B.mais_escuro or B.mais_leve),
+                { outro = anterior.livro })
+        end
+        if tema and serie == 1 then  -- 3º seguido em diante vira lembrança garantida (traca_lembrancas)
+            local ordinal = Lingua.ingles() and ({ "Second", "Third", "Fourth", "Fifth", "Sixth" })[math.min(serie, 5)]
+                or ORDINAIS_PT[math.min(serie, 5)]
+            opcionais[#opcionais + 1] = preencher(sorteia(B.serie), { ordinal = ordinal, tema = M.tema(tema), de_tema = M.tema(tema, "de") })
+        end
+        if traco and B.traco[traco] then opcionais[#opcionais + 1] = sorteia(B.traco[traco]) end
+        for i = 1, math.min(2, #opcionais) do
+            local k = math.random(#opcionais)
+            partes[#partes + 1] = table.remove(opcionais, k)
+        end
+        local txt_nota = preencher(sorteia(porFase(B.nota, temp)), { n = tostring(nota) })
+        if txt_nota then partes[#partes + 1] = txt_nota end
+        M.anotar(s, agora, table.concat(partes, " "))
 
-    local veredito = sorteia(B.veredito[temp][nota])
+        local por_nota = porFase(B.veredito, temp)  -- the cat has none: verdicts are kept, never shown
+        veredito = por_nota and sorteia(por_nota[nota]) or nil
+    end
     s.resenhas[#s.resenhas + 1] = {
         livro = livro, autor = L.autor, geracao = s.geracao or 1, inicio = L.inicio, fim = agora, dias = dias,
         paginas = L.paginas, personagens = personagens, protagonista = protagonista, citacao = citacao,
@@ -389,7 +417,9 @@ end
 
 --- Mudança de obsessão (tema dominante), com frases variadas.
 function Diario.obsessao(M, antigo, novo)
-    local B = Diario.banco().obsessao
+    local banco = Diario.banco()
+    if not banco then return nil end
+    local B = banco.obsessao
     local texto
     if antigo then
         texto = preencher(sorteia(B.troca), { antes = M.tema(antigo, "em"), agora = M.tema(novo, "em"),

@@ -41,7 +41,7 @@ local function mes(t) return MESES[Lingua.ingles() and "en" or "pt"][tonumber(os
 local function preencher(modelo, v)
     return (modelo:gsub("{([%w_]+)}", function(k) return v[k] ~= nil and tostring(v[k]) or ("{" .. k .. "}") end))
 end
-local function banco() return require("traca_diario").banco().lembranca or {} end
+local function banco() return (require("traca_diario").banco() or {}).lembranca or {} end  -- no diary: no memories said
 
 --- Registra uma lembrança: diário, Home (uma vez) e s.lembrancas.
 local function lembrar(s, M, tipo, livro, agora, dados, v)
@@ -52,7 +52,7 @@ local function lembrar(s, M, tipo, livro, agora, dados, v)
     s.lembrancas[#s.lembrancas + 1] = { tipo = tipo, livro = livro, t = agora, dados = dados }
     while #s.lembrancas > MAX do table.remove(s.lembrancas, 1) end
     M.anotar(s, agora, texto)
-    s.lembranca_pendente = { texto = texto, t = agora }
+    s.lembranca_pendente = { texto = texto, t = agora, especie = require("traca_species").current().id }
     return texto
 end
 

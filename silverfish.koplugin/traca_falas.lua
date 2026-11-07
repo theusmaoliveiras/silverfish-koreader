@@ -308,16 +308,33 @@ local function gerarDe(g, dados, sorteio)
     return table.concat(partes, " "), modelo
 end
 
+-- A species with generated lines of its own (the cat, since 07/11/2026: gato_banco/geradas_<language>.lua): the
+-- same grammar, by its own stages and temperaments. The silverfish keeps the banks above.
+local proprios = {}
+function F.banco()
+    local Species = require("traca_species")
+    local id = Species.current().id
+    if id == "traca" then return nil end
+    local chave = id .. ":" .. Lingua.codigo()
+    if proprios[chave] == nil then
+        local ok, b = pcall(require, Species.bankModule("geradas"))
+        proprios[chave] = ok and type(b) == "table" and b or false
+    end
+    return proprios[chave] or nil
+end
+
 --- Gera uma fala. dados = { livro=, personagem=, tema=, palavra=, voz=, escolher= } (campos podem faltar).
 function F.gerar(fase, dados, sorteio)
-    local g = POR_FASE[fase]
+    local B = F.banco()
+    local g = B and B[fase] or POR_FASE[fase]
     if not g then return nil end
     return gerarDe(g, dados or {}, sorteio or math.random)
 end
 
---- Um sonho (fala dormindo). temperamento: "jovem" ou "velha".
+--- Um sonho (fala dormindo). temperamento: "jovem" ou "velha" (o gato: "filhote", "adulto" ou "velho").
 function F.sonhar(temperamento, dados, sorteio)
-    local g = F.sonho[temperamento]
+    local B = F.banco()
+    local g = B and B.sonho and B.sonho[temperamento] or F.sonho[temperamento]
     if not g then return nil end
     return gerarDe(g, dados or {}, sorteio or math.random)
 end

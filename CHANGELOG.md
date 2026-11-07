@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 (not released yet)
+## 2.0.0 (2026-11-07)
 
 The silverfish has company. This version brings the brood (more than one creature in the same save, one awake at a
 time) and the first new species, the Ash Cat.

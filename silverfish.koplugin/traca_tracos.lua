@@ -21,6 +21,7 @@ Lógica pura (sem KOReader), testável fora dele.
 ]]
 
 local Lingua = require("traca_lingua")
+local Species = require("traca_species")
 local T = Lingua.t
 
 local Tracos = {}
@@ -81,11 +82,16 @@ Tracos.CENTRADOS = { "humor", "coragem", "coracao", "gosto" }
 local okB, BASE = pcall(require, "traca_base_tracos")
 Tracos.BASE = okB and type(BASE) == "table" and BASE or nil
 
-local banco
---- Falas e anotações de diário dos traços, no idioma atual.
+local bancos = {}  -- one per species; false = the species has no trait lines of its own yet
+--- Falas e anotações de diário dos traços, no idioma atual, ou nil: uma espécie sem elas (o gato, por
+-- enquanto) não diz nada dos traços, mas eles mudam do mesmo jeito.
 function Tracos.banco()
-    banco = banco or require("traca_banco.tracos_" .. Lingua.codigo())
-    return banco
+    local id = Species.current().id
+    if bancos[id] == nil then
+        local ok, b = pcall(require, Species.bankModule("tracos"))
+        bancos[id] = ok and type(b) == "table" and b or false
+    end
+    return bancos[id] or nil
 end
 
 --- -2, -1, 0, 1 ou 2 para um valor (sem considerar o nível anterior).
@@ -165,7 +171,8 @@ local function notaDiario(tr, antes, depois, livro)
     else
         return nil  -- enfraqueceu de 2 para 1: não vale anotar
     end
-    local lista = Tracos.banco().diario[polo]
+    local banco = Tracos.banco()
+    local lista = banco and banco.diario[polo]
     lista = lista and lista[chave]
     if not lista or #lista == 0 then return nil end
     local texto = lista[math.random(#lista)]
@@ -220,8 +227,12 @@ function Tracos.marcantes(tracos)
     return lista
 end
 
---- Rótulo traduzido de um polo ("AMARGA", "NIGHT OWL"…).
+--- Rótulo traduzido de um polo ("AMARGA", "NIGHT OWL"…): o da espécie ativa, se o banco dela tiver rótulos
+-- (o gato: "TURNO DA NOITE"…, lote 5a), ou o da traça.
 function Tracos.rotulo(polo)
+    local banco = Tracos.banco()
+    local proprio = banco and banco.rotulos and banco.rotulos[polo]
+    if proprio then return proprio end
     return T(ROTULO[polo] or polo)
 end
 
@@ -249,8 +260,10 @@ function Tracos.fala(s, temperamento, sorteio)
         acc = acc + f[2]
         if alvo <= acc then polo = f[1]; break end
     end
-    local porPolo = Tracos.banco().falas[polo]
-    local lista = porPolo and porPolo[temperamento == "jovem" and "jovem" or "velha"]
+    local banco = Tracos.banco()
+    local porPolo = banco and banco.falas[polo]
+    -- o temperamento da fase (o gato: filhote, adulto, velho); a traça tem só jovem e velha
+    local lista = porPolo and (porPolo[temperamento] or porPolo[temperamento == "jovem" and "jovem" or "velha"])
     if not lista or #lista == 0 then return nil end
     return lista[sorteio(#lista)]
 end

@@ -20,6 +20,7 @@ Lógica pura (sem KOReader), testável fora dele.
 ]]
 
 local Lingua = require("traca_lingua")
+local Species = require("traca_species")
 
 local Vetor = {}
 
@@ -102,9 +103,9 @@ end
 
 local bancos = {}
 local function banco()
-    local c = Lingua.codigo()
+    local c = Species.current().id .. ":" .. Lingua.codigo()  -- one per species and language
     if bancos[c] == nil then
-        local ok, b = pcall(require, "traca_banco.vetor_" .. c)
+        local ok, b = pcall(require, Species.bankModule("vetor"))
         bancos[c] = ok and type(b) == "table" and b or false
     end
     return bancos[c] or nil
