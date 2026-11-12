@@ -29,13 +29,25 @@ local function construir(ctx)
     local w = math.max(1, math.floor(tonumber(ctx and ctx.width) or 0))
     local h = math.max(1, math.floor(tonumber(ctx and ctx.height) or 0))
     local c = Cartao:new{ traca = traca, largura = w, altura_fixa = h }
-    local ic = InputContainer:new{ dimen = Geom:new{ w = w, h = c.altura }, c }
-    ic.ges_events = {
-        TapTraca = { GestureRange:new{ ges = "tap", range = function() return c.dimen end } },
+    -- Como os widgets do próprio ZenOS: o gesto vale para a tela toda e o toque conta se cair dentro do
+    -- container (o ZenOS monta as linhas fora da tela e as posiciona depois, então a posição do desenho
+    -- não serve para isso).
+    local Screen = require("device").screen
+    local ic = InputContainer:new{
+        dimen = Geom:new{ w = w, h = c.altura },
+        ges_events = {
+            TapTraca = { GestureRange:new{ ges = "tap", range = Geom:new{
+                x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight(),
+            } } },
+        },
+        c,
     }
-    function ic:onTapTraca()
-        -- no modo de edição da Home, o toque é do ZenOS
-        if ctx and ctx.editMode then return false end
+    function ic:onTapTraca(_arg, ges)
+        if not (self.dimen and ges and ges.pos) then return false end
+        -- no topo, o toque abre o menu do ZenOS. (O "modo de edição" do ZenOS fica ligado e só usa o
+        -- toque longo para abrir as opções do widget; o toque simples continua sendo da Traça.)
+        if ctx and ctx.openTopMenu and ctx.openTopMenu(ges) then return true end
+        if not self.dimen:contains(ges.pos) then return false end
         traca:onMostrarTraca()
         return true
     end
