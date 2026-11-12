@@ -280,7 +280,38 @@ local function alto(bb, d, x, y, w, h)        -- alto e estreito: Traça, balão
     end
 end
 
+--- Simples: só a Traça (com o nome e a fase) e o balão, como o cartão original. Lado a lado na linha
+-- larga; na alta e estreita, a Traça em cima e o balão embaixo.
+local function simples(bb, d, x, y, w, h)
+    if w >= h * 0.75 then
+        local pad = math.min(w, h) * 0.08
+        local ah = h - 2 * pad
+        local col = d.fala and math.min(ah, w * 0.3) or (w - 2 * pad)
+        colunaBicho(bb, d, x + pad, y + pad, col, ah)
+        if d.fala then
+            local bx = x + pad + col + pad + math.max(6, ah * 0.06)
+            balao(bb, bx, y + pad, x + w - pad - bx, ah, d.fala)
+        end
+    else
+        local pad = w * 0.08
+        local cw, ah = w - 2 * pad, h - 2 * pad
+        local bicho_h = d.fala and ah * 0.45 or ah
+        colunaBicho(bb, d, x + pad, y + pad, cw, bicho_h)
+        if d.fala then
+            local rabo = math.max(6, cw * 0.06)
+            balao(bb, x + pad, y + pad + bicho_h + rabo, cw, ah - bicho_h - rabo, d.fala, true)
+        end
+    end
+end
+
 -- O cartão ---------------------------------------------------------------------
+
+--- O cartão do ZenOS mostra só a Traça e o balão (simples) ou também a barra e os números (detalhado)?
+-- Escolhido nos ajustes da tela dela; sem argumento, só lê.
+local function Cartao_simples(ligar)
+    if ligar ~= nil then G_reader_settings:saveSetting("traca_cartao_zenos_simples", ligar or nil) end
+    return G_reader_settings:isTrue("traca_cartao_zenos_simples")
+end
 
 --- O que o cartão mostra, tirado da Traça agora (o tempo já passado).
 local function dados(traca)
@@ -318,7 +349,8 @@ function Cartao:paintTo(bb, x, y)
     area_bicho = nil
     local w, h = self.largura, self.altura
     local d = dados(self.traca)
-    if w >= h * 2.2 then curto(bb, d, x, y, w, h)
+    if Cartao_simples() then simples(bb, d, x, y, w, h)
+    elseif w >= h * 2.2 then curto(bb, d, x, y, w, h)
     elseif w >= h * 1.3 then largo(bb, d, x, y, w, h)
     elseif w >= h * 0.75 then quadrado(bb, d, x, y, w, h)
     else alto(bb, d, x, y, w, h) end
@@ -347,6 +379,8 @@ function Cartao.carinho(traca)
     end
     traca._reacao_cartao = { texto = texto, ate = os.time() + REACAO_SEGUNDOS }
 end
+
+Cartao.simples = Cartao_simples
 
 -- Se algo falhar ao desenhar, a Home continua (o cartão fica em branco).
 require("traca_guarda").padrao:envolver(Cartao, { "paintTo" })

@@ -180,6 +180,7 @@ EN.ui = {
     ["Tela de descanso: ligada"] = "Sleep screen: on", ["Tela de descanso: desligada"] = "Sleep screen: off",
     ["Abrir ao iniciar: ligado"] = "Open at startup: on", ["Abrir ao iniciar: desligado"] = "Open at startup: off",
     ["Atalho por gesto: ligado"] = "Gesture shortcut: on", ["Atalho por gesto: desligado"] = "Gesture shortcut: off",
+    ["Cartão do ZenOS: detalhado"] = "ZenOS card: detailed", ["Cartão do ZenOS: simples"] = "ZenOS card: simple",
     ["Modo dev…"] = "Dev mode…", ["TRAÇA · MODO DEV"] = "SILVERFISH · DEV MODE",
     ["Faminta"] = "Starving", ["Ranzinza"] = "Grumpy", ["Feliz"] = "Happy",
     ["Noite: ligada"] = "Night: on", ["Noite: desligada"] = "Night: off",
