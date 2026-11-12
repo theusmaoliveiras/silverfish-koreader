@@ -45,6 +45,12 @@ local function construir(ctx)
         -- toque longo para abrir as opções do widget; o toque simples continua sendo da Traça.)
         if ctx and ctx.openTopMenu and ctx.openTopMenu(ges) then return true end
         if not self.dimen:contains(ges.pos) then return false end
+        -- na Traça, carinho (como no widget de Android); no resto do cartão, a tela dela
+        if c.bicho and c.bicho:contains(ges.pos) then
+            Cartao.carinho(traca)
+            if ctx and ctx.refreshRow then ctx.refreshRow(self.dimen) else UIManager:setDirty(nil, "ui", self.dimen) end
+            return true
+        end
         traca:onMostrarTraca()
         return true
     end

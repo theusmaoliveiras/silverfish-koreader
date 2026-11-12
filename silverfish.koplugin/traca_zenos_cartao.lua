@@ -77,6 +77,9 @@ end
 -- A Traça ----------------------------------------------------------------------
 
 --- O desenho, recortado ao que está pintado, no maior tamanho inteiro que cabe em `lado`, centralizado.
+-- Onde o último desenho da Traça caiu (para o toque de carinho, em traca_zenos.lua).
+local area_bicho = nil
+
 local function pintarBicho(bb, nome, x, y, lado)
     local c = Simple.caixaReal(nome)
     local bw, bh = c[3] - c[1] + 1, c[4] - c[2] + 1
@@ -98,7 +101,12 @@ local function colunaBicho(bb, d, x, y, cw, ch)
     local texto_h = nome.h + gap + (com_fase and (fase.h + gap * 0.5) or 0)
     local lado = math.min(cw, ch - texto_h)
     local topo = y + (ch - (lado + texto_h)) / 2
-    if lado > 0 then pintarBicho(bb, d.sprite, x + (cw - lado) / 2, topo, lado) end
+    if lado > 0 then
+        pintarBicho(bb, d.sprite, x + (cw - lado) / 2, topo, lado)
+        -- o toque de carinho: o quadrado reservado para ela até o nome (não só os pixels do desenho, que
+        -- no ovo são pequenos)
+        area_bicho = { x = x + (cw - lado) / 2, y = topo, w = lado, h = lado + gap }
+    end
     pintarLinha(bb, nome, x + (cw - nome.w) / 2, topo + lado + gap)
     if com_fase then pintarLinha(bb, fase, x + (cw - fase.w) / 2, topo + lado + gap + nome.h + gap * 0.5) end
     soltar(nome); soltar(fase)
@@ -295,7 +303,9 @@ local function dados(traca)
         humor_bolinhas = Estado.bolinhas(s.humor),
         paginas = "PAGES EATEN: " .. tostring(s.paginas or 0),
         hoje = tostring(Estado.paginasHoje(s, agora)) .. " TODAY",
-        fala = ok and fala and fala ~= "" and fala or nil,
+        -- a resposta a um carinho dado aqui, por alguns minutos; senão o que ela está pensando
+        fala = (traca._reacao_cartao and agora < traca._reacao_cartao.ate and traca._reacao_cartao.texto)
+            or (ok and fala and fala ~= "" and fala) or nil,
     }
 end
 
@@ -305,12 +315,37 @@ function Cartao:getSize() return Geom:new{ w = self.largura, h = self.altura } e
 
 function Cartao:paintTo(bb, x, y)
     self.dimen = Geom:new{ x = x, y = y, w = self.largura, h = self.altura }
+    area_bicho = nil
     local w, h = self.largura, self.altura
     local d = dados(self.traca)
     if w >= h * 2.2 then curto(bb, d, x, y, w, h)
     elseif w >= h * 1.3 then largo(bb, d, x, y, w, h)
     elseif w >= h * 0.75 then quadrado(bb, d, x, y, w, h)
     else alto(bb, d, x, y, w, h) end
+    -- onde a Traça está, um pouco maior, para o dedo
+    if area_bicho then
+        local a, folga = area_bicho, math.max(area_bicho.w, area_bicho.h) * 0.1
+        self.bicho = Geom:new{ x = a.x - folga, y = a.y - folga, w = a.w + 2 * folga, h = a.h + 2 * folga }
+    else
+        self.bicho = nil
+    end
+end
+
+--- Carinho dado tocando a Traça no cartão: o mesmo da tela dela (TracaTela:carinho), um por hora e nada no
+-- casulo, e a resposta dela fica no balão por alguns minutos.
+local REACAO_SEGUNDOS = 5 * 60
+
+function Cartao.carinho(traca)
+    local T = require("traca_lingua").t
+    local texto
+    if traca:carinho() then
+        texto = Estado.falaPropria(traca.estado, "carinho") or T"Hm. Tá. Pode continuar."
+    elseif traca.estado.hibernando then
+        texto = Estado.falaPropria(traca.estado, "casulo") or T"(escondida na lombada; leia uma página para ela sair)"
+    else
+        texto = T"Já chega de carinho por agora."
+    end
+    traca._reacao_cartao = { texto = texto, ate = os.time() + REACAO_SEGUNDOS }
 end
 
 -- Se algo falhar ao desenhar, a Home continua (o cartão fica em branco).
