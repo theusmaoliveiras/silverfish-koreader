@@ -202,6 +202,10 @@ require("traca_guarda").padrao:envolver(Cartao, { "paintTo" })
 
 -- O ZenOS (traca_zenos.lua) usa o mesmo cartão.
 Integracao.Cartao = Cartao
+-- E o novo cartão do ZenOS (traca_zenos_cartao.lua) usa a mesma fala, a mesma fonte e o mesmo recorte do desenho.
+Integracao.pensamento = textoDoCartao
+Integracao.fonte = fonte
+Integracao.caixaReal = caixaReal
 
 local function criarModulo(traca)
     local M = {}

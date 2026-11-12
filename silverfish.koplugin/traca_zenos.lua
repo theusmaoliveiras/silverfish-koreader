@@ -25,14 +25,11 @@ local registrado = false
 local function construir(ctx)
     local traca = atual
     if not (traca and traca.estado) then return nil end
-    local Cartao = require("traca_simpleui").Cartao
+    local Cartao = require("traca_zenos_cartao")
+    local Screen = require("device").screen
     local w = math.max(1, math.floor(tonumber(ctx and ctx.width) or 0))
     local h = math.max(1, math.floor(tonumber(ctx and ctx.height) or 0))
-    local c = Cartao:new{ traca = traca, largura = w, altura_fixa = h }
-    -- Como os widgets do próprio ZenOS: o gesto vale para a tela toda e o toque conta se cair dentro do
-    -- container (o ZenOS monta as linhas fora da tela e as posiciona depois, então a posição do desenho
-    -- não serve para isso).
-    local Screen = require("device").screen
+    local c = Cartao:new{ traca = traca, largura = w, altura = h }
     local ic = InputContainer:new{
         dimen = Geom:new{ w = w, h = c.altura },
         ges_events = {
