@@ -1662,6 +1662,18 @@ function TracaTela:menuAjustes()
                 end,
             }},
     }
+    -- O cartão na tela inicial do ZenOS (traca_zenos_cartao.lua): detalhado ou só a Traça e o balão.
+    if rawget(_G, "__ZENOS_REGISTER_HOME_ITEM") or rawget(_G, "__ZEN_UI_REGISTER_HOME_ITEM") then
+        local Cartao = require("traca_zenos_cartao")
+        table.insert(botoes, {{
+            text = Cartao.simples() and T"Cartão do ZenOS: simples" or T"Cartão do ZenOS: detalhado",
+            callback = function()
+                UIManager:close(dialogo)
+                Cartao.simples(not Cartao.simples())
+                UIManager:setDirty("all", "ui")
+            end,
+        }})
+    end
     table.insert(botoes, {{ text = T"Nome…", callback = function()
         UIManager:close(dialogo)
         self:pedirNome(false)
