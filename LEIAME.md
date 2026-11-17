@@ -10,7 +10,7 @@
 
 *In English: [README.md](README.md).*
 
-[![Apoie a Traça no Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira) <a href="https://getbookbrood.com/?from=github&lang=pt"><img src="media/bookbrood-waitlist-pt.png" alt="Entrar na lista do BookBrood" height="33"></a>
+[![Apoie a Traça no Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira) <a href="https://getbookbrood.com/?from=github&lang=pt"><img src="media/bookbrood-waitlist-pt.png" alt="Entrar na lista do BookBrood" height="30"></a>
 
 A Traça nasce de um ovo depois das suas primeiras páginas. Ela só come páginas lidas de verdade, cresce em quatro fases e, aos poucos, vira o que você lê. Quem lê ficção científica cria uma futurista desconfiada. Quem lê sátira cria uma crítica que revira os olhos para qualquer prefácio.
 
@@ -149,7 +149,7 @@ Muita gente pediu a Traça no celular, então estou fazendo: o **BookBrood**, um
 
 Se quiser saber quando ficar pronto, ou testar antes, tem uma lista de espera:
 
-<a href="https://getbookbrood.com/?from=github&lang=pt"><img src="media/bookbrood-waitlist-pt.png" alt="Entrar na lista do BookBrood" height="33"></a>
+<a href="https://getbookbrood.com/?from=github&lang=pt"><img src="media/bookbrood-waitlist-pt.png" alt="Entrar na lista do BookBrood" height="30"></a>
 
 ## Apoie
 
