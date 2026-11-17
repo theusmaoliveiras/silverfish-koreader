@@ -10,7 +10,7 @@
 
 *Em português: [LEIAME.md](LEIAME.md).*
 
-[![Support Silverfish on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira) <a href="https://getbookbrood.com/?from=github"><img src="media/bookbrood-waitlist.png" alt="Join the BookBrood waitlist" height="30"></a>
+[![Support Silverfish on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira) <a href="https://getbookbrood.com/?from=github"><img src="media/waitlist-button.png" alt="Join the BookBrood waitlist" height="30"></a>
 
 Silverfish hatches from an egg after your first pages. It feeds only on pages you actually read, grows through four stages, and slowly becomes what you read. A reader of science fiction raises a paranoid little futurist. A reader of satire raises a critic who rolls her eyes at prefaces.
 
@@ -149,7 +149,7 @@ It's a separate app and still in progress. Silverfish stays free and open source
 
 If you'd like to hear when it's ready, or to test it early, there's a waitlist:
 
-<a href="https://getbookbrood.com/?from=github"><img src="media/bookbrood-waitlist.png" alt="Join the BookBrood waitlist" height="30"></a>
+<a href="https://getbookbrood.com/?from=github"><img src="media/waitlist-button.png" alt="Join the BookBrood waitlist" height="30"></a>
 
 ## Support
 
