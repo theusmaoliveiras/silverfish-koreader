@@ -10,7 +10,7 @@
 
 *In English: [README.md](README.md).*
 
-[![Apoie a Traça no Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira)
+[![Apoie a Traça no Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/theusmaoliveira) <a href="https://getbookbrood.com/?from=github&lang=pt"><img src="media/bookbrood-waitlist-pt.png" alt="Entrar na lista do BookBrood" height="33"></a>
 
 A Traça nasce de um ovo depois das suas primeiras páginas. Ela só come páginas lidas de verdade, cresce em quatro fases e, aos poucos, vira o que você lê. Quem lê ficção científica cria uma futurista desconfiada. Quem lê sátira cria uma crítica que revira os olhos para qualquer prefácio.
 
@@ -140,6 +140,16 @@ A Traça nunca trava a sua leitura. Se algo der errado, ela avisa que tropeçou 
 
 - Em livros sem sumário, ela conta um capítulo a cada 25 páginas.
 - Ela percebe o livro pelas palavras; não entende a história como uma pessoa. Às vezes um comentário sobre o capítulo erra o assunto.
+
+## No celular: BookBrood
+
+Muita gente pediu a Traça no celular, então estou fazendo: o **BookBrood**, um bichinho de leitura para o celular. Ele nasce dos livros que você lê, inclusive os de papel, e ganha personalidade a partir deles, a mesma ideia daqui. A Traça e o Gato-das-Cinzas vão junto.
+
+É um app separado e ainda está em construção. A Traça continua grátis e de código aberto, e eu sigo cuidando dela.
+
+Se quiser saber quando ficar pronto, ou testar antes, tem uma lista de espera:
+
+<a href="https://getbookbrood.com/?from=github&lang=pt"><img src="media/bookbrood-waitlist-pt.png" alt="Entrar na lista do BookBrood" height="33"></a>
 
 ## Apoie
 
