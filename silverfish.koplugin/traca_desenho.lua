@@ -54,8 +54,14 @@ function Desenho.usarCor(bb)
 end
 
 --- A blank image for the screens painted off screen (the sleep screen): in colour when the screen shows colour.
+-- Imagens feitas aqui (tela de descanso, demonstração) viram arquivos: guardam as cores de verdade, mesmo no
+-- modo noturno (ver Desenho.pintarSprite).
+local imagens = setmetatable({}, { __mode = "k" })
+
 function Desenho.novoBuffer(w, h)
-    return Blitbuffer.new(w, h, Desenho.usarCor() and Blitbuffer.TYPE_BBRGB32 or Blitbuffer.TYPE_BB8)
+    local bb = Blitbuffer.new(w, h, Desenho.usarCor() and Blitbuffer.TYPE_BBRGB32 or Blitbuffer.TYPE_BB8)
+    imagens[bb] = true
+    return bb
 end
 
 -- The ink of each character of the drawings (`_cores` in the drawing files), per species and mode. A gray is
@@ -78,6 +84,17 @@ local function tintasDe(cor)
         tintas[chave] = t
     end
     return tintas[chave]
+end
+
+-- Cada tinta com a cor oposta, para o modo noturno.
+local opostas = setmetatable({}, { __mode = "k" })
+local function oposta(t)
+    local o = opostas[t]
+    if not o then
+        o = { cor = t.cor:invert(), rgb = t.rgb, cinza = t.cinza, lum = 255 - (t.lum or 0) }
+        opostas[t] = o
+    end
+    return o
 end
 
 local function pintarTinta(bb, x, y, w, h, tinta)
@@ -127,11 +144,16 @@ end
 --- Pinta o sprite `nome` com cada pixel virando um quadrado de `escala` px, em cores quando `bb` e a tela
 -- mostram cor (Desenho.usarCor). `trocar(linha, tinta)`, opcional, devolve a tinta a usar naquela linha do
 -- desenho (o Bookshelf escurece a sombrinha); cada tinta tem `cinza` e `lum` (0 a 255).
+--
+-- No modo noturno o KOReader inverte a tela inteira depois de pintar, e o desenho sairia com as cores trocadas
+-- (a traça lilás ficava oliva). Na tela, então, cada cor é pintada já invertida, como o KOReader faz com as
+-- capas dos livros, para aparecer como é. Nas imagens que viram arquivo (Desenho.novoBuffer), não.
 function Desenho.pintarSprite(bb, nome, x, y, escala, trocar)
     local cor = Desenho.usarCor(bb)
     local linhas = Sprites(cor)[Desenho.resolver(nome)]
     if not linhas then return end
     local tinta = tintasDe(cor)
+    local inverter = Screen.night_mode and not imagens[bb]
     for j, linha in ipairs(linhas) do
         -- junta pixels vizinhos da mesma cor num retângulo só
         local i, n = 1, #linha
@@ -141,6 +163,7 @@ function Desenho.pintarSprite(bb, nome, x, y, escala, trocar)
             while k < n and linha:sub(k + 1, k + 1) == c do k = k + 1 end
             local t = tinta[c]
             if t and trocar then t = trocar(j, t) end
+            if t and inverter then t = oposta(t) end
             if t then
                 pintarTinta(bb, x + (i - 1) * escala, y + (j - 1) * escala, (k - i + 1) * escala, escala, t)
             end
