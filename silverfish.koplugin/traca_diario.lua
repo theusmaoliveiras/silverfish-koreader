@@ -288,6 +288,7 @@ local function tracoDoLivro(s, L)
 end
 
 local ORDINAIS_PT = { "Segundo", "Terceiro", "Quarto", "Quinto", "Sexto" }
+local ORDINAIS_FR = { "Deuxième", "Troisième", "Quatrième", "Cinquième", "Sixième" }
 
 --- Fecha um livro terminado: escreve a resenha curta no diário e guarda a completa em s.resenhas.
 function Diario.fimLivro(s, M, livro, agora)
@@ -341,7 +342,7 @@ function Diario.fimLivro(s, M, livro, agora)
         end
         if tema and serie == 1 then  -- 3º seguido em diante vira lembrança garantida (traca_lembrancas)
             local ordinal = Lingua.ingles() and ({ "Second", "Third", "Fourth", "Fifth", "Sixth" })[math.min(serie, 5)]
-                or ORDINAIS_PT[math.min(serie, 5)]
+                or (Lingua.frances() and ORDINAIS_FR or ORDINAIS_PT)[math.min(serie, 5)]
             opcionais[#opcionais + 1] = preencher(sorteia(B.serie), { ordinal = ordinal, tema = M.tema(tema), de_tema = M.tema(tema, "de") })
         end
         if traco and B.traco[traco] then opcionais[#opcionais + 1] = sorteia(B.traco[traco]) end
@@ -421,11 +422,12 @@ function Diario.obsessao(M, antigo, novo)
     if not banco then return nil end
     local B = banco.obsessao
     local texto
+    local em = not Lingua.frances() and "em" or nil  -- francês: as frases levam o tema com artigo, sem preposição
     if antigo then
-        texto = preencher(sorteia(B.troca), { antes = M.tema(antigo, "em"), agora = M.tema(novo, "em"),
+        texto = preencher(sorteia(B.troca), { antes = M.tema(antigo, em), agora = M.tema(novo, em),
             antes_s = M.tema(antigo), agora_s = M.tema(novo) })
     else
-        texto = preencher(sorteia(B.nova), { tema = M.tema(novo, "em"), tema_s = M.tema(novo) })
+        texto = preencher(sorteia(B.nova), { tema = M.tema(novo, em), tema_s = M.tema(novo) })
     end
     return (texto:gsub("^%l", string.upper))
 end

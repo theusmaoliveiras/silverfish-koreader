@@ -4,4 +4,5 @@
 return {
     en = { amor = 0.86, animais = 0.96, arte = 1.66, cidade = 1.61, ciencia = 1.80, comida = 1.53, dinheiro = 1.10, familia = 0.65, fe = 1.05, guerra = 1.88, infancia = 1.19, liberdade = 2.03, loucura = 1.54, mar = 0.69, medo = 0.95, morte = 0.83, natureza = 0.96, noite = 0.98, politica = 1.49, saber = 1.32, solidao = 1.56, tempo = 0.62, viagem = 1.58, vinganca = 2.48 },
     pt = { amor = 0.68, animais = 1.44, arte = 1.50, cidade = 1.20, ciencia = 2.90, comida = 1.66, dinheiro = 1.11, familia = 0.51, fe = 0.92, guerra = 0.95, infancia = 2.86, liberdade = 1.94, loucura = 2.11, mar = 1.39, medo = 1.65, morte = 0.97, natureza = 1.17, noite = 1.64, politica = 1.06, saber = 1.03, solidao = 2.07, tempo = 0.70, viagem = 1.74, vinganca = 2.69 },
+    fr = { amor = 1.10, animais = 1.24, arte = 1.87, cidade = 1.14, ciencia = 1.24, comida = 1.21, dinheiro = 1.01, familia = 0.63, fe = 1.25, guerra = 0.90, infancia = 1.14, liberdade = 1.75, loucura = 1.72, mar = 1.27, medo = 1.14, morte = 1.25, natureza = 0.92, noite = 1.31, politica = 1.01, saber = 1.01, solidao = 1.29, tempo = 0.60, viagem = 1.05, vinganca = 2.42 },
 }

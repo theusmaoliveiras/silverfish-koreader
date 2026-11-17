@@ -5,6 +5,7 @@
 return {
     en = { mediana = 1.586, meia_faixa = 2.180, azedou = -1.548, adocou = 1.025 },  -- 7064 páginas, 435 capítulos
     pt = { mediana = -0.697, meia_faixa = 1.047, azedou = -1.548, adocou = 1.025 },  -- 1024 páginas, 435 capítulos
+    fr = { mediana = 11.376, meia_faixa = 2.688, azedou = -1.548, adocou = 1.025 },  -- 18382 páginas
     -- média do livro inteiro: os 25% de livros mais sombrios / mais leves do corpus (30 livros)
     livros = { sombrio = -0.224, leve = 0.313 },
 }

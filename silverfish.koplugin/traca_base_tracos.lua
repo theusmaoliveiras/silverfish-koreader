@@ -4,4 +4,5 @@
 return {
     en = { humor = -0.079, coragem = 0.037, coracao = 0.148, gosto = 0.167 },
     pt = { humor = 0.040, coragem = 0.127, coracao = 0.391, gosto = 0.336 },
+    fr = { humor = -0.078, coragem = 0.181, coracao = 0.068, gosto = 0.317 },
 }

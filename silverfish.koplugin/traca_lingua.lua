@@ -1,8 +1,8 @@
 --[[--
-Idioma da Traça: português ou inglês (Silverfish).
+Idioma da Traça: português, inglês (Silverfish) ou francês (la Mite).
 
-Escolha: a opção "traca_lingua" ("auto", "pt" ou "en"). Em "auto", segue o idioma do
-KOReader (pt* = português, qualquer outro = inglês). Fora do KOReader (testes), português.
+Escolha: a opção "traca_lingua" ("auto", "pt", "en" ou "fr"). Em "auto", segue o idioma do
+KOReader (pt* = português, fr* = francês, qualquer outro = inglês). Fora do KOReader (testes), português.
 
 O idioma é decidido quando os módulos carregam: trocar pede reiniciar o KOReader.
 
@@ -14,6 +14,13 @@ Lingua.conteudo(nome).
 local Lingua = {}
 
 local codigo, ui
+
+-- módulo de textos da língua; francês sem o arquivo cai no inglês em vez de quebrar
+local function textos(base, c)
+    local ok, m = pcall(require, base:format(c))
+    if ok then return m end
+    return require(base:format("en"))
+end
 
 local function config()
     return rawget(_G, "G_reader_settings")
@@ -31,14 +38,15 @@ function Lingua.salvarEscolha(e)
     if e == "auto" then g:delSetting("traca_lingua") else g:saveSetting("traca_lingua", e) end
 end
 
---- "pt" ou "en".
+--- "pt", "en" ou "fr".
 function Lingua.codigo()
     if codigo then return codigo end
     local e, g = Lingua.escolha(), config()
-    if e == "pt" or e == "en" then
+    if e == "pt" or e == "en" or e == "fr" then
         codigo = e
     elseif g then
-        codigo = tostring(g:readSetting("language") or "en"):match("^pt") and "pt" or "en"
+        local l = tostring(g:readSetting("language") or "en")
+        codigo = l:match("^pt") and "pt" or l:match("^fr") and "fr" or "en"
     else
         codigo = "pt"
     end
@@ -49,6 +57,10 @@ function Lingua.ingles()
     return Lingua.codigo() == "en"
 end
 
+function Lingua.frances()
+    return Lingua.codigo() == "fr"
+end
+
 --- Só para testes: força um idioma (os módulos precisam ser recarregados depois).
 function Lingua.forcar(c)
     codigo, ui = c, nil
@@ -56,16 +68,18 @@ end
 
 --- Texto da interface traduzido (ou o próprio texto, em português ou sem tradução).
 function Lingua.t(s)
-    if not Lingua.ingles() then return s end
-    ui = ui or require("traca_en").ui
-    return ui[s] or s
+    local c = Lingua.codigo()
+    if c == "pt" then return s end
+    ui = ui or textos("traca_%s", c).ui
+    if ui[s] or c == "en" then return ui[s] or s end
+    return require("traca_en").ui[s] or s  -- fork FR : texte 2.0 pas encore traduit → anglais plutôt que portugais
 end
 
 --- Conteúdo traduzido de um módulo (listas de falas etc.), ou nil em português.
 function Lingua.conteudo(nome)
-    if not Lingua.ingles() then return nil end
-    local arquivo = (nome == "falas" or nome == "memoria") and "traca_en_livros" or "traca_en"
-    return require(arquivo)[nome]
+    local c = Lingua.codigo()
+    if c == "pt" then return nil end
+    return textos((nome == "falas" or nome == "memoria") and "traca_%s_livros" or "traca_%s", c)[nome]
 end
 
 --- Soma listas de frases extras às de um módulo: onde `extra` tem uma lista, ela é anexada

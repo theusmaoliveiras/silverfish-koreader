@@ -165,8 +165,9 @@ end
 -- uma palavra da própria lista ("great-grandfather" já conta como "grandfather").
 local okAs, ASSUNTOS = pcall(require, "traca_banco.assuntos")
 M.ASSUNTOS = okAs and type(ASSUNTOS) == "table" and ASSUNTOS or {}
+local function indexarAssuntos(ASSUNTOS)
 local indice_assunto, frases_assunto = {}, {}
-for as, palavras in pairs(M.ASSUNTOS) do
+for as, palavras in pairs(ASSUNTOS) do
     local solta = {}
     for _, p in ipairs(palavras) do if not p:find("[^%a\128-\255]") then solta[p] = true end end
     for _, p in ipairs(palavras) do
@@ -183,9 +184,27 @@ for as, palavras in pairs(M.ASSUNTOS) do
     end
 end
 table.sort(frases_assunto, function(a, b) return a.nome < b.nome end)
+return indice_assunto, frases_assunto
+end
+local indice_assunto, frases_assunto = indexarAssuntos(M.ASSUNTOS)
+
+-- Francês (traca_fr_analise.lua): temas, eventos, assuntos e clima com índice próprio, usados só em
+-- página em francês (falsos amigos: "son", "grave", "pain" não disparam nada lá).
+local okFr, FR = pcall(require, "traca_fr_analise")
+FR = okFr and type(FR) == "table" and FR or nil
+local indice_fr, evento_fr, GENERICAS_FR, CLIMA_FR = {}, {}, {}, {}
+local assunto_fr, frases_assunto_fr = {}, {}
+if FR then
+    for tema, palavras in pairs(FR.TEMAS) do for _, p in ipairs(palavras) do indice_fr[p] = tema end end
+    for ev, palavras in pairs(FR.EVENTOS) do for _, p in ipairs(palavras) do evento_fr[p] = ev end end
+    for p in FR.GENERICAS:gmatch("[%a\128-\255]+") do GENERICAS_FR[p] = true end
+    for p in FR.CLIMA_MAIS:gmatch("%S+") do CLIMA_FR[p] = 1 end
+    for p in FR.CLIMA_MENOS:gmatch("%S+") do CLIMA_FR[p] = -1 end
+    assunto_fr, frases_assunto_fr = indexarAssuntos(FR.ASSUNTOS)
+end
 -- conta as expressões na sequência de palavras ws (1..n): chama achou(assunto, expressão) a cada uma
-local function frasesDeAssunto(ws, n, achou)
-    for _, f in ipairs(frases_assunto) do
+local function frasesDeAssunto(ws, n, achou, fr)
+    for _, f in ipairs(fr and frases_assunto_fr or frases_assunto) do
         local k = #f.seq
         for i = 1, n - k + 1 do
             local igual = true
@@ -232,7 +251,10 @@ local indice_mod, evento_mod, clima_mod = indiceModerno(indice), indiceModerno(i
 local assunto_mod = indiceModerno(indice_assunto)
 local GENERICAS_MOD = {}
 for p in pairs(GENERICAS) do GENERICAS_MOD[grafiaModerna(p)] = true end
-local function generica(w) return GENERICAS[w] or GENERICAS_MOD[grafiaModerna(w)] or false end
+local function generica(w, fr)
+    if fr then return GENERICAS_FR[w] or false end
+    return GENERICAS[w] or GENERICAS_MOD[grafiaModerna(w)] or false
+end
 M.grafiaModerna = grafiaModerna  -- usado pelos dicionários e pelas ferramentas
 
 -- Palavras do próprio livro (PLANO-VOZ.md, Etapa 5) --------------------------------------------------
@@ -241,6 +263,8 @@ M.grafiaModerna = grafiaModerna  -- usado pelos dicionários e pelas ferramentas
 -- ofensivas que os clássicos usam. Em português, a comparação com as comuns é na grafia moderna.
 local okComuns, COMUNS = pcall(require, "traca_palavras_comuns")
 COMUNS = okComuns and type(COMUNS) == "table" and COMUNS or nil
+local okComFr, COMUNS_FR = pcall(require, "traca_palavras_comuns_fr")
+if COMUNS and okComFr and type(COMUNS_FR) == "table" then COMUNS.fr = COMUNS_FR end
 local OFENSIVAS = {}
 for p in ([[nigger niggers nigga niggas negro negroes darkie darkies coolie coolies squaw squaws savage savages
             crioulo crioula crioulos crioulas negrinho negrinha negrinhos negrinhas mulato mulata mulatos mulatas
@@ -258,11 +282,13 @@ M.VOCAB_FIM = 20                       -- livro terminado guarda só as 20 mais 
 M.MARCANTE_MIN = 3                     -- vezes no livro para a palavra ser marcante
 
 --- A palavra pode ser marcante? (w como está no texto; pt = página em português)
-function M.candidata(w, pt)
+function M.candidata(w, pt, fr)
     if not COMUNS or not (w:find("^%l") or w:find("^\195[\160-\191]")) then return false end
     if not w:find("^[%a\128-\255]+$") or #w - select(2, w:gsub("[\128-\191]", "")) < 5 then return false end
     if OFENSIVAS[w] then return false end
-    if pt then
+    if fr then
+        if w:find("ment$") or (COMUNS.fr and COMUNS.fr[w]) then return false end
+    elseif pt then
         if w:find("mente$") or COMUNS.pt[grafiaModerna(w)] then return false end
     elseif (#w >= 7 and w:find("ly$")) or COMUNS.en[w] then
         return false
@@ -295,15 +321,16 @@ end
 local okEn, LEX_EN = pcall(require, "traca_lexico_en")
 local okPt, LEX_PT = pcall(require, "traca_lexico_pt")
 local okC, CAL_CLIMA = pcall(require, "traca_clima_calibracao")
-local LEXICO = { en = okEn and LEX_EN or nil, pt = okPt and LEX_PT or nil }
+local okFrL, LEX_FR = pcall(require, "traca_lexico_fr")
+local LEXICO = { en = okEn and LEX_EN or nil, pt = okPt and LEX_PT or nil, fr = okFrL and LEX_FR or nil }
 M.CLIMA_CALIBRACAO = okC and CAL_CLIMA or nil
 local NEGACAO = {}
 for w in ("no not never none nobody nothing neither nor nowhere cannot without não nunca jamais nem nada nenhum nenhuma ninguém sem"):gmatch("%S+") do
     NEGACAO[w] = true
 end
 --- Nota de sentimento (por 100 palavras) de um texto já limpo, ou nil se não há dicionário da língua.
-function M.sentimento(limpo, pt)
-    local lex = LEXICO[pt and "pt" or "en"]
+function M.sentimento(limpo, pt, fr)
+    local lex = LEXICO[fr and "fr" or pt and "pt" or "en"]
     if not lex then return nil end
     local soma, n, neg = 0, 0, 0
     for w in limpo:gmatch("[%a\128-\255]+") do
@@ -317,31 +344,63 @@ function M.sentimento(limpo, pt)
     end
     return n > 0 and soma * 100 / n or 0
 end
-local function temaDe(w, pt) return indice[w] or (pt and indice_mod[grafiaModerna(w)]) or nil end
-local function eventoDe(w, pt) return indice_evento[w] or (pt and evento_mod[grafiaModerna(w)]) or nil end
-local function assuntoDe(w, pt) return indice_assunto[w] or (pt and assunto_mod[grafiaModerna(w)]) or nil end
-local function climaDe(w, pt) return CLIMA[w] or (pt and clima_mod[grafiaModerna(w)]) or nil end
+local function temaDe(w, pt, fr)
+    if fr then return indice_fr[w] end
+    return indice[w] or (pt and indice_mod[grafiaModerna(w)]) or nil
+end
+local function eventoDe(w, pt, fr)
+    if fr then return evento_fr[w] end
+    return indice_evento[w] or (pt and evento_mod[grafiaModerna(w)]) or nil
+end
+local function assuntoDe(w, pt, fr)
+    if fr then return assunto_fr[w] or (w:find("s$") and assunto_fr[w:sub(1, -2)]) or nil end
+    return indice_assunto[w] or (pt and assunto_mod[grafiaModerna(w)]) or nil
+end
+local function climaDe(w, pt, fr)
+    if fr then return CLIMA_FR[w] end
+    return CLIMA[w] or (pt and clima_mod[grafiaModerna(w)]) or nil
+end
 -- Língua da página pelas palavras mais comuns de cada uma.
 local FUNCIONAL = {}
 for p in ("que não uma com para ele ela elle ella mas como seu sua dos das pelo pela"):gmatch("%S+") do FUNCIONAL[p] = "pt" end
 for p in ("the and was with that his her which this have from were they would"):gmatch("%S+") do FUNCIONAL[p] = "en" end
-local function emPortugues(limpo)
-    local pt, en = 0, 0
+local FUNCIONAL_FR = {}
+if FR then for p in FR.FUNCIONAL:gmatch("%S+") do FUNCIONAL_FR[p] = true end end
+--- Língua da página: "pt", "en" ou "fr" (a de mais palavras funcionais; empate fica com en/pt como antes).
+-- "elle", "que", "une" e "mais" contam para as duas listas.
+function M.linguaDe(limpo)
+    local pt, en, fr = 0, 0, 0
     for w in limpo:gmatch("[%a\128-\255]+") do
         local l = FUNCIONAL[w]
         if l == "pt" then pt = pt + 1 elseif l == "en" then en = en + 1 end
+        if FUNCIONAL_FR[w] then fr = fr + 1 end
     end
-    return pt > en
+    if fr > pt and fr > en then return "fr" end
+    return pt > en and "pt" or "en"
+end
+local function emPortugues(limpo) return M.linguaDe(limpo) == "pt" end
+--- Língua de um livro pelas páginas lidas (L.paginas_pt, L.paginas_fr; o resto é inglês).
+function M.linguaDoLivro(L)
+    local total, pt, fr = L.paginas or 0, L.paginas_pt or 0, L.paginas_fr or 0
+    local en = total - pt - fr
+    if fr > pt and fr > en then return "fr" end
+    return pt * 2 > total and "pt" or "en"
 end
 -- Peso de especificidade (traca_pesos_temas.lua): tema que aparece em quase todo livro ("família",
 -- "tempo") soma menos na memória do livro, do capítulo, do dia e na dela; tema raro soma mais.
 -- A detecção por página não muda.
 local okP, PESOS = pcall(require, "traca_pesos_temas")
 M.PESOS = okP and type(PESOS) == "table" and PESOS or {}
-function M.pesoTema(t, pt) return (M.PESOS[pt and "pt" or "en"] or {})[t] or 1 end
+function M.pesoTema(t, pt)
+    local lg = type(pt) == "string" and pt or (pt and "pt" or "en")
+    return (M.PESOS[lg] or {})[t] or 1
+end
 
 -- para a ferramenta de validação mostrar o que disparou cada tema
-function M.temaDaPalavra(w, texto) return temaDe(w, texto and emPortugues(M.limpar(texto))) end
+function M.temaDaPalavra(w, texto)
+    local lg = texto and M.linguaDe(M.limpar(texto))
+    return temaDe(w, lg == "pt", lg == "fr")
+end
 
 -- Palavras antes de um nome que indicam lugar ("em Genebra", "para Londres").
 local PREP_LUGAR = {}
@@ -494,11 +553,27 @@ local EXPRESSOES = {
     "thank god", "god knows", "all the time", "from time to time", "in no time", "heart of gold",
 }
 
+-- Francês: as listas de nomes, títulos, verbos, negação e expressões ganham as palavras francesas.
+if FR then
+    local function juntar(dest, texto) for p in texto:gmatch("[%a\128-\255]+") do dest[p] = true end end
+    juntar(NEGACAO, FR.NEGACAO); juntar(DETERMINANTES, FR.DETERMINANTES); juntar(EU, FR.EU)
+    juntar(PREP_LUGAR, FR.PREP_LUGAR); juntar(VERBO_FALA, FR.VERBO_FALA); juntar(VERBO_PESSOA, FR.VERBO_PESSOA)
+    juntar(NAO_NOMES, FR.NAO_NOMES); juntar(PAPEL_TEATRO, FR.PAPEL_TEATRO); juntar(ABREVIACAO, FR.ABREVIACAO)
+    juntar(ANTES_LUGAR, FR.ANTES_LUGAR); juntar(TITULOS, FR.TITULOS); juntar(REFERENCIAS, FR.REFERENCIAS)
+    juntar(LUGARES_CONHECIDOS, FR.LUGARES_CONHECIDOS)
+    for _, e in ipairs(FR.EXPRESSOES) do EXPRESSOES[#EXPRESSOES + 1] = e end
+end
+
 --- Texto em minúsculas sem as expressões feitas.
 function M.limpar(texto)
-    local t = texto:lower()
+    -- maiúsculas acentuadas (À-Þ, Œ) também viram minúsculas: "État", "Œuvre"
+    -- espaço inquebrável (francês: "chose !") vira espaço comum
+    texto = texto:gsub("\194\160", " "):gsub("\226\128\175", " ")
+    local t = texto:lower():gsub("\195([\128-\150\152-\158])", function(c) return "\195" .. string.char(c:byte() + 32) end)
+        :gsub("\197\146", "\197\147")
     for _, e in ipairs(EXPRESSOES) do t = t:gsub(e, " ") end
-    return t
+    -- apóstrofo curvo separa as palavras, como o reto ("l’amour" → "l amour", "don’t" → "don t")
+    return (t:gsub("\226\128\153", " "))
 end
 
 local DIARIO_MAX = 150
@@ -1057,8 +1132,9 @@ function M.sinais(texto, livro, capitulo)
                     pares = {}, coisa = {}, refs = {}, prova = {}, eu = 0, palavras = 0, letras = 0, genero = {}, frases = 0,
                     dialogo = 0 }
     local limpo = M.limpar(texto)
-    local pt = emPortugues(limpo)
-    sinal.pt = pt
+    local lg = M.linguaDe(limpo)
+    local pt, fr = lg == "pt", lg == "fr"
+    sinal.pt, sinal.lingua = pt, lg
     local hits_evento, hits_tema, hits_assunto = {}, {}, {}
     local function assunto(as, palavra)
         hits_assunto[as] = hits_assunto[as] or {}
@@ -1071,30 +1147,30 @@ function M.sinais(texto, livro, capitulo)
         minusculas[n] = palavra
         if EU[palavra] then sinal.eu = sinal.eu + 1 end
         sinal.letras = sinal.letras + #palavra - select(2, palavra:gsub("[\128-\191]", ""))
-        local t = temaDe(palavra, pt)
+        local t = temaDe(palavra, pt, fr)
         if t then
             hits_tema[t] = hits_tema[t] or {}
             hits_tema[t][palavra] = true
             somar(sinal.temas, t)
         end
-        local ev = eventoDe(palavra, pt)
+        local ev = eventoDe(palavra, pt, fr)
         if ev then
             hits_evento[ev] = hits_evento[ev] or {}
             hits_evento[ev][palavra] = true
             somar(sinal.eventos, ev)
         end
-        local as = assuntoDe(palavra, pt)
+        local as = assuntoDe(palavra, pt, fr)
         if as then assunto(as, palavra) end
-        if not LEXICO[pt and "pt" or "en"] then
-            local cl = climaDe(palavra, pt)
+        if not LEXICO[lg] then
+            local cl = climaDe(palavra, pt, fr)
             if cl then sinal.clima = sinal.clima + cl end
         end
     end
     sinal.palavras = n
-    local nota = M.sentimento(limpo, pt)
+    local nota = M.sentimento(limpo, pt, fr)
     if nota then
         sinal.sentimento = nota
-        local cal = M.CLIMA_CALIBRACAO and M.CLIMA_CALIBRACAO[pt and "pt" or "en"]
+        local cal = M.CLIMA_CALIBRACAO and M.CLIMA_CALIBRACAO[lg]
         sinal.clima = cal and (nota - cal.mediana) / cal.meia_faixa or nota
     end
     -- gênero de quem diz "eu" (português)
@@ -1114,7 +1190,7 @@ function M.sinais(texto, livro, capitulo)
         for _ in pairs(hits_evento[ev]) do diferentes = diferentes + 1 end
         if diferentes < 2 and c < 3 then sinal.eventos[ev] = nil end
     end
-    frasesDeAssunto(minusculas, n, assunto)
+    frasesDeAssunto(minusculas, n, assunto, fr)
     for as, c in pairs(sinal.assuntos) do
         local diferentes = 0
         for _ in pairs(hits_assunto[as]) do diferentes = diferentes + 1 end
@@ -1125,14 +1201,15 @@ function M.sinais(texto, livro, capitulo)
         local diferentes, especifica = 0, false
         for p in pairs(hits_tema[t]) do
             diferentes = diferentes + 1
-            if not generica(p) then especifica = true end
+            if not generica(p, fr) then especifica = true end
         end
         if not especifica and diferentes < 2 and c < 3 then sinal.temas[t] = nil end
     end
     -- palavras em ordem, sabendo quais começam frase
     -- aspas curvas, travessões e « » viram espaço; reticências viram "..." (fim de frase)
-    local normal = texto:gsub("\226\128\166", "... "):gsub("\226\128[\148\156]", " . ")
+    local normal = texto:gsub("\194\160", " "):gsub("\226\128\175", " "):gsub("\226\128\166", "... "):gsub("\226\128[\148\156]", " . ")
         :gsub("\194\171", " . "):gsub("\226\128[\147\152\153\157]", " "):gsub("\194\187", " ")
+    if fr then normal = normal:gsub("([%a\128-\255])'([%a\128-\255])", "%1 %2") end  -- "d'Artagnan", "l'homme"
     local toks, inicio = {}, true
     for bruto in normal:gmatch("%S+") do
         local w = bruto:gsub("^%p+", ""):gsub("%p+$", "")
@@ -1149,7 +1226,7 @@ function M.sinais(texto, livro, capitulo)
     -- palavras do próprio livro (Etapa 5): candidatas da página
     sinal.vocab, sinal.vocab_art = {}, {}
     for i, tk in ipairs(toks) do
-        if M.candidata(tk.w, pt) then
+        if M.candidata(tk.w, pt, fr) then
             sinal.vocab[tk.w] = (sinal.vocab[tk.w] or 0) + 1
             local ant = toks[i - 1]
             if ant and not ant.pont and DETERMINANTES[ant.w:lower()] then
@@ -1205,7 +1282,8 @@ function M.sinais(texto, livro, capitulo)
         local a1, a2 = toks[i - 1], toks[i - 2]
         if a1 and ANTES_LUGAR[a1.w:lower()] then return true end
         local prep = a1 and a1.w:lower()
-        return a2 and (prep == "do" or prep == "da" or prep == "dos" or prep == "das" or prep == "de" or prep == "of")
+        return a2 and (prep == "do" or prep == "da" or prep == "dos" or prep == "das" or prep == "de" or prep == "of"
+            or prep == "du" or prep == "des")
             and ANTES_LUGAR[a2.w:lower()] or false
     end
     for i, tk in ipairs(toks) do
@@ -1233,7 +1311,9 @@ function M.sinais(texto, livro, capitulo)
         -- Pessoa quase nunca leva artigo assim; quem leva (the Duchess, the Nurse) costuma falar e ter prova.
         if ehNome(w) and ant and not ant.pont then
             local a = ant.w:lower()
-            if (not pt and a == "the") or (pt and (a == "os" or a == "as")) then somar(sinal.coisa, w) end
+            if (lg == "en" and a == "the") or (pt and (a == "os" or a == "as")) or (fr and a == "les") then
+                somar(sinal.coisa, w)
+            end
         end
         -- provas de que um nome é gente: título antes ("Dona Glória") ou verbo de pessoa depois ("Capitu olhou")
         if ehNome(w) and not citacao and not LUGARES_CONHECIDOS[w] then
@@ -1274,6 +1354,7 @@ local function quemDisse(depois, antes)
 end
 
 local function limparFala(f)
+    f = f:gsub("\194\160", " "):gsub("\226\128\175", " ")  -- « Locomotor Mortis » : insécables do livro
     return (f:gsub("%s+", " "):gsub("^%s+", ""):gsub("[%s,;—]+$", ""))
 end
 
@@ -1406,13 +1487,14 @@ function M.digerir(s, texto, onde, agora, contar)
     local tem_texto = type(texto) == "string"
     local sinal = M.sinais(tem_texto and texto or "", livro, onde and onde.capitulo)
     local temas_peso = {}
-    for t, c in pairs(sinal.temas) do temas_peso[t] = c * M.pesoTema(t, sinal.pt) end
+    for t, c in pairs(sinal.temas) do temas_peso[t] = c * M.pesoTema(t, sinal.lingua) end
     sinal.temas_pesados = temas_peso
     local falas = tem_texto and M.falasDaPagina(texto) or {}
     if L then
         guardarCitacoes(L, falas)
         L.clima = (L.clima or 0) + sinal.clima
         if sinal.pt then L.paginas_pt = (L.paginas_pt or 0) + 1 end
+        if sinal.lingua == "fr" then L.paginas_fr = (L.paginas_fr or 0) + 1 end
     end
     Diario.pagina(s, livro, sinal, falas, agora, contar)
     -- traços de personalidade: só o que você leu mexe neles
@@ -1688,7 +1770,7 @@ function M.comentarioCapitulo(s, L, capnome, sorteio)
         local antes = pags > 0 and soma / pags or 0
         local agora_c = C.clima / C.paginas
         -- limites calibrados nos livros (10% dos capítulos cada); sem calibração, ±1
-        local lg = (L.paginas_pt or 0) * 2 > (L.paginas or 0) and "pt" or "en"
+        local lg = M.linguaDoLivro(L)
         local cal = M.CLIMA_CALIBRACAO and M.CLIMA_CALIBRACAO[lg] or {}
         if agora_c < antes + (cal.azedou or -1) then return { texto = sorteia(B.FALAS_AZEDOU, sorteio) } end
         if agora_c > antes + (cal.adocou or 1) then return { texto = sorteia(B.FALAS_ADOCOU, sorteio) } end
@@ -1858,7 +1940,8 @@ function M.fala(s, sorteio, temperamento)
         local banco = B.FALAS_CITACAO[temperamento] or B.FALAS_CITACAO[temperamento == "jovem" and "jovem" or "velha"]
         opcoes[#opcoes + 1] = function()
             local t = sorteia(banco, sorteio):gsub("{nome}", cit.nome):gsub("{fala}", function() return cit.fala end)
-            return (t:gsub("([%?!])\226\128\157,", "%1\226\128\157"):gsub("%.\226\128\157,", ",\226\128\157"))
+            t = t:gsub("([%?!])\226\128\157,", "%1\226\128\157"):gsub("%.\226\128\157,", ",\226\128\157")
+            return (t:gsub("([%?!]\194\160\194\187),", "%1"):gsub("%.(\194\160\194\187),", ",%1"))
         end
     end
     local narr = M.narrador(L)
@@ -1878,9 +1961,9 @@ end
 function M.temaDoTexto(texto)
     local cont, melhor, tema = {}, 0, nil
     local limpo = M.limpar(texto or "")
-    local pt = emPortugues(limpo)
+    local lg = M.linguaDe(limpo)
     for palavra in limpo:gmatch("[%a\128-\255]+") do
-        local t = temaDe(palavra, pt)
+        local t = temaDe(palavra, lg == "pt", lg == "fr")
         if t then
             cont[t] = (cont[t] or 0) + 1
             if cont[t] > melhor then melhor, tema = cont[t], t end
@@ -2067,7 +2150,24 @@ if EN then
     FALAS_AZEDOU, FALAS_ADOCOU, FALAS_VIROU = EN.FALAS_AZEDOU, EN.FALAS_ADOCOU, EN.FALAS_VIROU
     FALAS_TEMA, C = EN.FALAS_TEMA, EN.C
     FALAS_REFERENCIA, FALAS_NARRADOR, FALAS_CITACAO = EN.FALAS_REFERENCIA, EN.FALAS_NARRADOR, EN.FALAS_CITACAO
-    function M.tema(t) return EN.NOMES[t] or t end
+    if Lingua.frances() and FR then
+        -- francês: artigo e preposição como no português ("de la mort", "du temps", "à l'amour", "par la mer");
+        -- "em" ("pensando no mar") vira "à", "por" vira "par", "a" também "à"
+        local PREP_FR = { em = "à", de = "de", por = "par", a = "à" }
+        local CONTR_FR = { ["à"] = { le = "au", les = "aux" }, de = { le = "du", les = "des" } }
+        function M.tema(t, prep)
+            local info = FR.TEMA_INFO[t]
+            if not info then return t end
+            local art, nome = info[1], info[2]
+            local function comArtigo() return art and (art == "l'" and art .. nome or art .. " " .. nome) or nome end
+            if not prep then return comArtigo() end
+            local p = PREP_FR[prep] or prep
+            if art and CONTR_FR[p] and CONTR_FR[p][art] then return CONTR_FR[p][art] .. " " .. nome end
+            return p .. " " .. comArtigo()
+        end
+    else
+        function M.tema(t) return EN.NOMES[t] or t end
+    end
     for t in pairs(M.NOMES_TEMA) do M.NOMES_TEMA[t] = M.tema(t) end
 end
 

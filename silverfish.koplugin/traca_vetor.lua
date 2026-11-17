@@ -45,7 +45,7 @@ function Vetor.brutos(L)
     for _, c in pairs(L.falou or {}) do falou = falou + c end
     local N = L.narrador or {}
     return {
-        lingua = (L.paginas_pt or 0) * 2 > P and "pt" or "en",
+        lingua = (L.paginas_fr or 0) * 2 > P and "fr" or (L.paginas_pt or 0) * 2 > P and "pt" or "en",
         paginas = P,
         clima = (L.clima or 0) / P,
         dialogo = (L.dialogo or 0) / P,

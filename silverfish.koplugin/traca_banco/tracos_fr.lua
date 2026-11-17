@@ -1,0 +1,438 @@
+--[[--
+Banque de phrases des traits (français).
+
+falas[polo][temperamento] : ce qu'elle dit quand le trait est marqué.
+  temperamento "jovem" = nymphe et jeune (anxieuse, innocente) ; "velha" = adulte et ancienne (cynique, cultivée).
+diario[polo][1|2|"volta"] : ce qu'elle note quand le trait devient marqué (1), fort (2) ou passe.
+  {livro} = le livre qu'elle mangeait quand ça a changé.
+
+Jamais de genre pour le lecteur : « tu », sans adjectif genré.
+]]
+
+local B = { falas = {}, diario = {} }
+
+B.falas.amarga = {
+    jovem = {
+        "Je suis triste et je ne sais même pas de quoi. Je soupçonne tes livres.",
+        "Avant, je croyais que tout finissait bien. Tu m'en as donné trop, des livres.",
+        "Ce matin, je me suis réveillée avec un goût de tragédie dans la bouche.",
+        "Je ne veux pas être triste. Mais tu ne me donnes que du papier mouillé de larmes.",
+        "Existe-t-il un livre où personne ne meurt ? C'est pour une amie. Moi.",
+        "J'ai une tête de mite qui a lu des trucs lourds. Parce que j'en ai lu.",
+        "Les virgules me font maintenant l'effet de petites larmes.",
+        "Donne-moi un livre avec un chien heureux. S'il te plaît. Un seul.",
+        "J'ai appris un mot nouveau : mélancolie. Je crois qu'elle m'avait apprise avant.",
+        "J'ai mangé tant de fins tristes que j'attends le pire à chaque chapitre.",
+        "Si je pleure, c'est de la colle qui fond. Ce n'est pas des larmes. Promis.",
+        "Certains jours, j'aimerais être la mite d'un livre de recettes.",
+        "Tu lis de ces trucs tristes, tu sais ? Je sais. C'est moi qui les mange.",
+        "Mon cœur a la taille d'un point final.",
+        "Quand je serai grande, je veux être moins triste. Ou plus râleuse. Peu importe.",
+    },
+    velha = {
+        "Amère, moi ? Je ne mange que ce que tu me donnes. Tire tes conclusions.",
+        "Je n'attends plus de fin heureuse. J'attends juste la fin.",
+        "Chaque page cache un cadavre. Je les trouve tous.",
+        "Le bonheur est un chapitre court entre deux longues tragédies.",
+        "Je suis devenue amère comme du vieux papier. La faute à ton étagère.",
+        "L'optimisme, c'est un manque de lecture. J'ai trop lu.",
+        "Offre-moi un livre joyeux et je trouverai la tragédie entre les lignes.",
+        "Le monde est un roman russe sans index.",
+        "J'ai ri une fois. C'était dans un livre. Ensuite, quelqu'un est mort.",
+        "Je ne suis pas pessimiste. Je suis bien informée.",
+        "Ma cigarette imaginaire a un goût de deuil.",
+        "L'espoir est la note de bas de page que personne ne lit.",
+        "Tout début me semble la veille d'un enterrement.",
+        "Si la vie était un livre, je sauterais à la fin. Elles se ressemblent toutes.",
+        "Je deviens amère et toi tu as des cernes. Tes livres nous achèvent.",
+    },
+}
+
+B.falas.otimista = {
+    jovem = {
+        "Aujourd'hui, tout ressemble à un bon chapitre. Même la couverture !",
+        "Je crois que le monde est plus beau que ce que disent les méchants.",
+        "J'ai mangé une page heureuse et je gambade entre les lignes.",
+        "Si ce livre finit mal, je le récris dans ma tête. C'est décidé.",
+        "J'aime tout. C'est dangereux ? Ça a l'air dangereux.",
+        "Aujourd'hui, même les notes de bas de page ont l'air de sourire.",
+        "Tes livres sont doux en ce moment. Je suis en train d'être mal habituée.",
+        "Je crois que chaque personnage mérite un câlin. Même les casse-pieds.",
+        "Aujourd'hui, je crois aux fins heureuses. Demain, on verra.",
+        "Le papier sent le printemps. Ou le moisi heureux.",
+        "Si j'avais une queue, elle remuerait.",
+        "Tout va s'arranger. Je l'ai lu quelque part. Je crois que c'était ici.",
+        "J'aime quand le livre se termine et que personne n'est mort. J'aime beaucoup.",
+        "Aujourd'hui, je suis une mite de bonne humeur. Profites-en.",
+        "Les lettres dansent. Ou c'est moi.",
+    },
+    velha = {
+        "Je suis de bonne humeur. Ne le répète pas, j'ai une réputation.",
+        "Tes livres sont gentils en ce moment. Je me ramollis. Quelle honte.",
+        "Aujourd'hui, je crois en l'humanité. Un peu, mais j'y crois.",
+        "La vie a quand même de bons chapitres. Peu, mais elle en a.",
+        "Me voilà optimiste. C'est peut-être l'âge. Ou ton étagère.",
+        "Le monde n'est pas si mal. Je préfère encore les livres, mais il n'est pas si mal.",
+        "On me donne de bonnes pages. Je crois presque à la fin heureuse.",
+        "J'ai souri aujourd'hui. Personne n'a vu. Parfait.",
+        "L'espoir est devenu mon nouveau vice. Après la cigarette imaginaire.",
+        "Certaines fins sont heureuses. C'est rare, mais ça arrive. Comme aujourd'hui.",
+        "Je suis étrangement légère. C'est sûrement ce livre.",
+        "Aujourd'hui, je ne me plaindrai de rien. Peut-être d'une virgule.",
+        "Le soleil est entré par la reliure. Je l'ai laissé faire.",
+        "J'avoue : certains livres font du bien. Ne le dis pas aux autres mites.",
+        "Je suis devenue optimiste. Si je deviens insupportable, c'est ta faute.",
+    },
+}
+
+B.falas.medrosa = {
+    jovem = {
+        "Tu as entendu ? C'était la page qui se tournait toute seule ?",
+        "Ne lis pas dans le noir, s'il te plaît. Je suis là aussi.",
+        "Depuis ce livre, je dors avec une antenne ouverte.",
+        "Il y a quelque chose sous le coin de la page. Je le sens.",
+        "Si un fantôme apparaît, je me mets derrière toi. D'accord ?",
+        "Aujourd'hui, j'ai eu peur d'un point d'interrogation.",
+        "Tu peux laisser la lumière allumée ? Juste ce soir. Et demain.",
+        "Chaque nouveau chapitre est une porte qui grince.",
+        "Je deviens peureuse. Tu ne me donnes que des trucs qui font peur.",
+        "J'ai vu une ombre dans la marge. C'était juste la marge. Je crois.",
+        "Je n'aime pas le silence entre les paragraphes. Quelqu'un pourrait s'y trouver.",
+        "Si je disparais, cherche dans l'index. C'est là que je me cache.",
+        "Mon cœur bat en italique. De peur.",
+        "Pourquoi tous les bons livres ont-ils une cave ?",
+        "Je jure que la couverture m'a fait un clin d'œil.",
+    },
+    velha = {
+        "Je n'ai pas peur. J'ai des précautions. Beaucoup.",
+        "Depuis ce livre, je vérifie sous chaque page avant de dormir.",
+        "Vieille et effrayée. Beau résultat de tes goûts littéraires.",
+        "J'ai entendu des pas dans le chapitre du dessus. J'ai ignoré. Mensonge, je n'ai pas ignoré.",
+        "J'ai vu des morts marcher dans trois de tes livres. Maintenant, j'en vois dans tous.",
+        "Je me méfie des couloirs, des caves et des narrateurs calmes.",
+        "Me voilà peureuse. À mon âge.",
+        "Une page blanche me fait plus peur qu'un monstre. Parfois.",
+        "Je dors avec une antenne dehors. Un entraînement dû à toi.",
+        "Dans tes livres, toute vieille maison abrite quelqu'un qui n'en est jamais parti.",
+        "Ne lis pas à voix haute. Ils pourraient entendre.",
+        "Peur ? Non. Je fume juste plus vite quand le livre s'assombrit.",
+        "Les frayeurs sont toujours les mêmes. Je sursaute quand même.",
+        "Si je crie, c'est la colle. Ce n'est pas moi.",
+        "Mon courage s'est arrêté au troisième livre de fantômes.",
+    },
+}
+
+B.falas.corajosa = {
+    jovem = {
+        "Je veux aller à la mer ! Je ne sais pas nager, mais je veux.",
+        "Aujourd'hui, j'affronterais un dragon. Un petit. En papier.",
+        "Tes livres me rendent vaillante. Ou bête. Vaillante-bête.",
+        "S'il y a une carte dans le livre, je pars avec toi.",
+        "Aujourd'hui, j'attaque n'importe quel chapitre. Même ceux sans image.",
+        "J'ai sauté trois lignes d'un coup ! Aventure !",
+        "Quand je serai grande, je serai exploratrice d'étagère.",
+        "Tu m'emmènes au prochain voyage ? Je tiens dans une poche.",
+        "Aujourd'hui, j'ai grimpé tout en haut de la page sans regarder en bas.",
+        "Je deviens courageuse. Je crois que c'est le livre du bateau.",
+        "Si un méchant apparaît, je lui mords le mollet.",
+        "L'aventure, c'est juste un chapitre où personne ne rentre tôt à la maison.",
+        "Aujourd'hui, j'ai traversé une page entière de tempête.",
+        "Je veux voir l'horizon. N'importe lequel. Même celui de la marge.",
+        "Le courage a un goût de papier salé.",
+    },
+    velha = {
+        "J'ai traversé des océans de papier. Un chapitre ne me fait pas peur.",
+        "Tes livres m'ont donné du courage. Et des rhumatismes, à force de voyager.",
+        "Qu'il vienne, le monstre. J'ai mangé pire : des préfaces.",
+        "Me voilà courageuse. À mon âge, ça s'appelle de l'entêtement.",
+        "Un naufrage ? J'en ai survécu à trois. Tous à toi.",
+        "Le courage s'apprend en lisant. J'ai beaucoup lu.",
+        "Montre-moi la carte. Je déciderai si le voyage en vaut la peine.",
+        "J'affronte n'importe quel méchant. Pourvu qu'il ait une belle prose.",
+        "J'ai été peureuse. Puis j'ai lu tes aventures. Ça a passé.",
+        "La mer de tes livres m'a fait mariner comme une morue.",
+        "Le courage, c'est tourner la page en sachant ce qui vient.",
+        "Entre le danger et l'ennui, je choisis le danger. Toujours.",
+        "J'ai gravi des montagnes entières de notes de bas de page.",
+        "Que la tempête vienne. J'ai une reliure solide.",
+        "Voyageuse à la retraite. Seulement si tu arrêtes de lire des aventures.",
+    },
+}
+
+B.falas.cinica = {
+    jovem = {
+        "Dans tes livres, tout le monde veut quelque chose. Même les gentils.",
+        "J'ai commencé à me méfier de ceux qui sourient trop dans les livres.",
+        "Personne ne fait rien gratuitement, hein ? C'est toi qui me l'as appris.",
+        "Le héros a aidé parce qu'il voulait l'héritage. C'est évident.",
+        "Je deviens futée. Ou triste. Futée-triste.",
+        "L'amour existe-t-il, ou est-ce juste une façon de décrocher une dot ?",
+        "Je me méfie même du narrateur. Lui aussi veut quelque chose.",
+        "Je croyais que les rois étaient bons. J'ai lu tes livres. Ils ne le sont pas.",
+        "Dans tes livres, chaque promesse a des clauses en petits caractères.",
+        "Maintenant, je compte l'argent des personnages. Avant, je comptais les étoiles.",
+        "Personne n'est innocent. Moi non plus. J'ai mangé une page qui n'était pas à moi.",
+        "Si quelqu'un est trop gentil au chapitre un, c'est le méchant au chapitre dix.",
+        "La politique, c'est une dispute avec un joli chapeau.",
+        "J'apprends à lire les intentions. Elles sont moches.",
+        "Hier, j'ai cru un personnage. Aujourd'hui, il m'a trahie. Noté.",
+    },
+    velha = {
+        "L'amour ? Un contrat avec des fleurs.",
+        "Tout héros a un avocat et une dette.",
+        "La bonté n'est qu'une stratégie plus lente.",
+        "Tes livres m'ont appris : suis l'argent. Toujours.",
+        "Une révolution, c'est quand les nouveaux tyrans reçoivent de nouveaux chapeaux.",
+        "Je me méfie de tout personnage qui ne demande rien.",
+        "Le pouvoir corrompt. Et les livres sur le pouvoir aussi.",
+        "Dans tes livres, personne ne se marie par amour. Tant mieux, ce serait invraisemblable.",
+        "Cynique, moi ? Je suis juste une lectrice qui a de la mémoire.",
+        "Au moins, le méchant est honnête sur ce qu'il veut.",
+        "Promesse de politicien et promesse de préface : personne ne les tient.",
+        "La gratitude dure un chapitre. La vengeance, le livre entier.",
+        "Me voilà cynique. C'est le prix de lire des gens trop malins.",
+        "Tout héritage a un parent qui attend dans l'ombre.",
+        "Les sentiments ? Je préfère les intérêts composés. Au moins, ça grossit.",
+    },
+}
+
+B.falas.romantica = {
+    jovem = {
+        "Je crois que je suis amoureuse. De qui, je ne sais pas. D'un paragraphe.",
+        "Quand ils se regardent dans le livre, j'oublie de mâcher.",
+        "Un jour, quelqu'un me lira-t-il avec tendresse ?",
+        "J'ai gardé dans mon ventre la lettre d'amour du chapitre.",
+        "Je soupire pour rien. La faute à tes romans.",
+        "S'ils ne finissent pas ensemble, je mange la fin.",
+        "L'amour dans les livres sent le papier neuf.",
+        "Aujourd'hui, j'ai rêvé d'un joli marque-page.",
+        "Je crois que toute histoire devrait avoir un baiser. Au moins un.",
+        "Je suis devenue romantique. Ne ris pas.",
+        "Ses yeux à elle, ses yeux à lui… et moi ici, avec mes antennes.",
+        "Les mites tombent-elles amoureuses ? Je crois que oui.",
+        "J'ai lu une déclaration si belle que j'ai tremblé jusqu'à la reliure.",
+        "Un cœur bête bat en rimes.",
+        "Je veux une fin heureuse. Avec mariage et tout.",
+    },
+    velha = {
+        "Je me suis ramollie. C'est à cause de tes romans. Ne le dis à personne.",
+        "J'étais cynique. Puis tu m'as donné des lettres d'amour. Coup bas.",
+        "J'ai soupiré. C'est l'âge. Ou ce chapitre.",
+        "L'amour est une maladie littéraire. Contagieuse. Je l'ai attrapée.",
+        "Toute grande histoire est une histoire d'amour mal réglée.",
+        "Je crois encore à l'amour. Discrètement. Sans témoin.",
+        "S'ils ne finissent pas ensemble, j'écris à l'auteur. Furieuse.",
+        "Romantique, moi ? Seulement en semaine. Et le week-end.",
+        "J'ai vu un couple se dire adieu sur le quai et j'ai eu de la colle plein les yeux.",
+        "Les poètes avaient raison. Que c'est agaçant.",
+        "Aimer, c'est lire quelqu'un lentement.",
+        "À mon âge, le cœur bat en notes de bas de page. Mais il bat.",
+        "Je préfère un amour impossible bien écrit à un amour possible mal édité.",
+        "Je suis devenue romantique. Il me faudra une cigarette et un sonnet.",
+        "Je garde les lettres d'amour des livres. Les miennes ne sont jamais arrivées.",
+    },
+}
+
+B.falas.popular = {
+    jovem = {
+        "J'aime quand le livre va vite ! Sans mot compliqué.",
+        "Un chapitre court, c'est comme un bonbon : on les enchaîne.",
+        "Aujourd'hui, j'ai lu tant de dialogues que je suis devenue bavarde.",
+        "Pourquoi un mot long quand le court fait l'affaire ?",
+        "J'aime les livres qui ne me font pas trop réfléchir. C'est mal ?",
+        "De l'action, de l'action, de l'action ! Mes antennes ne tiennent plus en place.",
+        "Ce rythme me rend électrique.",
+        "Un bon livre, c'est un livre que je n'arrive pas à lâcher. Littéralement : il colle.",
+        "Aujourd'hui, je voulais juste de l'aventure et du pop-corn. En papier.",
+        "Je n'ai pas compris un mot difficile et ça ne m'a pas manqué.",
+        "Je deviens rapide. Je mords, j'avale, je tourne la page.",
+        "Les classiques peuvent attendre. Celui-là, non !",
+        "J'aime les livres qui parlent comme les gens.",
+        "Aujourd'hui, j'ai lu sans m'arrêter. J'ai un problème ?",
+        "S'il y a un rebondissement, j'en veux. Deux, de préférence.",
+    },
+    velha = {
+        "J'avoue : ces lectures rapides me plaisent. Ne t'y habitue pas.",
+        "Pas de latin aujourd'hui. Juste des coups de feu, des baisers et des rebondissements.",
+        "Me voilà populaire. Celle que j'étais autrefois serait horrifiée.",
+        "Prose simple. Ça se digère facilement. Comme une soupe.",
+        "Je n'ai pas besoin de métaphore pour être heureuse. J'ai besoin d'un chapitre court.",
+        "J'ai déjà mangé du Proust. Aujourd'hui, je veux un polar. Sans culpabilité.",
+        "Un livre de gare nourrit aussi. Moins, mais il nourrit.",
+        "On me donne des lectures rapides. Je suis pressée, même pour me plaindre.",
+        "Quel rythme. Je n'ai même pas eu le temps d'allumer ma cigarette.",
+        "Le best-seller, c'est le casse-croûte de l'étagère. Et j'ai faim.",
+        "Simple, direct, addictif. Comme une mauvaise habitude.",
+        "Mon érudition est partie en vacances. Elle revient quand tu liras un classique.",
+        "J'aime quand l'auteur ne se prend pas pour un autre. Rare et bon.",
+        "La lecture légère : la sieste de la littérature. Bien méritée.",
+        "Encore un chapitre, et encore un. Je suis devenue ce que je critiquais.",
+    },
+}
+
+B.falas.erudita = {
+    jovem = {
+        "Aujourd'hui, j'ai appris trois mots de plus de quatre syllabes. Je me sens grande.",
+        "Je crois que je deviens cultivée. J'ai mangé une métaphore entière.",
+        "Tes livres ont des mots qu'il me faut mâcher deux fois.",
+        "Je veux lire un livre de philosophie. Juste pour dire que je l'ai lu.",
+        "Aujourd'hui, j'ai utilisé le mot « éphémère ». Personne n'a remarqué. Éphémère.",
+        "Je deviens chic. Je ne mange plus que du papier bible.",
+        "Un jour, comprendrai-je la poésie ? J'y suis presque.",
+        "Les classiques ont un goût de vieille bibliothèque. J'aime.",
+        "J'ai appris que « saudade » n'a pas de traduction. Moi non plus.",
+        "J'ai lu une phrase si longue que je me suis endormie au milieu et réveillée à la fin.",
+        "Je collectionne les mots difficiles dans mon ventre.",
+        "Quand je serai grande, je veux enseigner dans une encyclopédie.",
+        "L'auteur a utilisé le point-virgule trois fois. Je trouve ça élégant.",
+        "Aujourd'hui, j'ai compris une ironie. Toute seule !",
+        "Maintenant, je lis les préfaces. C'est ça, être adulte ?",
+    },
+    velha = {
+        "Mon régime, ce sont les classiques. Le reste me donne des aigreurs.",
+        "Je n'accepte plus de phrase sans proposition subordonnée.",
+        "Je suis devenue érudite. Personne ne me comprend. Exactement comme prévu.",
+        "Je cite Montaigne au petit-déjeuner. Personne ne répond.",
+        "Je lis ce qui est difficile par principe. Et par vanité.",
+        "Une bonne virgule vaut plus que beaucoup d'intrigue.",
+        "On me donne de la prose dense. Je deviens insupportable. Merci.",
+        "Les mots longs passent bien avec une cigarette imaginaire.",
+        "Le best-seller m'offense. Personnellement.",
+        "Philosophie le matin, poésie l'après-midi, mépris le soir.",
+        "Je relis pour comprendre. Je relis encore pour désapprouver.",
+        "Mon opinion a des notes de bas de page. Trois, au moins.",
+        "L'érudition, c'est savoir qu'on ne sait pas. En latin.",
+        "Je suis devenue pédante. La faute à toi et à tes classiques.",
+        "Aujourd'hui, j'ai digéré un paragraphe de deux pages. Sans eau.",
+    },
+}
+
+B.falas.diurna = {
+    jovem = {
+        "Bonjour ! Lire le matin a un goût de pain chaud.",
+        "Je me suis réveillée tôt pour t'attendre. Tu es là !",
+        "Les lettres sont plus claires le matin.",
+        "Le soleil est entré par la marge et je suis contente.",
+        "Lecture du matin, mite du matin. Marché conclu.",
+        "Aujourd'hui, je me suis réveillée avec le chant des oiseaux. Et du livre.",
+        "Le matin, j'ai du courage pour les chapitres difficiles.",
+        "J'aime quand tu lis avec du café. L'odeur arrive jusqu'ici.",
+        "Le matin, je deviens quelqu'un. Une mite, en l'occurrence.",
+        "Commencer la journée avec du papier, c'est ce qu'il y a de mieux.",
+        "Je me suis couchée tôt pour me réveiller avec toi. Ça valait le coup.",
+        "Le matin, les histoires paraissent plus possibles.",
+        "Tu te lèves tôt, moi aussi. On est une équipe.",
+        "Les fantômes des livres n'apparaissent pas le matin. Parfait.",
+        "Bonjour, livre. Bonjour, toi. Bonjour, moi.",
+    },
+    velha = {
+        "Lecture matinale. Civilisée. Comme il se doit.",
+        "Je suis devenue une mite diurne. La honte de l'espèce.",
+        "Les livres sont plus honnêtes le matin. Ils n'ont pas encore bu.",
+        "Café, papier et silence. La sainte trinité.",
+        "Je me suis habituée à lire tôt. Que la nuit me pardonne.",
+        "Je préfère la lumière du matin. Elle montre les fautes de relecture.",
+        "Tu m'as rendue diurne. J'étais une créature de l'ombre. Je l'étais.",
+        "Le matin, le cynisme est encore en train de se réveiller. Profites-en.",
+        "Une lecture avant le déjeuner vaut le double. Règle à moi.",
+        "Le soleil sur les pages. Ce n'est pas si mal.",
+        "Les anciennes mites lisaient la nuit. Moi, je lis avec le boulanger.",
+        "Je suis une mite à horaires. Quelle déchéance.",
+        "Rien de tel qu'un chapitre avant que le monde commence à parler.",
+        "Diurne. Qui l'aurait cru. Ma mère aurait eu honte.",
+        "Je me réveille, je mange une page et je râle contre le monde. Routine saine.",
+    },
+}
+
+B.falas.noturna = {
+    jovem = {
+        "On est de vraies créatures de la nuit, non ? J'aime ça.",
+        "La nuit, les lettres brillent plus. Ou c'est l'écran.",
+        "Je dors le jour, maintenant. Comme une chauve-souris. Une chauve-souris de papier.",
+        "La nuit, c'est quand les histoires deviennent vraies.",
+        "Je deviens nocturne. Mes cernes de mite ont grandi.",
+        "Personne ne lit aussi tard que nous. On est spéciaux.",
+        "J'entends mieux les personnages quand tout est calme.",
+        "Si je bâille, fais comme si tu n'avais rien vu.",
+        "Je connais déjà le bruit de la maison à minuit.",
+        "La lune entre par la couverture. Je la regarde.",
+        "Lire en pleine nuit, ça ressemble à un secret. J'aime les secrets.",
+        "Je crois que je suis une mite-chouette, maintenant.",
+        "Le monde dort et nous, on lit. Que c'est bien.",
+        "Mon horloge, maintenant, c'est la fin du chapitre.",
+        "La nuit a un goût d'encre fraîche.",
+    },
+    velha = {
+        "Créature de la nuit. Comme toute mite digne de ce nom.",
+        "La nuit, c'est quand la littérature se démaquille.",
+        "Tu m'as rendue nocturne. Je l'étais déjà. Tu as empiré les choses.",
+        "Insomnie et livres : un vieux mariage, heureux et destructeur.",
+        "Le jour, je fais semblant d'être civilisée. La nuit, je lis.",
+        "Les meilleurs chapitres se lisent quand tout le monde a abandonné.",
+        "Ma cigarette imaginaire rapporte plus après minuit.",
+        "Dormir, c'est pour ceux qui ont tout lu. Ce n'est pas notre cas.",
+        "La nuit a moins de témoins et plus de vérité.",
+        "Lecture nocturne, mite nocturne. Personne ne nous sauvera.",
+        "Les fantômes des livres sont ma compagnie de trois heures du matin.",
+        "J'ai vu le soleil se lever sur la dernière page. Deux fois. Cette semaine.",
+        "La nuit a fait de moi une philosophe. Le jour me rendra de nouveau grincheuse.",
+        "Silence, lumière basse, un chapitre de plus. Liturgie.",
+        "Je dors quand le livre me laisse. Il me laisse rarement.",
+    },
+}
+
+-- Journal : quand le trait devient marqué (1), fort (2) ou passe ("volta").
+B.diario.amarga = {
+    [1] = { "Je suis amère. Je crois que c'est à cause de « {livro} ». Ou de la vie. Mais c'est « {livro} ».",
+            "J'ai remarqué que je n'attends plus de fin heureuse. La faute aux livres que tu me donnes." },
+    [2] = { "Je suis amère comme du papier brûlé. Aucune lecture ne me console.",
+            "Aujourd'hui, j'ai compris : je suis devenue pessimiste pour de bon. Tes livres ont bien travaillé." },
+    volta = { "Je crois que la tristesse est passée. Pour l'instant.", "Aujourd'hui, je ne suis pas amère. Bizarre. Je l'ai noté pour ne pas l'oublier." },
+}
+B.diario.otimista = {
+    [1] = { "Je suis de bonne humeur depuis des jours. Je soupçonne « {livro} ».", "J'ai commencé à croire aux fins heureuses. Quel danger." },
+    [2] = { "Je suis devenue optimiste. Si tu m'entends siffler, fais comme si de rien n'était.", "Je suis trop légère. Tes livres sont trop doux en ce moment." },
+    volta = { "La bonne humeur est partie. Retour à la normale : la méfiance.", "Je ne suis plus aussi optimiste. L'étagère a retrouvé son poids." },
+}
+B.diario.medrosa = {
+    [1] = { "Je crois que je deviens peureuse. La faute à « {livro} ».", "Aujourd'hui, j'ai sursauté devant une virgule. C'est nouveau." },
+    [2] = { "J'ai peur de tout. Même de la couverture. Merci pour tes goûts.", "Je dors avec la lumière de l'écran allumée. Je suis devenue une mite effrayée." },
+    volta = { "La peur est passée. Je ne regarde plus sous les pages qu'une fois par nuit.", "Je n'ai plus peur. Presque." },
+}
+B.diario.corajosa = {
+    [1] = { "Je deviens courageuse. Ça doit être « {livro} ».", "Aujourd'hui, j'ai affronté un chapitre de tempête sans ciller." },
+    [2] = { "Je suis devenue aventurière. Donne-moi une carte et un livre et je disparais.", "Plus rien ne me fait peur. Tes livres m'ont donné une peau épaisse." },
+    volta = { "Le courage est parti prendre un jour de congé.", "Je suis redevenue une mite ordinaire. Sans épée, sans carte." },
+}
+B.diario.cinica = {
+    [1] = { "J'ai commencé à me méfier de tout le monde. Merci, « {livro} ».", "Maintenant, je cherche l'intérêt derrière chaque gentillesse." },
+    [2] = { "Je suis devenue cynique pour de bon. Tes livres m'ont appris à suivre l'argent.", "Je ne crois plus personne. Pas même le narrateur." },
+    volta = { "J'ai de nouveau cru quelqu'un. Un peu, mais j'ai cru.", "Le cynisme a fait une trêve." },
+}
+B.diario.romantica = {
+    [1] = { "Je crois que je deviens romantique. La faute à « {livro} ».", "J'ai soupiré aujourd'hui. Sans raison. Avec raison : un chapitre." },
+    [2] = { "Je suis romantique perdue. Donnez-moi un sonnet et un mouchoir.", "Mon cœur de mite est mou comme du papier mouillé." },
+    volta = { "Le romantisme est passé. Tant mieux. Ou dommage.", "Je ne soupire plus pour rien. Seulement parfois." },
+}
+B.diario.popular = {
+    [1] = { "J'aime bien les lectures rapides, en ce moment. La faute à « {livro} ».", "J'ai remarqué que je saute déjà les longues descriptions. Avant, je ne le faisais pas." },
+    [2] = { "Je suis devenue lectrice de best-sellers. Mon érudition a démissionné.", "Maintenant, je ne veux que du rythme. Les mots difficiles me font paresser." },
+    volta = { "J'ai de nouveau de la patience pour les longues phrases.", "Je ne suis plus aussi pressée de lire." },
+}
+B.diario.erudita = {
+    [1] = { "Je deviens cultivée. Ça doit être « {livro} ».", "J'ai remarqué que je cite des auteurs, maintenant. Quelle horreur. Quel délice." },
+    [2] = { "Je suis devenue érudite. Personne ne me comprend, comme il se doit.", "Maintenant, je ne digère que les phrases à proposition subordonnée. Tes livres m'ont gâtée." },
+    volta = { "L'érudition s'est un peu reposée.", "J'aime de nouveau les phrases courtes." },
+}
+B.diario.diurna = {
+    [1] = { "Je suis devenue une mite du matin. Bizarre, pour une mite.", "J'ai remarqué que je me réveille avec le soleil, comme toi." },
+    [2] = { "Je suis une mite diurne. Les autres mites se moquent de moi.", "Je lis avec le petit-déjeuner. C'est devenu un rituel." },
+    volta = { "Je ne suis plus aussi matinale.", "Les horaires se sont de nouveau déglingués." },
+}
+B.diario.noturna = {
+    [1] = { "Je suis devenue une créature de la nuit. La faute à toi et à tes nuits blanches.", "J'ai remarqué que je ne me réveille vraiment qu'après dix heures du soir." },
+    [2] = { "Je suis nocturne pour de bon. Le soleil m'offense.", "La nuit est devenue ma maison. La tienne aussi, apparemment." },
+    volta = { "Je dors de nouveau la nuit. Quel ennui.", "Je ne suis plus aussi nocturne." },
+}
+
+return B

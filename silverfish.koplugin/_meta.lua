@@ -3,10 +3,12 @@ local g = rawget(_G, "G_reader_settings")
 local escolha = g and g:readSetting("traca_lingua")
 local lingua = g and g:readSetting("language") or "en"
 local ingles = escolha == "en" or (escolha ~= "pt" and not tostring(lingua):match("^pt"))
+local frances = escolha == "fr" or (escolha == nil and tostring(lingua):match("^fr"))
 
 return {
     version = "2.0.0",
-    fullname = ingles and "Silverfish" or "Traça",
-    description = ingles and [[A virtual pet silverfish that eats the pages you read.]]
+    fullname = frances and "La Mite" or ingles and "Silverfish" or "Traça",
+    description = frances and [[Une petite bête virtuelle qui se nourrit des pages que tu lis.]]
+        or ingles and [[A virtual pet silverfish that eats the pages you read.]]
         or [[Um bichinho virtual que se alimenta das letras que você lê.]],
 }

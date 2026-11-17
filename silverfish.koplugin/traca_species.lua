@@ -175,7 +175,13 @@ end
 
 --- Module name of the bank `name` of the active species, in the current language (or in `language`).
 function Species.bankModule(name, language)
-    return current.banks .. "." .. name .. "_" .. (language or Lingua.codigo())
+    local lang = language or Lingua.codigo()
+    local mod = current.banks .. "." .. name .. "_" .. lang
+    -- fork FR : banque pas encore traduite (le Chat des cendres) → anglais, comme le faisait la 1.1.0
+    if lang == "fr" and not language and not pcall(require, mod) then
+        mod = current.banks .. "." .. name .. "_en"
+    end
+    return mod
 end
 
 local sprite_sets = {}  -- per species and mode: "<species>" and "<species>:cor"

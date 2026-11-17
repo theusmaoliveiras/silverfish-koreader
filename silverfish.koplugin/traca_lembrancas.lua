@@ -34,9 +34,10 @@ L.CLIMA_FALA = false           -- nível C: "nada tão sombrio/leve desde" calcu
 
 local MESES = {
     pt = { "janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro" },
+    fr = { "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre" },
     en = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" },
 }
-local function mes(t) return MESES[Lingua.ingles() and "en" or "pt"][tonumber(os.date("%m", t))] end
+local function mes(t) return (MESES[Lingua.codigo()] or MESES.en)[tonumber(os.date("%m", t))] end
 
 local function preencher(modelo, v)
     return (modelo:gsub("{([%w_]+)}", function(k) return v[k] ~= nil and tostring(v[k]) or ("{" .. k .. "}") end))

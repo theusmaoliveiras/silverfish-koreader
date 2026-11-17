@@ -147,7 +147,7 @@ EN.ui = {
     ["AINDA SEM OPINIÕES. LEIA MAIS."] = "NO OPINIONS YET. READ MORE.",
     ["Meu diário está vazio. Como a sua estante."] = "My diary is empty. Like your bookshelf.",
     ["BARRIGA"] = "BELLY", ["%s · %d PÁG. HOJE"] = "%s · %d PG TODAY", ["HUMOR"] = "MOOD",
-    ["%s PÁG. COMIDAS"] = "%s PAGES EATEN",
+    ["%s PÁG. COMIDAS"] = "%s PAGES EATEN", ["%s PÁG. COMIDA"] = "%s PAGE EATEN",
     ["GER. %d"] = "GEN. %d",
     ["OVO"] = "EGG", ["NINFA"] = "NYMPH", ["JOVEM"] = "YOUNG", ["ANCIÃ"] = "ELDER",
     ["O OVO"] = "THE EGG", ["NASCER"] = "HATCH", ["PÁG. PARA"] = "PAGE TO", ["PÁGS. PARA"] = "PAGES TO",

@@ -755,7 +755,8 @@ function TracaTela:cartoesStatus(bb, s, agora)
     if cheio > 0 then self:ret(bb, ix + 14, iy + 64, cheio, 6, PRETO) end
     self:retangulos(bb, ICONE_AMPULHETA, ix, iy, CINZA_55)
     -- até a borda do cartão (ix + 171), com folga
-    self:textoQueCabe(bb, string.format(Species.texto("paginas"), Desenho.milhar(s.paginas)), ix + 30, iy + 77, false, 10,
+    local fmt_pag = ((s.paginas or 0) <= 1 and Species.current().id == "traca") and T"%s PÁG. COMIDA" or Species.texto("paginas")  -- singulier (fork FR)
+    self:textoQueCabe(bb, string.format(fmt_pag, Desenho.milhar(s.paginas)), ix + 30, iy + 77, false, 10,
         CINZA_55, 137)
 end
 
@@ -1692,13 +1693,14 @@ function TracaTela:menuIdioma()
             if valor == atual then return end
             Lingua.salvarEscolha(valor)
             UIManager:show(require("ui/widget/infomessage"):new{
-                text = "Reinicie o KOReader para trocar o idioma.\nRestart KOReader to change the language.",
+                text = "Reinicie o KOReader para trocar o idioma.\nRestart KOReader to change the language.\nRedémarre KOReader pour changer de langue.",
             })
         end }}
     end
     dialogo = ButtonDialog:new{
         title = T"Idioma da Traça",
-        buttons = { opcao(T"Automático (idioma do KOReader)", "auto"), opcao("Português", "pt"), opcao("English", "en") },
+        buttons = { opcao(T"Automático (idioma do KOReader)", "auto"), opcao("Português", "pt"), opcao("English", "en"),
+            opcao("Français", "fr") },
     }
     UIManager:show(dialogo)
 end

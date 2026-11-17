@@ -294,7 +294,8 @@ local function gerarDe(g, dados, sorteio)
     if a ~= "" and not nucleo:match("^{") and not nucleo:match("^I[%s']")
             and (a:sub(-1) == ":" or a:sub(-3) == "mas" or a:sub(-3) == "but" or a:sub(-1) == ","
             or a == "Sabia que…" or a == "Acho que…" or a == "Pensei bastante e" or a == "I think…"
-            or a == "I've thought about it and") then
+            or a == "I've thought about it and"
+            or a:sub(-4) == "mais" or a:find("que…$") or a:find("que$")) then  -- francês: "Je crois que…", "mais"
         nucleo = nucleo:gsub("^(%u)", string.lower)
     end
     nucleo = nucleo:gsub("{(%a+)}", function(b) return dados[b] end)

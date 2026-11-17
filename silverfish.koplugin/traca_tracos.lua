@@ -124,7 +124,7 @@ function Tracos.empurrao(sinal, hora, bruto)
     end
     -- (o tamanho médio das palavras empurrava o gosto; saiu em 25/10/2026: decidia 70–83% do traço e
     -- chamava quase toda prosa de "popular", Henry James e Dostoiévski inclusive)
-    local base = not bruto and Tracos.BASE and Tracos.BASE[sinal.pt and "pt" or "en"]
+    local base = not bruto and Tracos.BASE and Tracos.BASE[sinal.lingua or (sinal.pt and "pt" or "en")]
     local ausente = {}
     if base then
         for _, id in ipairs(Tracos.CENTRADOS) do
@@ -143,19 +143,19 @@ end
 --- Empurrão médio de uma página, por língua, num corpus (linhas de livros30.txt; `fora`: livros a
 -- ignorar). Usado por ferramentas/validacao/calcular_base_tracos.lua e pela régua da personalidade.
 function Tracos.mediaDasPaginas(M, linhas, fora)
-    local soma, n, livro = { en = {}, pt = {} }, { en = 0, pt = 0 }, nil
+    local soma, n, livro = { en = {}, pt = {}, fr = {} }, { en = 0, pt = 0, fr = 0 }, nil
     for linha in linhas do
         local t = linha:match("^#LIVRO\t(.*)")
         if t then livro = t
         elseif not linha:match("^#") and livro and not (fora and fora[livro]) then
             local sn = M.sinais(linha, livro)
-            local lg = sn.pt and "pt" or "en"
+            local lg = sn.lingua or (sn.pt and "pt" or "en")
             local e = Tracos.empurrao(sn, nil, true)
             n[lg] = n[lg] + 1
             for _, id in ipairs(Tracos.CENTRADOS) do soma[lg][id] = (soma[lg][id] or 0) + e[id] end
         end
     end
-    local base = { en = {}, pt = {} }
+    local base = { en = {}, pt = {}, fr = {} }
     for lg, sm in pairs(soma) do
         for _, id in ipairs(Tracos.CENTRADOS) do base[lg][id] = (sm[id] or 0) / math.max(1, n[lg]) end
     end

@@ -73,7 +73,8 @@ function Voz.dominioDoLivro(s)
     local L = s and s.ultimo_livro and s.livros and s.livros[s.ultimo_livro]
     local paginas = L and L.paginas or 0
     if paginas < Voz.LIVRO_MIN_PAGINAS then return nil end
-    local lg = (L.paginas_pt or 0) * 2 > paginas and "pt" or "en"
+    local okM, M = pcall(require, "traca_memoria")
+    local lg = okM and M.linguaDoLivro and M.linguaDoLivro(L) or ((L.paginas_pt or 0) * 2 > paginas and "pt" or "en")
     local media = Voz.BASE_TEMAS and Voz.BASE_TEMAS[lg] or {}
     local melhor, nota = nil, 0
     for t, c in pairs(L.temas or {}) do

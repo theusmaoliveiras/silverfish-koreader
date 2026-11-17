@@ -192,11 +192,12 @@ local function textoCentrado(bb, texto, face, largura_tela, y, largura_max)
     return tam.h
 end
 
-local function milhar(n)  -- 1.234 em português, 1,234 em inglês
-    local sep = require("traca_lingua").ingles() and "," or "."
+local function milhar(n)  -- 1.234 em português, 1,234 em inglês, 1 234 em francês (espaço fina inquebrável)
+    local Lingua = require("traca_lingua")
+    local sep = Lingua.ingles() and "," or Lingua.frances() and "\194\160" or "."
     local s = tostring(math.floor(n))
-    local r = s:reverse():gsub("(%d%d%d)", "%1" .. sep):reverse()
-    return (r:gsub("^%p", ""))
+    local r = s:reverse():gsub("(%d%d%d)", "%1|"):reverse()
+    return (r:gsub("^|", ""):gsub("|", sep))
 end
 Desenho.milhar = milhar
 
@@ -234,7 +235,7 @@ function Desenho.gerarTelaDescanso(s, caminho, agora)
     end
 
     local fase = Estado.fase(s)
-    local rodape = string.format("%s · %s letras comidas", fase.titulo, milhar(s.letras))
+    local rodape = string.format(require("traca_lingua").t("%s · %s letras comidas"), fase.titulo, milhar(s.letras))
     textoCentrado(bb, rodape, Font:getFace("cfont", 18), w, h - math.floor(h * 0.08), w - 2 * margem)
 
     local ok, err = pcall(bb.writePNG, bb, caminho)
