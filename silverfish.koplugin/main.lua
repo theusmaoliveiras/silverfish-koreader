@@ -87,6 +87,13 @@ function Traca:init()
     else
         logger.warn("Traça: integração com o Simple UI indisponível:", Integracao)
     end
+    -- widget na tela inicial do ZenOS, se ele estiver instalado
+    local okZ, Zen = pcall(require, "traca_zenos")
+    if okZ then
+        Zen.registrar(self)
+    else
+        logger.warn("Traça: integração com o ZenOS indisponível:", Zen)
+    end
 end
 
 function Traca:onDispatcherRegisterActions()
@@ -126,6 +133,8 @@ end
 
 function Traca:onCloseWidget()
     fecharTelas(self)
+    local okZ, Zen = pcall(require, "traca_zenos")
+    if okZ then Zen.soltar(self) end
 end
 
 function Traca:onMostrarTraca()

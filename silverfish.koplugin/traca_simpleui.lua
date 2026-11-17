@@ -85,25 +85,66 @@ local Cartao = Widget:extend{ traca = nil, largura = 0 }
 function Cartao:init()
     self.u = math.max(2, math.floor(Screen:getWidth() / 618 * 3 + 0.5))   -- "pixel" do balão (3 pontos do Figma)
     self.escala = math.max(2, math.floor(Screen:getHeight() * 0.16 / Desenho.ALTURA))
+    -- altura_fixa: a tela inicial (ZenOS) já decidiu a altura da linha; a Traça encolhe para caber
+    -- e fica centralizada nela.
+    if self.altura_fixa then
+        self.escala = math.max(1, math.min(self.escala, math.floor(self.altura_fixa / Desenho.ALTURA)))
+    end
     self.lado = self.escala * Desenho.ALTURA
-    self.altura = self.lado
+    self.altura = self.altura_fixa or self.lado
 end
 
 function Cartao:getSize()
     return Geom:new{ w = self.largura, h = self.altura }
 end
 
+-- Pixels de verdade do desenho dentro do quadro 64x64: esquerda, topo, direita, base (a partir de 0).
+local caixas = {}
+local function caixaReal(nome)
+    local real = Desenho.resolver(nome)
+    if caixas[real] then return caixas[real] end
+    local e, t, d, b = math.huge, nil, -1, -1
+    for j, l in ipairs(Desenho.sprite(real) or {}) do
+        local i1 = l:find("[^ ]")
+        if i1 then
+            local i2 = #l - (l:reverse():find("[^ ]")) + 1
+            t = t or (j - 1)
+            b = j - 1
+            e = math.min(e, i1 - 1)
+            d = math.max(d, i2 - 1)
+        end
+    end
+    local caixa = t and { e, t, d, b } or { 0, 0, Desenho.LARGURA - 1, Desenho.ALTURA - 1 }
+    caixas[real] = caixa
+    return caixa
+end
+
 function Cartao:paintTo(bb, x, y)
     self.dimen = Geom:new{ x = x, y = y, w = self.largura, h = self.altura }
     local s, agora = self.traca.estado, os.time()
     Estado.passarTempo(s, agora)
-    Desenho.pintarSprite(bb, Estado.sprite(s, agora), x, y, self.escala)
-
+    local nome = Estado.sprite(s, agora)
     local u, PRETO, BRANCO = self.u, Blitbuffer.COLOR_BLACK, Blitbuffer.COLOR_WHITE
-    local bx = x + self.lado + 4 * u          -- começo do balão (o rabinho fica antes)
-    local bw = math.floor((self.largura - (bx - x) - 2 * u) * 0.72)  -- não ocupa a largura toda
-    local bh = math.floor(self.altura * 0.62)
+    local bh = math.floor(self.lado * 0.62)
     local by = y + math.floor((self.altura - bh) / 2)
+    local bx, bw
+    if self.altura_fixa then
+        -- ZenOS: o desenho (sem a sobra do quadro) e o balão formam um grupo centralizado na linha,
+        -- e o meio do desenho fica na altura do meio do balão.
+        local c = caixaReal(nome)
+        local sw = (c[3] - c[1] + 1) * self.escala
+        local sh = (c[4] - c[2] + 1) * self.escala
+        bw = math.floor((self.largura - sw - 6 * u) * 0.72)
+        local gw = sw + 4 * u + bw + 2 * u      -- desenho, rabinho, balão e sombra
+        local x0 = x + math.floor((self.largura - gw) / 2)
+        Desenho.pintarSprite(bb, nome, x0 - c[1] * self.escala,
+            by + math.floor((bh - sh) / 2) - c[2] * self.escala, self.escala)
+        bx = x0 + sw + 4 * u
+    else
+        Desenho.pintarSprite(bb, nome, x, y, self.escala)
+        bx = x + self.lado + 4 * u          -- começo do balão (o rabinho fica antes)
+        bw = math.floor((self.largura - (bx - x) - 2 * u) * 0.72)  -- não ocupa a largura toda
+    end
     local function r(rx, ry, rw, rh, cor) bb:paintRect(rx, ry, rw, rh, cor) end
     -- sombra, fundo e borda com cantos recortados
     r(bx + 3 * u, by + 2 * u, bw - 2 * u, bh, PRETO)
@@ -136,21 +177,35 @@ function Cartao:paintTo(bb, x, y)
         local menor = fonte(4 * u)
         if contarLinhas(texto, menor, largura) <= MAX_LINHAS then face = menor end
     end
-    local caixa = TextBoxWidget:new{
-        text = texto,
-        face = face,
-        width = largura,
-        height = bh - 2 * pad,
-        height_overflow_show_ellipsis = true,
-        alignment = "center",
-    }
+    -- mede sem altura fixa (com altura, o TextBoxWidget diz que ocupa tudo e o texto vai para o topo);
+    -- só limita a altura se não couber
+    local caixa = TextBoxWidget:new{ text = texto, face = face, width = largura, alignment = "center" }
     local th = caixa:getSize().h
+    if th > bh - 2 * pad then
+        caixa:free()
+        caixa = TextBoxWidget:new{
+            text = texto,
+            face = face,
+            width = largura,
+            height = bh - 2 * pad,
+            height_overflow_show_ellipsis = true,
+            alignment = "center",
+        }
+        th = caixa:getSize().h
+    end
     caixa:paintTo(bb, bx + pad, by + math.max(pad, math.floor((bh - th) / 2)))
     caixa:free()
 end
 
 -- Proteção: se o cartão falhar ao desenhar, a Home continua (o cartão fica em branco).
 require("traca_guarda").padrao:envolver(Cartao, { "paintTo" })
+
+-- O ZenOS (traca_zenos.lua) usa o mesmo cartão.
+Integracao.Cartao = Cartao
+-- E o novo cartão do ZenOS (traca_zenos_cartao.lua) usa a mesma fala, a mesma fonte e o mesmo recorte do desenho.
+Integracao.pensamento = textoDoCartao
+Integracao.fonte = fonte
+Integracao.caixaReal = caixaReal
 
 local function criarModulo(traca)
     local M = {}
